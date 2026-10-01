@@ -81,6 +81,38 @@ export interface ExtractedEntities {
   txn_refs: string[];
 }
 
+export type PeriodType = 
+  | 'RAMADAN' 
+  | 'EID_FITR' 
+  | 'EID_ADHA' 
+  | 'POHELA_BOISHAKH' 
+  | 'PUJA_PERIOD' 
+  | 'SALARY_DAY' 
+  | 'MONTH_END' 
+  | 'WEEKEND' 
+  | 'NORMAL_DAY';
+
+export interface TemporalContext {
+  period_type: PeriodType;
+  period_name: string;
+  expected_amount_multiplier: number;
+  expected_velocity_multiplier: number;
+  expected_recipient_entropy: number;
+  confidence: number;
+  is_festival: boolean;
+  is_salary_window: boolean;
+}
+
+export interface TemporalFeatures {
+  seasonal_amount_zscore: number;
+  period_adjusted_velocity: number;
+  salary_day_deviation: number;
+  festival_deviation: number;
+  expected_recipient_deviation: number;
+  temporal_behavior_similarity: number;
+  temporal_context: TemporalContext;
+}
+
 export interface CampaignLinkingResult {
   linked_wallet?: string;
   previous_reports_count: number;

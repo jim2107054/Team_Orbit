@@ -77,6 +77,20 @@ export const REASON_CODES: Record<string, ReasonCodeDetail> = {
     label_bn: 'নির্দিষ্ট লাইভ ইভেন্ট/খেলার সময়ে অস্বাভাবিক লেনদেন বৃদ্ধি',
     weight: 0.24,
     description: 'Spike in micro-transactions aligned with synthetic sports tournament schedule.'
+  },
+  RC12: {
+    code: 'RC12',
+    label_en: 'Seasonal festival or salary surge aligns with customer baseline',
+    label_bn: 'লেনদেনের পরিমাণ বেশি হলেও উৎসব/বেতনকালীন স্বাভাবিক আচরণের সাথে সঙ্গতিপূর্ণ',
+    weight: -0.25, // Reduces false positive penalty
+    description: 'Amount and velocity match expected temporal multiplier for this segment during festival/salary period.'
+  },
+  RC13: {
+    code: 'RC13',
+    label_en: 'Transaction remains highly anomalous even after seasonal adjustment',
+    label_bn: 'উৎসব বা বিশেষ সময়ের ছাড় দেওয়ার পরও লেনদেনটি চরম অস্বাভাবিক ও ঝুঁকিপূর্ণ',
+    weight: 0.38,
+    description: 'Transaction exceeds 4x seasonal upper bound with high-risk device/network indicators.'
   }
 };
 

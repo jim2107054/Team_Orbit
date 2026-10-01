@@ -1,6 +1,7 @@
 import { repository } from '../db/repository.js';
-import { Transaction } from '../core/types.js';
+import { Transaction, TemporalFeatures } from '../core/types.js';
 import { conversationScamIntelligence } from './conversation-scam-intelligence.js';
+import { temporalRiskIntelligence } from './temporal-risk-intelligence.js';
 
 export interface CalculatedFeatures {
   // Velocity features
@@ -33,6 +34,9 @@ export interface CalculatedFeatures {
   hops_to_known_ring: number;
   scam_check_session_flag: boolean;
   scam_conversation_context_score: number;
+
+  // Bangladesh Temporal Risk Intelligence Features
+  temporal_features: TemporalFeatures;
 }
 
 export class FeatureStoreService {
@@ -136,6 +140,20 @@ export class FeatureStoreService {
     // Point-in-Time Conversation Scam Score
     const scamConvScore = conversationScamIntelligence.getContextScoreForEntity(receiverWalletId);
 
+    // Bangladesh Temporal Risk Intelligence Feature Computation
+    const senderCustomer = senderWallet ? await repository.getCustomerById(senderWallet.customer_id) : null;
+    const userSegment = senderCustomer ? senderCustomer.segment : 'salaried';
+
+    const temporalFeatures = temporalRiskIntelligence.computeTemporalFeatures(
+      amountBdt,
+      baseline.avgAmount,
+      baseline.stdAmount,
+      count1h,
+      recipientSet.size,
+      userSegment,
+      txnTimestamp
+    );
+
     return {
       txn_count_1m: count1m,
       txn_count_10m: count10m,
@@ -159,7 +177,8 @@ export class FeatureStoreService {
       recipient_report_count: reports.length,
       hops_to_known_ring: 2, // dynamic from graph engine
       scam_check_session_flag: scamCheckFlag || (scamConvScore > 0.5),
-      scam_conversation_context_score: scamConvScore
+      scam_conversation_context_score: scamConvScore,
+      temporal_features: temporalFeatures
     };
   }
 }

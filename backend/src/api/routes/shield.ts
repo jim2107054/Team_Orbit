@@ -10,6 +10,8 @@ import { simulatorService } from '../../services/simulator-service.js';
 import { monitoringService } from '../../services/monitoring-service.js';
 import { agentGuard } from '../../services/agent-guard.js';
 import { auditService } from '../../services/audit-service.js';
+import { channelRiskService } from '../../services/channel-risk-service.js';
+import { scamCampaignService } from '../../services/scam-campaign-service.js';
 import { BANGLA_TEMPLATES } from '../../core/constants.js';
 import { AlertCase } from '../../core/types.js';
 
@@ -263,6 +265,98 @@ shieldRouter.post('/interventions', async (req: Request, res: Response) => {
     return res.json({ success: true, intervention_id: interventionId, status: 'LOGGED' });
   } catch (err: any) {
     return res.status(500).json({ error: { code: 'INTERVENTION_LOG_FAILED', message: err.message } });
+  }
+});
+
+// ================= SCAM CAMPAIGN INTELLIGENCE ROUTES =================
+// 1. Get all discovered scam campaigns
+shieldRouter.get('/campaigns', async (req: Request, res: Response) => {
+  try {
+    const campaigns = scamCampaignService.getAllCampaigns();
+    return res.json({
+      success: true,
+      count: campaigns.length,
+      campaigns
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'GET_CAMPAIGNS_FAILED', message: err.message } });
+  }
+});
+
+// 2. Get specific scam campaign with graph and complaints
+shieldRouter.get('/campaigns/:id', async (req: Request, res: Response) => {
+  try {
+    const campaign = scamCampaignService.getCampaignById(req.params.id);
+    if (!campaign) {
+      return res.status(404).json({ error: { code: 'CAMPAIGN_NOT_FOUND', message: `Campaign ${req.params.id} not found` } });
+    }
+    const complaints = scamCampaignService.getCampaignComplaints(req.params.id);
+    return res.json({
+      success: true,
+      campaign,
+      complaints
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'GET_CAMPAIGN_FAILED', message: err.message } });
+  }
+});
+
+// 3. Discover coordinated scam campaigns across recent complaints
+shieldRouter.post('/campaigns/discover', async (req: Request, res: Response) => {
+  try {
+    const result = scamCampaignService.discoverCampaigns();
+    return res.json({
+      success: true,
+      ...result
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'DISCOVER_CAMPAIGNS_FAILED', message: err.message } });
+  }
+});
+
+// 4. Generate 50-complaint synthetic demo scenario
+shieldRouter.post('/campaigns/demo/generate-50', async (req: Request, res: Response) => {
+  try {
+    const complaints = scamCampaignService.generateSyntheticComplaintsBatch(50, 'CAMP_FAKE_CUSTOMER_CARE', 'CAMP-2026-001');
+    return res.json({
+      success: true,
+      message: 'Generated 50 semantically correlated synthetic complaints linked to 8 wallets, 2 devices, 3 agents, and Ring-12',
+      complaint_count: complaints.length,
+      sample_complaints: complaints.slice(0, 5),
+      target_wallets: ['W-SYN-091177', 'W-SYN-091178', 'W-SYN-091179', 'W-SYN-091180', 'W-SYN-091181', 'W-SYN-091182', 'W-SYN-091183', 'W-SYN-091184'],
+      linked_ring: 'RING-2026-0012'
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'DEMO_GENERATE_FAILED', message: err.message } });
+  }
+});
+
+// 5. Execute analyst actions on campaign (Add note, link ring, update lifecycle, mark related/unrelated)
+shieldRouter.post('/campaigns/:id/actions', async (req: Request, res: Response) => {
+  try {
+    const { action_type, analyst_id, details } = req.body;
+    if (!action_type) {
+      return res.status(400).json({ error: { code: 'MISSING_ACTION_TYPE', message: 'action_type is required' } });
+    }
+
+    const updated = await scamCampaignService.recordAnalystAction(
+      req.params.id,
+      action_type,
+      analyst_id || 'ANALYST-101',
+      details || {}
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: { code: 'CAMPAIGN_NOT_FOUND', message: `Campaign ${req.params.id} not found` } });
+    }
+
+    return res.json({
+      success: true,
+      campaign: updated,
+      message: `Analyst action ${action_type} executed and logged to SHA-256 audit ledger.`
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'CAMPAIGN_ACTION_FAILED', message: err.message } });
   }
 });
 

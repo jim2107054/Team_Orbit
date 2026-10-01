@@ -1,7 +1,4 @@
 {
-  "/page": "app/page.js",
-  "/rings/page": "app/rings/page.js",
-  "/analyst/page": "app/analyst/page.js",
-  "/recovery/page": "app/recovery/page.js",
-  "/customer/page": "app/customer/page.js"
+  "/customer/page": "app/customer/page.js",
+  "/page": "app/page.js"
 }

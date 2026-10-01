@@ -979,6 +979,9 @@ video {
 .border-l-4 {
   border-left-width: 4px;
 }
+.border-t-2 {
+  border-top-width: 2px;
+}
 .border-amber-500\/30 {
   border-color: rgb(245 158 11 / 0.3);
 }
@@ -1105,6 +1108,18 @@ video {
 .border-t-\[\#DADFE5\] {
   --tw-border-opacity: 1;
   border-top-color: rgb(218 223 229 / var(--tw-border-opacity, 1));
+}
+.border-l-\[\#DADFE5\] {
+  --tw-border-opacity: 1;
+  border-left-color: rgb(218 223 229 / var(--tw-border-opacity, 1));
+}
+.border-l-\[\#FF0000\] {
+  --tw-border-opacity: 1;
+  border-left-color: rgb(255 0 0 / var(--tw-border-opacity, 1));
+}
+.border-t-\[\#FF9F43\] {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(255 159 67 / var(--tw-border-opacity, 1));
 }
 .bg-\[\#060d1f\] {
   --tw-bg-opacity: 1;
@@ -1308,6 +1323,9 @@ video {
 }
 .bg-\[\#FF0000\]\/5 {
   background-color: rgb(255 0 0 / 0.05);
+}
+.bg-\[\#FF9F43\]\/20 {
+  background-color: rgb(255 159 67 / 0.2);
 }
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));

@@ -300,6 +300,98 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
               </div>
             </div>
 
+            {/* Conversational Scam Call Intelligence & Evidence Spans Panel (M6 & Feature SRS) */}
+            <div className="dream-card p-5 space-y-4 shadow-sm border-t-2 border-t-[#FF9F43]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#DADFE5]">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🎙️</span>
+                  <h3 className="font-poppins font-bold text-sm text-[#000000]">
+                    Bangla Scam Call Intelligence &amp; Multi-Turn Signal Timeline
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-nunito font-bold bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30">
+                    Typology: Fake Customer Care (SCAM_CALL_CUSTOMER_CARE)
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-[#646B72]">Confidence: 94% · CRITICAL Escalation</span>
+              </div>
+
+              {/* Conversation Turn Timeline */}
+              <div className="space-y-2 text-xs font-nunito">
+                <span className="text-[11px] font-bold text-[#212B36] block">
+                  Turn-by-Turn Speech Transcript &amp; Extracted Evidence Spans:
+                </span>
+                
+                <div className="p-3 bg-[#F7F7F7] border-l-4 border-l-[#FF9F43] border border-[#DADFE5] space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-[#646B72]">
+                    <span className="font-bold text-[#FF9F43]">CALLER (Scammer) · 23:38:12</span>
+                    <span className="px-1.5 py-0.5 bg-[#FF9F43]/20 text-[#FF9F43] font-mono font-bold">[AUTHORITY_IMPERSONATION]</span>
+                  </div>
+                  <p className="text-[#212529] font-bangla">
+                    "আসসালামু আলাইকুম, আমি উপায় কাস্টমার কেয়ার ঢাকা হেড অফিস থেকে বলছি। আপনার অ্যাকাউন্ট এখনই বন্ধ হয়ে যাবে।"
+                  </p>
+                  <span className="text-[10px] text-[#FF0000] font-mono block">Evidence Span: "উপায় কাস্টমার কেয়ার... অ্যাকাউন্ট বন্ধ হয়ে যাবে"</span>
+                </div>
+
+                <div className="p-3 bg-[#FFFFFF] border-l-4 border-l-[#DADFE5] border border-[#DADFE5] space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-[#646B72]">
+                    <span className="font-bold text-[#092C4C]">VICTIM (Rahima Begum) · 23:38:40</span>
+                    <span className="text-[#646B72]">Customer Reply</span>
+                  </div>
+                  <p className="text-[#212529] font-bangla">"কেন বন্ধ হবে ভাই? আমি তো নিয়মিত লেনদেন করি।"</p>
+                </div>
+
+                <div className="p-3 bg-[#F7F7F7] border-l-4 border-l-[#FF0000] border border-[#DADFE5] space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-[#646B72]">
+                    <span className="font-bold text-[#FF0000]">CALLER (Scammer) · 23:39:15</span>
+                    <div className="flex items-center gap-1">
+                      <span className="px-1.5 py-0.5 bg-[#FF0000]/15 text-[#FF0000] font-mono font-bold">[URGENCY]</span>
+                      <span className="px-1.5 py-0.5 bg-[#FF0000]/15 text-[#FF0000] font-mono font-bold">[OTP_REQUEST]</span>
+                      <span className="px-1.5 py-0.5 bg-[#FF0000]/15 text-[#FF0000] font-mono font-bold">[PAYMENT_REQUEST]</span>
+                    </div>
+                  </div>
+                  <p className="text-[#212529] font-bangla">
+                    "জরুরি সিকিউরিটি আপডেট প্রয়োজন। আপনার ফোনে আসা ওটিপি বলুন এবং অ্যাকাউন্ট চালু রাখতে ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান।"
+                  </p>
+                  <span className="text-[10px] text-[#FF0000] font-mono block">Evidence Span: "ওটিপি বলুন... ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান"</span>
+                </div>
+              </div>
+
+              {/* Structured Extracted Signals Grid & Campaign Graph Links */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs font-nunito">
+                <div className="p-3 bg-[#FFFFFF] border border-[#DADFE5] space-y-1.5">
+                  <h5 className="font-poppins font-bold text-[#000000] text-xs">Structured Behavioral Signals</h5>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
+                      ✓ Time Pressure (SIG_URGENCY)
+                    </span>
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
+                      ✓ Customer Care Spoofing
+                    </span>
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
+                      ✓ OTP Harvesting
+                    </span>
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
+                      ✓ Account Suspension Threat
+                    </span>
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
+                      ✓ Coerced Transfer Demand
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[#FFFFFF] border border-[#DADFE5] space-y-1.5">
+                  <h5 className="font-poppins font-bold text-[#000000] text-xs">Campaign Graph &amp; Entity Links</h5>
+                  <div className="space-y-1 text-[11px] text-[#212529]">
+                    <div>Linked Phone: <strong className="font-mono text-[#092C4C]">01399-991823</strong></div>
+                    <div>Linked Mule Wallet: <strong className="font-mono text-[#FF9F43]">W-SYN-091177 (Tanvir)</strong></div>
+                    <div>Linked Graph Ring: <strong className="text-[#FF0000]">RING-2026-0012 (Ring-12 Hub)</strong></div>
+                    <div>Prior Reports: <span className="font-bold text-[#FF0000]">1 Community Impersonation Complaint</span></div>
+                    <div>M3 Context Impact: <span className="font-mono text-[#198754] font-bold">scam_conversation_context_score = 0.94</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Fact-Verified GenAI Copilot Panel (M12) */}
             <div className="dream-card p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between pb-3 border-b border-[#DADFE5]">

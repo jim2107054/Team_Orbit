@@ -2,61 +2,121 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-nunito: 'Nunito', sans-serif;
   --font-bn: 'Hind Siliguri', sans-serif;
+  
+  --primary-accent: #FF9F43;
+  --primary-hover: #F08E2F;
+  --secondary-accent: #212B36;
+  --canvas-bg: #F7F7F7;
+  --surface-bg: #FFFFFF;
+  --border-color: #E8EBED;
+  --text-main: #212B36;
+  --text-muted: #646B72;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: #060d1f;
-  color: #f1f5f9;
+  font-family: var(--font-nunito);
+  background-color: var(--canvas-bg);
+  color: var(--text-main);
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, .font-poppins {
+  font-family: var(--font-poppins);
+}
+
+.font-nunito {
+  font-family: var(--font-nunito);
 }
 
 .font-bangla {
   font-family: var(--font-bn);
 }
 
-/* Glassmorphism utilities */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Dreams POS Card & Surface Styles */
+.dream-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E8EBED;
+  border-radius: 8px;
+  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.02);
 }
 
-.glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.dream-card-sharp {
+  background-color: #FFFFFF;
+  border: 1px solid #E8EBED;
+  border-radius: 4px;
 }
 
-.glass-glow-cyan {
-  box-shadow: 0 0 25px -5px rgba(0, 240, 255, 0.25);
+.dream-btn-primary {
+  background-color: #FF9F43;
+  color: #FFFFFF;
+  font-family: var(--font-poppins);
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
 }
 
-.glass-glow-red {
-  box-shadow: 0 0 30px -5px rgba(217, 4, 41, 0.35);
+.dream-btn-primary:hover {
+  background-color: #F08E2F;
+  box-shadow: 0px 4px 15px 0px rgba(255, 159, 67, 0.35);
 }
 
-.glass-glow-gold {
-  box-shadow: 0 0 25px -5px rgba(245, 166, 35, 0.25);
+.dream-btn-navy {
+  background-color: #212B36;
+  color: #FFFFFF;
+  font-family: var(--font-poppins);
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
 }
 
-/* Custom Scrollbar */
+.dream-btn-navy:hover {
+  background-color: #171F28;
+}
+
+.dream-btn-outline {
+  background-color: #FFFFFF;
+  border: 1px solid #DADFE5;
+  color: #212B36;
+  font-family: var(--font-nunito);
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.dream-btn-outline:hover {
+  background-color: #F7F7F7;
+  border-color: #C2C9D1;
+}
+
+/* Custom Scrollbar for Dreams POS */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a1128;
+  background: #F1F3F5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94A3B8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
 }

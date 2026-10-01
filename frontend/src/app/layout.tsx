@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DashboardShell } from "../components/DashboardShell";
 
 export const metadata: Metadata = {
-  title: "upay Shield — AI Trust, Scam-Interception & Mule-Network Intelligence",
-  description: "Stops scams before money leaves, uncovers mule rings, and empowers analysts with grounded investigation briefs.",
+  title: "upay Shield — AI Trust & Fraud Risk Intelligence Platform",
+  description: "Enterprise MFS Fraud Operations, Mule Detection & Multi-Channel Interception Platform.",
 };
 
 export default function RootLayout({
@@ -12,9 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased min-h-screen bg-[#060d1f] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
-        {children}
+    <html lang="en">
+      <body className="antialiased min-h-screen bg-[#F7F7F7] text-[#212B36] selection:bg-[#FF9F43]/30 selection:text-[#212B36]">
+        <DashboardShell>
+          {children}
+        </DashboardShell>
       </body>
     </html>
   );

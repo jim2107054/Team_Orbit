@@ -175,5 +175,116 @@ export const TYPOLOGY_META: Record<TypologyId, { name: string; description: stri
     name: 'Malicious APK / Session Hijacking',
     description: 'Victim tricked into installing malicious helper app which intercepts OTP and executes remote transfer.',
     signature: 'Session event APP_INSTALL followed by automated API calls and sudden device credential update.'
+  },
+
+  // Conversational Scam Typologies
+  SCAM_CALL_CUSTOMER_CARE: {
+    name: 'Fake Customer Care / Helpline Impersonation',
+    description: 'Caller falsely claims to be upay/bank official, demands PIN/OTP or money transfer for system update.',
+    signature: 'Authority claim + account block threat + OTP/PIN request + urgent transfer request.'
+  },
+  SCAM_CALL_SIM_BLOCK: {
+    name: 'SIM Deactivation / Biometric Re-registration Scam',
+    description: 'Scammer poses as BTRC/Telecom operator threatening instant SIM block unless secret code is provided.',
+    signature: 'BTRC/SIM block threat + urgency + OTP verification claim.'
+  },
+  SCAM_CALL_ACCOUNT_VERIFY: {
+    name: 'Fake KYC / Account Verification Fraud',
+    description: 'Caller demands personal credentials, OTP, or test transfer to "verify" or "reactivate" wallet.',
+    signature: 'Verification narrative + secrecy request + credential harvesting.'
+  },
+  SCAM_CALL_RELATIVE_EMERGENCY: {
+    name: 'Relative Distress / Emergency Call Scam',
+    description: 'Caller pretends to be victim’s relative, police officer, or doctor claiming urgent accident or arrest.',
+    signature: 'Emotional distress + secrecy + urgent payment request to third-party number.'
+  },
+  SCAM_CALL_REFUND: {
+    name: 'Accidental Money Sent / Fake Refund Call',
+    description: 'Scammer calls claiming money was sent by mistake to customer wallet, demanding immediate return.',
+    signature: 'Fake accidental transfer story + time pressure + recipient payment destination.'
+  },
+  SCAM_CALL_PRIZE: {
+    name: 'Prize / Lottery / Gift Winning Scam Call',
+    description: 'Victim told they won a car/lottery and must pay processing/registration fee immediately.',
+    signature: 'High-value prize claim + upfront registration fee + urgency.'
+  },
+  SCAM_CALL_INVESTMENT: {
+    name: 'High-Yield Investment / Crypto / Forex Scam Call',
+    description: 'Caller promises guaranteed daily/monthly returns with zero risk upon sending initial capital.',
+    signature: 'Guaranteed profit promises + urgency + external group/channel link.'
+  },
+  SCAM_CALL_TASK: {
+    name: 'Online Task / Part-time Job Commission Scam',
+    description: 'Victim lured into social media liking/reviewing tasks, required to deposit funds to unlock earnings.',
+    signature: 'Work-from-home task story + small initial payout + deposit unlock requirement.'
+  },
+  SCAM_CALL_LEGAL_THREAT: {
+    name: 'Law Enforcement / Arrest Warrant Threat Scam',
+    description: 'Caller impersonates DB police, CID, or court official claiming legal cases and demands settlement fee.',
+    signature: 'Arrest warrant/legal case threat + secrecy + payment settlement destination.'
   }
 };
+
+export const BANGLISH_NORMALIZATION_MAP: Record<string, string> = {
+  // Verbs & Pronouns
+  'bolchi': 'বলছি',
+  'boltesi': 'বলছি',
+  'bolsen': 'বলেছেন',
+  'den': 'দিন',
+  'dien': 'দিন',
+  'diben': 'দেবেন',
+  'bolen': 'বলুন',
+  'pathan': 'পাঠান',
+  'pathaben': 'পাঠাবেন',
+  'korben': 'করবেন',
+  'koren': 'করুন',
+  'korun': 'করুন',
+  'lagbe': 'লাগবে',
+  'achen': 'আছেন',
+  'ase': 'আছে',
+  'hoise': 'হয়েছে',
+  'hoyeche': 'হয়েছে',
+  'hoyegese': 'হয়ে গেছে',
+  'jabe': 'যাবে',
+  'gele': 'গেলে',
+  'amar': 'আমার',
+  'apnar': 'আপনার',
+  'apnake': 'আপনাকে',
+  'tumi': 'তুমি',
+  'apni': 'আপনি',
+  // Common keywords
+  'taka': 'টাকা',
+  'ekhon': 'এখন',
+  'ekhoni': 'এখনই',
+  'druto': 'দ্রুত',
+  'taratari': 'তাড়াতাড়ি',
+  'bipod': 'বিপদ',
+  'bipode': 'বিপদে',
+  'rokto': 'রক্ত',
+  'ashpatal': 'হাসপাতাল',
+  'hospital': 'হাসপাতাল',
+  'daktar': 'ডাক্তার',
+  'police': 'পুলিশ',
+  'thana': 'থানা',
+  'mamla': 'মামলা',
+  'atock': 'আটক',
+  'gopon': 'গোপন',
+  'karoko': 'কাউকে',
+  'bolben na': 'বলবেন না',
+  'janaben na': 'জানাবেন না',
+  'bhul': 'ভুল',
+  'lottery': 'লটারি',
+  'puroshkar': 'পুরস্কার',
+  'upohar': 'উপহার',
+  'jitechen': 'জিতেছেন',
+  'lav': 'লাভ',
+  'binayog': 'বিনিয়োগ',
+  'fee': 'ফি',
+  'charge': 'চার্জ',
+  'acc': 'অ্যাকাউন্ট',
+  'account': 'অ্যাকাউন্ট',
+  'bondho': 'বন্ধ',
+  'block': 'ব্লক',
+  'suspend': 'স্থগিত'
+};
+

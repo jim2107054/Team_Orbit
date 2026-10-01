@@ -1,5 +1,6 @@
 import { repository } from '../db/repository.js';
 import { Transaction } from '../core/types.js';
+import { conversationScamIntelligence } from './conversation-scam-intelligence.js';
 
 export interface CalculatedFeatures {
   // Velocity features
@@ -31,6 +32,7 @@ export interface CalculatedFeatures {
   recipient_report_count: number;
   hops_to_known_ring: number;
   scam_check_session_flag: boolean;
+  scam_conversation_context_score: number;
 }
 
 export class FeatureStoreService {
@@ -131,6 +133,9 @@ export class FeatureStoreService {
       recipientPassThrough = Math.min(1.0, totalOutflow / totalInflow);
     }
 
+    // Point-in-Time Conversation Scam Score
+    const scamConvScore = conversationScamIntelligence.getContextScoreForEntity(receiverWalletId);
+
     return {
       txn_count_1m: count1m,
       txn_count_10m: count10m,
@@ -153,7 +158,8 @@ export class FeatureStoreService {
       recipient_pass_through_ratio: recipientPassThrough,
       recipient_report_count: reports.length,
       hops_to_known_ring: 2, // dynamic from graph engine
-      scam_check_session_flag: scamCheckFlag
+      scam_check_session_flag: scamCheckFlag || (scamConvScore > 0.5),
+      scam_conversation_context_score: scamConvScore
     };
   }
 }

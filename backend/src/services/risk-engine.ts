@@ -79,11 +79,16 @@ export class RiskEngineService {
       ruleTrace.push({ rule: 'COMMUNITY_NEGATIVE_REPORTS', fired: true });
     }
 
-    // 4. Scam Context (M6)
-    let scamContextScore = features.scam_check_session_flag ? 0.35 : 0.0;
-    if (features.scam_check_session_flag) {
-      triggeredReasons.push({ code: 'RC07', weight: 0.30 });
-      ruleTrace.push({ rule: 'SCAM_CHECK_MATCHED_IN_SESSION', fired: true });
+    // 4. Scam Context (M6 - Single Message & Conversational Call Intelligence)
+    const conversationScamScore = features.scam_conversation_context_score || 0.0;
+    let scamContextScore = Math.max(features.scam_check_session_flag ? 0.35 : 0.0, conversationScamScore);
+    
+    if (features.scam_check_session_flag || conversationScamScore > 0.4) {
+      triggeredReasons.push({ code: 'RC07', weight: conversationScamScore > 0.7 ? 0.45 : 0.30 });
+      ruleTrace.push({ 
+        rule: conversationScamScore > 0.6 ? 'SCAM_CONVERSATION_CONTEXT_FLAGGED' : 'SCAM_CHECK_MATCHED_IN_SESSION', 
+        fired: true 
+      });
     }
 
     // 5. Calibrated Multi-Model Blend (ML-05)
@@ -115,7 +120,8 @@ export class RiskEngineService {
       action = 'ALLOW';
     }
 
-    // Map top-k unique reason codes
+    // Map top-k unique reason codes by highest weight
+    triggeredReasons.sort((a, b) => b.weight - a.weight);
     const uniqueReasonCodes = Array.from(new Set(triggeredReasons.map(r => r.code)));
     const reasons: ReasonCodeDetail[] = uniqueReasonCodes.map(code => {
       const def = REASON_CODES[code] || {

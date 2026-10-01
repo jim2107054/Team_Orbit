@@ -128,14 +128,41 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
   }
 });
 
-// ================= API-03: SCAM CHECK =================
-shieldRouter.post('/scamcheck', (req: Request, res: Response) => {
-  const { text } = req.body;
-  if (!text || typeof text !== 'string') {
-    return res.status(400).json({ error: { code: 'MISSING_TEXT', message: 'Field text is required' } });
+// ================= API-03: SCAM CHECK & CONVERSATIONAL INTELLIGENCE =================
+shieldRouter.post('/scamcheck', async (req: Request, res: Response) => {
+  try {
+    const { text, conversation } = req.body;
+    const rawInput = conversation || text;
+    if (!rawInput || typeof rawInput !== 'string') {
+      return res.status(400).json({ error: { code: 'MISSING_TEXT', message: 'Field text or conversation is required' } });
+    }
+    const result = await scamNLP.analyze(rawInput);
+
+    await auditService.logAction('SCAM_INTEL', 'ANALYZE_CONVERSATION', `SCAM-${Date.now()}`, {
+      verdict: result.verdict,
+      typology: result.typology_matched,
+      extracted_entities: result.conversation_risk_profile?.extracted_entities
+    });
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('Scam Check Error:', err);
+    return res.status(500).json({ error: { code: 'SCAM_CHECK_FAILED', message: err.message } });
   }
-  const result = scamNLP.analyzeText(text);
-  return res.json(result);
+});
+
+shieldRouter.post('/scamcheck/conversation', async (req: Request, res: Response) => {
+  try {
+    const { conversation, text } = req.body;
+    const rawInput = conversation || text;
+    if (!rawInput || typeof rawInput !== 'string') {
+      return res.status(400).json({ error: { code: 'MISSING_CONVERSATION', message: 'Field conversation is required' } });
+    }
+    const result = await scamNLP.analyze(rawInput);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'CONVERSATION_ANALYSIS_FAILED', message: err.message } });
+  }
 });
 
 // ================= API-04: COMMUNITY REPORT =================

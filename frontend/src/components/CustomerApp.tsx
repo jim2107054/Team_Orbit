@@ -444,14 +444,14 @@ export const CustomerApp: React.FC = () => {
             </div>
           )}
 
-          {/* SCREEN 5: SCAM CHECK TOOL */}
+          {/* SCREEN 5: CALL / MESSAGE SCAM CHECK TOOL (M6 SRS & BANGLA CONVERSATIONAL INTELLIGENCE) */}
           {activeScreen === 'scam_check' && (
-            <div className="flex-1 flex flex-col justify-between py-1 animate-fadeIn">
+            <div className="flex-1 flex flex-col justify-between py-1 animate-fadeIn overflow-y-auto max-h-[580px] pr-1">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-xs font-poppins font-bold text-[#000000] flex items-center gap-1.5">
-                    <MessageSquareWarning className="w-4 h-4 text-[#FF9F43]" />
-                    <span>{language === 'bn' ? 'সন্দেহজনক মেসেজ স্ক্যানার' : 'Scam Check Scanner'}</span>
+                    <PhoneCall className="w-4 h-4 text-[#FF9F43]" />
+                    <span>{language === 'bn' ? 'কল ও বার্তা যাচাই (Call Check)' : 'Call / Message Check'}</span>
                   </h3>
                   <button
                     onClick={() => setActiveScreen('send')}
@@ -461,42 +461,124 @@ export const CustomerApp: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Preset Fast Demo Scenarios */}
+                <div className="flex items-center gap-1 mb-2 overflow-x-auto pb-1 text-[10px] font-nunito">
+                  <button
+                    onClick={() => {
+                      setScamText(
+                        'Caller: আসসালামু আলাইকুম, আমি উপায় কাস্টমার কেয়ার ঢাকা হেড অফিস থেকে বলছি। আপনার অ্যাকাউন্ট এখনই বন্ধ হয়ে যাবে।\nCustomer: কেন বন্ধ হবে ভাই?\nCaller: জরুরি সিকিউরিটি আপডেট প্রয়োজন। আপনার ফোনে আসা ওটিপি বলুন এবং অ্যাকাউন্ট চালু রাখতে ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান।'
+                      );
+                    }}
+                    className="px-2 py-1 bg-[#FF9F43]/10 text-[#FF9F43] hover:bg-[#FF9F43]/20 border border-[#FF9F43]/30 whitespace-nowrap font-bold rounded-none"
+                  >
+                    📞 কাস্টমার কেয়ার কল (Demo)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setScamText(
+                        'Caller: Mama ami hospital theke boltesi, amar severe accident hoise.\nCustomer: Kothay mama?\nCaller: Hospital e achi, ekhon emergency 15000 taka lagbe. Kaoke bolben na, druto taka pathan 01799200004 number e.'
+                      );
+                    }}
+                    className="px-2 py-1 bg-[#F7F7F7] text-[#212B36] hover:bg-[#DADFE5] border border-[#DADFE5] whitespace-nowrap font-semibold rounded-none"
+                  >
+                    🚑 Banglish Emergency
+                  </button>
+                </div>
+
+                {/* Language Mode Selector */}
+                <div className="flex items-center justify-between mb-1.5 text-[10px] font-nunito text-[#646B72]">
+                  <span>কথোপকথন বা মেসেজ পেস্ট করুন:</span>
+                  <span className="text-[#FF9F43] font-bold">Bangla · Banglish · English</span>
+                </div>
+
                 <textarea
                   rows={4}
                   value={scamText}
                   onChange={(e) => setScamText(e.target.value)}
-                  className="w-full dream-input p-2.5 text-xs text-[#212529] focus:outline-none font-bangla"
-                  placeholder="মেসেজ পেস্ট করুন..."
+                  className="w-full dream-input p-2.5 text-xs text-[#212529] focus:outline-none font-bangla border border-[#DADFE5]"
+                  placeholder="কথোপকথনের ডায়ালগ বা এসএমএস এখানে পেস্ট করুন..."
                 />
 
                 <button
                   onClick={handleAnalyzeScam}
                   disabled={isAnalyzingScam}
-                  className="w-full mt-2 dream-btn-primary py-2 text-xs flex items-center justify-center gap-1.5"
+                  className="w-full mt-2 dream-btn-primary py-2 text-xs flex items-center justify-center gap-1.5 font-bold shadow-sm"
                 >
                   <Search className="w-3.5 h-3.5" />
-                  <span>{isAnalyzingScam ? 'যাচাই হচ্ছে...' : 'স্ক্যান করুন (Analyze)'}</span>
+                  <span>{isAnalyzingScam ? 'যাচাই হচ্ছে...' : '🔍 কথোপকথন যাচাই করুন (Analyze Dialogue)'}</span>
                 </button>
 
-                {/* Result */}
+                {/* Plain-Language Customer Result */}
                 {scamAnalysis && (
-                  <div className="mt-2.5 p-3 rounded-none bg-[#F7F7F7] border border-[#DADFE5] text-xs font-nunito animate-fadeIn">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-[#646B72] font-semibold">ফলাফল:</span>
-                      <span
-                        className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold ${
-                          scamAnalysis.verdict === 'LIKELY_SCAM'
-                            ? 'bg-[#FF0000]/15 text-[#FF0000] border border-[#FF0000]/30'
-                            : 'bg-[#198754]/15 text-[#198754]'
+                  <div className="mt-3 p-3.5 rounded-none bg-[#F7F7F7] border border-[#DADFE5] text-xs font-nunito animate-fadeIn space-y-2.5">
+                    {/* Customer Headline */}
+                    <div className="flex items-center gap-2 p-2 bg-[#FFFFFF] border border-[#DADFE5]">
+                      <AlertTriangle
+                        className={`w-4 h-4 shrink-0 ${
+                          scamAnalysis.verdict === 'LIKELY_SCAM' ? 'text-[#FF0000]' : 'text-[#198754]'
                         }`}
-                      >
-                        {scamAnalysis.verdict === 'LIKELY_SCAM' ? '🚨 প্রতারণার বার্তা (Likely Scam)' : 'স্বাভাবিক'}
+                      />
+                      <span className="font-poppins font-bold text-xs text-[#000000] font-bangla">
+                        {scamAnalysis.conversation_risk_profile?.recommended_action?.customer_heading_bn ||
+                          (scamAnalysis.verdict === 'LIKELY_SCAM'
+                            ? '⚠️ এই কথোপকথনে প্রতারণার কিছু লক্ষণ পাওয়া গেছে'
+                            : '✅ কথোপকথনে বড় কোনো ঝুঁকি পাওয়া যায়নি')}
                       </span>
                     </div>
 
-                    <p className="text-[11px] text-[#212529] font-bangla mt-1">
-                      {language === 'bn' ? scamAnalysis.advice_bn : scamAnalysis.advice_en}
-                    </p>
+                    {/* Max 3 Simple Reasons (Customer Friendly) */}
+                    {scamAnalysis.matched_reasons_bn && scamAnalysis.matched_reasons_bn.length > 0 && (
+                      <div className="space-y-1.5 bg-[#FFFFFF] p-2.5 border border-[#DADFE5]">
+                        <span className="text-[10px] font-bold text-[#646B72] block">সনাক্তকৃত কারণসমূহ:</span>
+                        {scamAnalysis.matched_reasons_bn.slice(0, 3).map((reason: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-1.5 text-[11px] text-[#212529] font-bangla">
+                            <span className="text-[#FF0000] font-bold">•</span>
+                            <span>{reason}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* "কী করবেন?" (What to Do) Actionable Advice */}
+                    <div className="p-2.5 bg-[#FF9F43]/10 border border-[#FF9F43]/30 text-xs font-bangla space-y-1">
+                      <strong className="text-[#092C4C] block font-bold">কী করবেন?</strong>
+                      <div className="text-[11px] text-[#212529] space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#FF0000] font-bold">✕</span>
+                          <span>টাকা পাঠাবেন না</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#FF0000] font-bold">✕</span>
+                          <span>PIN / OTP কাউকে দেবেন না</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#198754] font-bold">✓</span>
+                          <span>কথোপকথন ও নম্বরটি রিপোর্ট করুন</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Extracted Entities & Transfer Test Trigger */}
+                    {scamAnalysis.extracted_numbers && scamAnalysis.extracted_numbers.length > 0 && (
+                      <div className="p-2.5 bg-[#FFFFFF] border border-[#DADFE5] flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] text-[#646B72] block font-semibold">চিহ্নিত নম্বর:</span>
+                          <span className="font-mono text-xs font-bold text-[#092C4C]">
+                            {scamAnalysis.extracted_numbers[0]}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setRecipientNumber(scamAnalysis.extracted_numbers[0]);
+                            setActiveScreen('send');
+                          }}
+                          className="px-2.5 py-1 bg-[#212B36] text-white text-[10px] font-bold hover:bg-[#1B2850] flex items-center gap-1"
+                        >
+                          <span>লেনদেন পরীক্ষা</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -514,36 +596,36 @@ export const CustomerApp: React.FC = () => {
         <div className="flex items-center gap-2 text-[#FF9F43]">
           <ShieldCheck className="w-5 h-5 text-[#FF9F43]" />
           <h3 className="font-poppins font-bold text-base text-[#000000]">
-            Why This Customer Experience Wins (D1 &amp; D11)
+            Bangla Scam Call Intelligence &amp; M3 Interception
           </h3>
         </div>
 
         <p className="text-xs font-nunito text-[#212529] leading-relaxed">
-          Traditional fraud detection only acts after money is stolen. 
-          <strong className="text-[#FF9F43]"> upay Shield intervenes right at the confirmation screen</strong> before 
-          the customer taps send — tackling the 89.3% unrecovered social-engineering fraud problem in Bangladesh.
+          Fraudsters use conversational social engineering to bypass traditional keywords. 
+          <strong className="text-[#FF9F43]"> upay Shield extracts 20+ multi-turn behavioral signals</strong> (urgency escalation, authority spoofing, PIN/OTP harvesting, fake refund stories) across Bangla, English, and Banglish.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs font-nunito">
           <div className="p-3.5 bg-[#F7F7F7] rounded-none border border-[#DADFE5]">
-            <span className="font-poppins font-bold text-[#212B36] block mb-1">🇧🇩 Authentic Bangla Copy</span>
+            <span className="font-poppins font-bold text-[#212B36] block mb-1">📞 Conversational Timeline</span>
             <p className="text-[#646B72] text-[11px]">
-              Jargon-free copy with voice TTS read-out tailored for rural and first-time digital users.
+              Extracts escalation from initial small-talk to urgent credential and payment demands.
             </p>
           </div>
 
           <div className="p-3.5 bg-[#F7F7F7] rounded-none border border-[#DADFE5]">
-            <span className="font-poppins font-bold text-[#212B36] block mb-1">⏱ Reversible Friction</span>
+            <span className="font-poppins font-bold text-[#212B36] block mb-1">🕸️ Campaign Graph Linking</span>
             <p className="text-[#646B72] text-[11px]">
-              No black-box permanent lockouts. Cooling-off timer allows safe, pressure-free reconsideration.
+              Links extracted phone numbers and wallets into known mule rings and prior complaints.
             </p>
           </div>
         </div>
 
+        {/* Live Telemetry Card */}
         {evaluationResult && (
           <div className="mt-4 p-4 bg-[#F7F7F7] rounded-none border border-[#FF9F43]/40 text-xs font-nunito">
             <span className="font-mono text-[#FF9F43] text-[11px] font-bold block mb-2">
-              ⚡ LIVE TELEMETRY: {evaluationResult.latency_ms}ms
+              ⚡ LIVE M3 TELEMETRY: {evaluationResult.latency_ms}ms
             </span>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div>Risk Tier: <strong className="text-[#FF0000]">{evaluationResult.risk_tier}</strong></div>

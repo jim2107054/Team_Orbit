@@ -23,7 +23,95 @@ export type TypologyId =
   | 'T7_GAMBLING_HUB'
   | 'T8_AGENT_CASH_OUT_MULE'
   | 'T9_GHOST_WALLET'
-  | 'T10_PHISHING_APK';
+  | 'T10_PHISHING_APK'
+  // Conversational Scam Intelligence Typologies
+  | 'SCAM_CALL_CUSTOMER_CARE'
+  | 'SCAM_CALL_SIM_BLOCK'
+  | 'SCAM_CALL_ACCOUNT_VERIFY'
+  | 'SCAM_CALL_RELATIVE_EMERGENCY'
+  | 'SCAM_CALL_REFUND'
+  | 'SCAM_CALL_PRIZE'
+  | 'SCAM_CALL_INVESTMENT'
+  | 'SCAM_CALL_TASK'
+  | 'SCAM_CALL_LEGAL_THREAT';
+
+export type SignalCode =
+  | 'SIG_URGENCY'
+  | 'SIG_SECRECY'
+  | 'SIG_AUTHORITY_IMPERSONATION'
+  | 'SIG_FEAR_THREAT'
+  | 'SIG_REWARD_PROMISE'
+  | 'SIG_EMERGENCY_STORY'
+  | 'SIG_ACCOUNT_SUSPENSION'
+  | 'SIG_PIN_REQUEST'
+  | 'SIG_OTP_REQUEST'
+  | 'SIG_PASSWORD_REQUEST'
+  | 'SIG_VERIFICATION_REQUEST'
+  | 'SIG_MONEY_TRANSFER_REQUEST'
+  | 'SIG_REFUND_REQUEST'
+  | 'SIG_UNKNOWN_LINK'
+  | 'SIG_APK_INSTALL'
+  | 'SIG_REMOTE_ACCESS'
+  | 'SIG_INVESTMENT_PROMISE'
+  | 'SIG_GUARANTEED_RETURN'
+  | 'SIG_RELATIONSHIP_IMPERSONATION'
+  | 'SIG_CUSTOMER_CARE_IMPERSONATION';
+
+export interface SignalExtractionResult {
+  signal_code: SignalCode | string;
+  signal_name: string;
+  detected: boolean;
+  confidence: number;
+  evidence_span: string;
+  turn_index?: number;
+  speaker?: string;
+}
+
+export interface ConversationTurn {
+  speaker: 'caller' | 'receiver' | 'user' | 'agent' | 'scammer' | 'customer' | 'speaker_1' | 'speaker_2';
+  text: string;
+  timestamp?: string;
+}
+
+export interface ExtractedEntities {
+  phone_numbers: string[];
+  wallets: string[];
+  urls: string[];
+  merchant_ids: string[];
+  txn_refs: string[];
+}
+
+export interface CampaignLinkingResult {
+  linked_wallet?: string;
+  previous_reports_count: number;
+  linked_ring_id?: string;
+  linked_cases_count: number;
+  risk_flag: boolean;
+  notes?: string;
+}
+
+export interface ConversationRiskProfile {
+  scam_probability: number;
+  typology: TypologyId;
+  typology_name: string;
+  escalation_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  signals: SignalExtractionResult[];
+  evidence_spans: string[];
+  extracted_entities: ExtractedEntities;
+  campaign_links: CampaignLinkingResult;
+  recommended_action: {
+    customer_heading_bn: string;
+    customer_heading_en: string;
+    customer_reasons_bn: string[]; // max 3 simple reasons
+    customer_reasons_en: string[]; // max 3 simple reasons
+    what_to_do_bn: string[];
+    what_to_do_en: string[];
+    analyst_brief: string;
+  };
+  detected_language: 'bn' | 'en' | 'banglish' | 'mixed';
+  is_injection_attempt: boolean;
+  normalized_turns?: ConversationTurn[];
+}
 
 export type RiskTier = 'T0' | 'T1' | 'T2' | 'T3';
 

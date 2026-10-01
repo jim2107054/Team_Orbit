@@ -218,6 +218,10 @@ export interface Merchant {
   created_at: string;
 }
 
+export type ChannelType = 'APP' | 'USSD' | 'AGENT' | 'WEB' | 'AGENT_PORTAL';
+export type DeviceCapability = 'SMARTPHONE' | 'FEATURE_PHONE' | 'UNKNOWN';
+export type NetworkContext = 'MOBILE_DATA' | 'USSD' | 'WIFI' | 'UNKNOWN';
+
 export interface Transaction {
   txn_id: string;
   ts: string;
@@ -225,7 +229,7 @@ export interface Transaction {
   receiver_wallet: string;
   type: TxnType;
   amount_bdt: number;
-  channel: 'APP' | 'USSD' | 'AGENT_PORTAL';
+  channel: ChannelType;
   device_id: string;
   geo_cell: string;
   fee_bdt: number;
@@ -233,6 +237,8 @@ export interface Transaction {
   label_fraud: boolean;
   typology_id?: TypologyId;
   ring_id?: string;
+  device_capability?: DeviceCapability;
+  network_context?: NetworkContext;
   created_at: string;
 }
 
@@ -356,4 +362,27 @@ export interface HoldCandidate {
   confidence: number;
   collateral_risk: 'LOW' | 'MEDIUM' | 'HIGH';
   status: 'PENDING_APPROVAL' | 'HOLD_PLACED' | 'REJECTED';
+}
+
+export interface ChannelRiskFeatures {
+  channel: ChannelType;
+  device_capability: DeviceCapability;
+  network_context: NetworkContext;
+  channel_switch_frequency: number;
+  first_time_channel: boolean;
+  device_channel_mismatch: boolean;
+  recent_channel_change: boolean;
+  ussd_velocity: number;
+  cross_channel_behavior_change: number;
+  primary_channel_past_30d: ChannelType;
+}
+
+export interface CustomerInterventionRecord {
+  intervention_id: string;
+  txn_id: string;
+  variant: 'PAUSE_VERIFY_APP' | 'PAUSE_VERIFY_USSD' | 'HOLD_ASSIST_APP' | 'HOLD_ASSIST_USSD';
+  shown_ts: string;
+  customer_action: 'CANCEL' | 'PROCEED' | 'REPORT' | 'TIMEOUT';
+  treatment_flag: boolean;
+  channel: ChannelType;
 }

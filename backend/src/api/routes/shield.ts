@@ -45,14 +45,21 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
     const reqId = request_id || `req-${Math.random().toString(36).slice(2, 8)}`;
     const txnTs = timestamp || new Date().toISOString();
 
-    // 1. Point-in-time Feature Extraction (M2)
+    // 1. Point-in-time Feature Extraction (M2, Temporal Intelligence & Channel Context)
+    const channelType = (txn.channel as any) || 'APP';
+    const deviceCap = (context as any)?.device_capability || (channelType === 'USSD' ? 'FEATURE_PHONE' : 'SMARTPHONE');
+    const netContext = (context as any)?.network_context || (channelType === 'USSD' ? 'USSD' : 'MOBILE_DATA');
+
     const features = await featureStore.extractFeatures(
       txn.sender_wallet,
       txn.receiver_wallet,
       txn.amount_bdt,
       txn.device_id,
       txnTs,
-      context?.scamcheck_session_flag || false
+      context?.scamcheck_session_flag || false,
+      channelType,
+      deviceCap,
+      netContext
     );
 
     // 2. Multi-Model Risk Evaluation (M3, M4)
@@ -162,6 +169,100 @@ shieldRouter.post('/scamcheck/conversation', async (req: Request, res: Response)
     return res.json(result);
   } catch (err: any) {
     return res.status(500).json({ error: { code: 'CONVERSATION_ANALYSIS_FAILED', message: err.message } });
+  }
+});
+
+// ================= USSD / FEATURE-PHONE SIMULATION API =================
+shieldRouter.post('/ussd/session', async (req: Request, res: Response) => {
+  try {
+    const { step, input, sender_wallet, receiver_wallet, amount_bdt } = req.body;
+    const sender = sender_wallet || 'W-SYN-004512';
+    const receiver = receiver_wallet || 'W-SYN-091177';
+    const amount = Number(amount_bdt) || 18500;
+
+    // Menu Step 1: Initial *268# Dial
+    if (!step || step === 'MENU') {
+      return res.json({
+        step: 'MENU',
+        display_text: 'upay (*268#):\n1. Send Money\n2. Cash Out\n3. Check Balance',
+        is_terminal: false,
+        prompt: 'Enter choice (1-3):'
+      });
+    }
+
+    // Step 2: Recipient Prompt
+    if (step === 'ENTER_RECIPIENT') {
+      return res.json({
+        step: 'ENTER_AMOUNT',
+        display_text: `upay Send Money:\nEnter recipient wallet or number:`,
+        is_terminal: false,
+        prompt: 'Recipient Number:'
+      });
+    }
+
+    // Step 3: Amount Prompt & Pre-flight Risk Evaluation
+    if (step === 'ENTER_AMOUNT' || step === 'EVALUATE') {
+      const features = await featureStore.extractFeatures(
+        sender,
+        receiver,
+        amount,
+        'D-FEATURE-PHONE-001',
+        new Date().toISOString(),
+        false,
+        'USSD',
+        'FEATURE_PHONE',
+        'USSD'
+      );
+
+      const ringRisk = receiver.includes('091177') ? 0.90 : 0.05;
+      const evaluation = riskEngine.evaluateRisk(features, ringRisk);
+
+      const ussdScreen = channelRiskService.formatUssdWarning(
+        evaluation.action_recommended,
+        amount,
+        receiver,
+        evaluation.reasons[0]?.code || 'RC01'
+      );
+
+      return res.json({
+        step: evaluation.action_recommended === 'ALLOW' ? 'ENTER_PIN' : 'INTERVENTION_WARNING',
+        ...ussdScreen,
+        reasons: evaluation.reasons,
+        risk_tier: evaluation.risk_tier,
+        risk_score: evaluation.risk_score
+      });
+    }
+
+    // Step 4: Final Confirmation
+    return res.json({
+      step: 'CONFIRMED',
+      display_text: `upay:\n৳${amount.toLocaleString()} সফলভাবে ${receiver} নম্বরে পাঠানো হয়েছে। ট্রানজেকশন আইডি: TXN-${Date.now()}`,
+      is_terminal: true
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'USSD_SESSION_ERROR', message: err.message } });
+  }
+});
+
+// ================= CUSTOMER INTERVENTIONS LOGGING =================
+shieldRouter.post('/interventions', async (req: Request, res: Response) => {
+  try {
+    const { txn_id, variant, customer_action, channel } = req.body;
+    const interventionId = `INTV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const record = {
+      intervention_id: interventionId,
+      txn_id: txn_id || `TXN-SIM-${Date.now()}`,
+      variant: variant || 'PAUSE_VERIFY_USSD',
+      shown_ts: new Date().toISOString(),
+      customer_action: customer_action || 'CANCEL',
+      treatment_flag: true,
+      channel: (channel as any) || 'USSD'
+    };
+
+    await channelRiskService.logIntervention(record as any);
+    return res.json({ success: true, intervention_id: interventionId, status: 'LOGGED' });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'INTERVENTION_LOG_FAILED', message: err.message } });
   }
 });
 

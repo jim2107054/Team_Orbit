@@ -1,7 +1,8 @@
 import { repository } from '../db/repository.js';
-import { Transaction, TemporalFeatures } from '../core/types.js';
+import { Transaction, TemporalFeatures, ChannelRiskFeatures, ChannelType, DeviceCapability, NetworkContext } from '../core/types.js';
 import { conversationScamIntelligence } from './conversation-scam-intelligence.js';
 import { temporalRiskIntelligence } from './temporal-risk-intelligence.js';
+import { channelRiskService } from './channel-risk-service.js';
 
 export interface CalculatedFeatures {
   // Velocity features
@@ -37,6 +38,9 @@ export interface CalculatedFeatures {
 
   // Bangladesh Temporal Risk Intelligence Features
   temporal_features: TemporalFeatures;
+
+  // Channel & Feature-Phone Context
+  channel_features: ChannelRiskFeatures;
 }
 
 export class FeatureStoreService {
@@ -49,7 +53,10 @@ export class FeatureStoreService {
     amountBdt: number,
     deviceId: string,
     txnTimestamp: string = new Date().toISOString(),
-    scamCheckFlag: boolean = false
+    scamCheckFlag: boolean = false,
+    channel: ChannelType = 'APP',
+    deviceCapability: DeviceCapability = 'SMARTPHONE',
+    networkContext: NetworkContext = 'MOBILE_DATA'
   ): Promise<CalculatedFeatures> {
     const nowMs = new Date(txnTimestamp).getTime();
     const dateObj = new Date(txnTimestamp);
@@ -154,6 +161,15 @@ export class FeatureStoreService {
       txnTimestamp
     );
 
+    // Channel & Device Features Extraction
+    const channelFeatures = await channelRiskService.extractChannelFeatures(
+      senderWalletId,
+      channel,
+      deviceCapability,
+      networkContext,
+      txnTimestamp
+    );
+
     return {
       txn_count_1m: count1m,
       txn_count_10m: count10m,
@@ -178,7 +194,8 @@ export class FeatureStoreService {
       hops_to_known_ring: 2, // dynamic from graph engine
       scam_check_session_flag: scamCheckFlag || (scamConvScore > 0.5),
       scam_conversation_context_score: scamConvScore,
-      temporal_features: temporalFeatures
+      temporal_features: temporalFeatures,
+      channel_features: channelFeatures
     };
   }
 }

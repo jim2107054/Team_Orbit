@@ -91,6 +91,20 @@ export const REASON_CODES: Record<string, ReasonCodeDetail> = {
     label_bn: 'উৎসব বা বিশেষ সময়ের ছাড় দেওয়ার পরও লেনদেনটি চরম অস্বাভাবিক ও ঝুঁকিপূর্ণ',
     weight: 0.38,
     description: 'Transaction exceeds 4x seasonal upper bound with high-risk device/network indicators.'
+  },
+  RC14: {
+    code: 'RC14',
+    label_en: 'Unusual cross-channel switch from primary APP behavior to USSD',
+    label_bn: 'অ্যাপ ব্যবহারকারী অ্যাকাউন্ট থেকে হঠাৎ অচেনা ইউএসএসডি (USSD) চ্যানেলে লেনদেন',
+    weight: 0.30,
+    description: 'High-value transaction initiated on USSD/feature-phone channel for a historically 95%+ smartphone app user.'
+  },
+  RC15: {
+    code: 'RC15',
+    label_en: 'Device capability and transaction channel mismatch',
+    label_bn: 'ডিভাইস এবং লেনদেন চ্যানেলের মধ্যে অস্বাভাবিক অমিল',
+    weight: 0.25,
+    description: 'Feature-phone device identifier attempting smart mobile application endpoint calls.'
   }
 };
 

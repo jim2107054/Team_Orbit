@@ -395,19 +395,19 @@ export class ShieldRepository {
     }));
   }
 
-  // ================= SUMMARY STATS =================
-  async getSummaryStats(): Promise<{ totalTxns: number; fraudTxns: number; totalRings: number; totalAlerts: number; totalVolume: number }> {
-    const txRes = await this.pool.query(`SELECT COUNT(*) as total_txns, SUM(CASE WHEN label_fraud = TRUE THEN 1 ELSE 0 END) as fraud_txns, SUM(amount_bdt) as total_vol FROM transactions`);
-    const ringRes = await this.pool.query(`SELECT COUNT(*) as total_rings FROM ring_cases`);
-    const alertRes = await this.pool.query(`SELECT COUNT(*) as total_alerts FROM alert_cases`);
+  // ================= CUSTOMER INTERVENTIONS =================
+  async logIntervention(record: { intervention_id: string; txn_id: string; variant: string; shown_ts: string; customer_action: string; treatment_flag?: boolean }): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO customer_interventions (intervention_id, txn_id, variant, shown_ts, customer_action, treatment_flag)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (intervention_id) DO NOTHING`,
+      [record.intervention_id, record.txn_id, record.variant, record.shown_ts, record.customer_action, record.treatment_flag !== false]
+    );
+  }
 
-    return {
-      totalTxns: Number(txRes.rows[0]?.total_txns || 0),
-      fraudTxns: Number(txRes.rows[0]?.fraud_txns || 0),
-      totalRings: Number(ringRes.rows[0]?.total_rings || 0),
-      totalAlerts: Number(alertRes.rows[0]?.total_alerts || 0),
-      totalVolume: Number(txRes.rows[0]?.total_vol || 0)
-    };
+  async getCustomerInterventions(limit: number = 50): Promise<any[]> {
+    const res = await this.pool.query(`SELECT * FROM customer_interventions ORDER BY shown_ts DESC LIMIT $1`, [limit]);
+    return res.rows;
   }
 }
 

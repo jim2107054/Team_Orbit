@@ -72,6 +72,24 @@ export class RiskEngineService {
       ruleTrace.push({ rule: 'HIGH_BALANCE_DRAIN_RATIO', fired: true });
     }
 
+    // Channel-Aware Behavioral Risk (USSD / Cross-Channel Account Hijacking Context)
+    const channelFeats = features.channel_features;
+    if (channelFeats) {
+      if (channelFeats.cross_channel_behavior_change >= 0.50 && features.is_new_recipient) {
+        tabularScore += 0.25;
+        baselineTabular += 0.25;
+        triggeredReasons.push({ code: 'RC14', weight: 0.30 });
+        ruleTrace.push({ rule: 'UNUSUAL_CROSS_CHANNEL_USSD_SWITCH', fired: true });
+      }
+
+      if (channelFeats.device_channel_mismatch) {
+        tabularScore += 0.20;
+        baselineTabular += 0.20;
+        triggeredReasons.push({ code: 'RC15', weight: 0.25 });
+        ruleTrace.push({ rule: 'DEVICE_CHANNEL_CAPABILITY_MISMATCH', fired: true });
+      }
+    }
+
     // Temporal Intelligence Rule Triggers
     if (isHighSeasonalAlignment && !isATOThreat && recipientRingRisk < 0.4) {
       triggeredReasons.push({ code: 'RC12', weight: -0.25 });

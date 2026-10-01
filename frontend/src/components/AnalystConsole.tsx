@@ -85,7 +85,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
         })
       });
       const data = await res.json();
-      setActionSuccess(`Action ${action} recorded with SHA-256 Audit Log!`);
+      setActionSuccess(`Action ${action} recorded and cryptographically chained!`);
       setTimeout(() => setActionSuccess(null), 4000);
       fetchCases();
     } catch (err) {
@@ -96,28 +96,28 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
   return (
     <div className="space-y-6">
       {/* Top Banner Alert Bar */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-slate-800">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 dream-card shadow-sm">
         <div>
-          <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-red-400" />
-            <span>Fraud Operations & Compliance Triage Console</span>
+          <h2 className="text-lg font-poppins font-bold text-[#000000] flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-[#FF9F43]" />
+            <span>Fraud Operations &amp; Compliance Triage Console</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Rule of 3 Answers: <em>What Happened? · Why Risky? · What Next?</em> backed by Fact-Verified Copilot.
+          <p className="text-xs font-nunito text-[#646B72] mt-0.5">
+            Rule of 3 Answers: <em>What Happened? · Why Risky? · What Next?</em> grounded in evidence.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onOpenRing}
-            className="px-3 py-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/40 text-purple-300 text-xs font-semibold flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-semibold flex items-center gap-1.5 shadow-sm"
           >
             <span>🕸️ Open Ring-12 Explorer</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 text-[#FF9F43]" />
           </button>
           <button
             onClick={onOpenTrace}
-            className="px-3 py-1.5 rounded-lg bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 text-xs font-semibold flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-[5px] bg-[#FF9F43] hover:bg-[#f08e2f] text-white text-xs font-poppins font-semibold flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(254,159,67,0.20)]"
           >
             <span>⚡ Golden-Hour Money Trace</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -126,20 +126,20 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
       </div>
 
       {actionSuccess && (
-        <div className="p-3 bg-emerald-950/70 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+        <div className="p-3.5 bg-[#198754]/10 border border-[#198754]/30 rounded-none text-[#198754] text-xs font-nunito font-semibold flex items-center gap-2 animate-fadeIn">
           <CheckCircle className="w-4 h-4" />
           <span>{actionSuccess}</span>
         </div>
       )}
 
       {/* Main Grid: Queue on Left, 3-Question Detail on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Left Column: Triage Alert Queue (4 Cols) */}
-        <div className="lg:col-span-4 glass-panel rounded-2xl p-4 border border-slate-800 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <span className="text-xs font-bold text-slate-300">PRIORITIZED ALERT QUEUE</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold">
+        <div className="lg:col-span-4 dream-card p-4 space-y-3 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-[#DADFE5]">
+            <span className="text-xs font-poppins font-bold text-[#212B36]">PRIORITIZED ALERT QUEUE</span>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-[4px] bg-[#FF9F43]/15 text-[#FF9F43] font-mono font-bold">
               {cases.length} ALERTS
             </span>
           </div>
@@ -151,35 +151,35 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 <div
                   key={c.case_id}
                   onClick={() => setSelectedCase(c)}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  className={`p-3.5 rounded-none border cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-slate-800/90 border-cyan-500 shadow-md shadow-cyan-500/10'
-                      : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-800/50'
+                      ? 'bg-[#FFFFFF] border-l-4 border-l-[#FF9F43] border-t-[#DADFE5] border-r-[#DADFE5] border-b-[#DADFE5] shadow-sm'
+                      : 'bg-[#F7F7F7] border-[#DADFE5] hover:bg-[#FFFFFF]'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-mono text-xs font-bold text-white">{c.case_id}</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-mono text-xs font-bold text-[#000000]">{c.case_id}</span>
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
+                      className={`text-[10px] px-2 py-0.5 rounded-[4px] font-nunito font-bold ${
                         c.risk_tier === 'T3'
-                          ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          ? 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30'
+                          : 'bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30'
                       }`}
                     >
                       {c.risk_tier} ({(c.risk_score * 100).toFixed(0)}%)
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
-                    <span>৳ {c.amount_bdt.toLocaleString()}</span>
-                    <span className="text-[11px] text-slate-400 font-mono">{c.receiver_wallet}</span>
+                  <div className="flex items-center justify-between text-xs font-nunito text-[#212529] mb-1">
+                    <span className="font-poppins font-bold text-[#000000]">৳ {c.amount_bdt.toLocaleString()}</span>
+                    <span className="text-[11px] text-[#646B72] font-mono">{c.receiver_wallet}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-800/60">
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Clock className="w-3 h-3" /> SLA: 07:42
+                  <div className="flex items-center justify-between text-[10px] font-nunito text-[#646B72] pt-1 border-t border-[#DADFE5]">
+                    <span className="flex items-center gap-1 text-[#646B72]">
+                      <Clock className="w-3 h-3 text-[#FF9F43]" /> SLA: 07:42
                     </span>
-                    <span className="text-cyan-400 font-semibold">{c.status}</span>
+                    <span className="text-[#092C4C] font-semibold">{c.status}</span>
                   </div>
                 </div>
               );
@@ -192,19 +192,19 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
           <div className="lg:col-span-8 space-y-4">
             
             {/* Case Header Card */}
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div className="dream-card p-5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-base font-extrabold text-white">{selectedCase.case_id}</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 font-bold border border-red-500/30">
+                  <span className="font-mono text-base font-bold text-[#000000]">{selectedCase.case_id}</span>
+                  <span className="text-xs px-2.5 py-0.5 rounded-[4px] bg-[#FF0000]/10 text-[#FF0000] font-nunito font-bold border border-[#FF0000]/30">
                     {selectedCase.risk_tier} High Alert
                   </span>
-                  <span className="text-xs text-slate-400">Typology: Emergency-Relative Scam (T1)</span>
+                  <span className="text-xs font-nunito text-[#646B72]">Typology: Emergency-Relative (T1)</span>
                 </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  Sender: <strong className="text-slate-200">{selectedCase.sender_wallet}</strong> ➔ Recipient:{' '}
-                  <strong className="text-slate-200">{selectedCase.receiver_wallet}</strong> | Amount:{' '}
-                  <strong className="text-cyan-300">৳ {selectedCase.amount_bdt.toLocaleString()}</strong>
+                <div className="text-xs font-nunito text-[#646B72] mt-1">
+                  Sender: <strong className="text-[#212529]">{selectedCase.sender_wallet}</strong> ➔ Recipient:{' '}
+                  <strong className="text-[#212529]">{selectedCase.receiver_wallet}</strong> | Amount:{' '}
+                  <strong className="text-[#FF9F43] font-poppins font-bold">৳ {selectedCase.amount_bdt.toLocaleString()}</strong>
                 </div>
               </div>
 
@@ -212,21 +212,21 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleAction('CONFIRM_FRAUD')}
-                  className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs flex items-center gap-1.5 shadow-sm"
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>Confirm Fraud</span>
                 </button>
                 <button
                   onClick={() => handleAction('APPROVE_FOUR_EYES')}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-[5px] bg-[#212B36] hover:bg-[#171f28] text-white font-nunito font-semibold text-xs flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(27,40,80,0.15)]"
                 >
-                  <UserCheck className="w-3.5 h-3.5" />
+                  <UserCheck className="w-3.5 h-3.5 text-[#FF9F43]" />
                   <span>Four-Eyes Approve</span>
                 </button>
                 <button
                   onClick={() => handleAction('MARK_FALSE_POSITIVE')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700"
+                  className="dream-btn-outline px-3 py-1 text-xs"
                 >
                   False Positive
                 </button>
@@ -234,66 +234,66 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
             </div>
 
             {/* 3-Answers Section: What Happened · Why Risky · What Next */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
               
               {/* 1. What Happened? */}
-              <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
-                <h4 className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
+              <div className="dream-card p-4 space-y-2 shadow-sm">
+                <h4 className="text-xs font-poppins font-bold text-[#092C4C] flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#FF9F43]" />
                   <span>1. WHAT HAPPENED?</span>
                 </h4>
-                <div className="space-y-2 text-xs text-slate-300">
-                  <div className="p-2 bg-slate-900 rounded-lg">
-                    <span className="text-[10px] text-slate-500 block">23:41:07</span>
+                <div className="space-y-2 text-xs font-nunito text-[#212529]">
+                  <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
+                    <span className="text-[10px] text-[#646B72] block">23:41:07</span>
                     <span>Send ৳18,500 to new recipient</span>
                   </div>
-                  <div className="p-2 bg-slate-900 rounded-lg">
-                    <span className="text-[10px] text-slate-500 block">23:43:00</span>
+                  <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
+                    <span className="text-[10px] text-[#646B72] block">23:43:00</span>
                     <span>Recipient prepares 3 split layering hops</span>
                   </div>
-                  <div className="p-2 bg-slate-900 rounded-lg">
-                    <span className="text-[10px] text-slate-500 block">23:52:00</span>
+                  <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
+                    <span className="text-[10px] text-[#646B72] block">23:52:00</span>
                     <span>Cash-out attempt at Agent DH-8821</span>
                   </div>
                 </div>
               </div>
 
               {/* 2. Why Is It Risky? */}
-              <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
-                <h4 className="text-xs font-bold text-red-400 flex items-center gap-1.5">
+              <div className="dream-card p-4 space-y-2 shadow-sm">
+                <h4 className="text-xs font-poppins font-bold text-[#FF0000] flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4" />
                   <span>2. WHY IS IT RISKY?</span>
                 </h4>
-                <div className="space-y-1.5 text-xs text-slate-300">
+                <div className="space-y-1.5 text-xs font-nunito text-[#212529]">
                   {selectedCase.reasons.map((r, idx) => (
-                    <div key={idx} className="p-2 bg-slate-900 rounded-lg border border-red-500/10">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-red-300">
+                    <div key={idx} className="p-2 bg-[#F7F7F7] border border-[#DADFE5]">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-[#FF0000]">
                         <span>{r.code}</span>
                         <span>{(r.weight * 100).toFixed(0)}% weight</span>
                       </div>
-                      <p className="text-[11px] text-slate-300 mt-0.5">{r.label_en}</p>
+                      <p className="text-[11px] text-[#212529] mt-0.5">{r.label_en}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* 3. What Next (Suggested Actions)? */}
-              <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
-                <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              {/* 3. What Next? */}
+              <div className="dream-card p-4 space-y-2 shadow-sm">
+                <h4 className="text-xs font-poppins font-bold text-[#198754] flex items-center gap-1.5">
                   <CheckCircle className="w-4 h-4" />
                   <span>3. WHAT NEXT?</span>
                 </h4>
-                <div className="space-y-2 text-xs">
-                  <div className="p-2 bg-emerald-950/30 border border-emerald-500/20 rounded-lg text-slate-200">
-                    <strong className="text-emerald-300 block mb-0.5">1. Place Downstream Hold</strong>
+                <div className="space-y-2 text-xs font-nunito">
+                  <div className="p-2.5 bg-[#198754]/10 border border-[#198754]/30 text-[#212529]">
+                    <strong className="text-[#198754] block mb-0.5">1. Place Downstream Hold</strong>
                     <span>Hold ৳11,200 active in 2 downstream wallets.</span>
                   </div>
-                  <div className="p-2 bg-slate-900 rounded-lg text-slate-300">
-                    <strong className="text-cyan-300 block mb-0.5">2. Welfare Callback</strong>
-                    <span>Call victim Rahima to ensure physical safety.</span>
+                  <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
+                    <strong className="text-[#092C4C] block mb-0.5">2. Welfare Callback</strong>
+                    <span>Call victim Rahima to ensure safety.</span>
                   </div>
-                  <div className="p-2 bg-slate-900 rounded-lg text-slate-300">
-                    <strong className="text-purple-300 block mb-0.5">3. Escalate Ring-12</strong>
+                  <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
+                    <strong className="text-[#FF9F43] block mb-0.5">3. Escalate Ring-12</strong>
                     <span>Add to MLRO file for formal STR reporting.</span>
                   </div>
                 </div>
@@ -301,30 +301,30 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
             </div>
 
             {/* Fact-Verified GenAI Copilot Panel (M12) */}
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="dream-card p-5 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-[#DADFE5]">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
-                  <h3 className="font-extrabold text-sm text-white">Investigation Copilot Brief</h3>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <Sparkles className="w-5 h-5 text-[#FF9F43]" />
+                  <h3 className="font-poppins font-bold text-sm text-[#000000]">Investigation Copilot Brief</h3>
+                  <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-nunito font-bold bg-[#198754]/15 text-[#198754] border border-[#198754]/30 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
                     <span>✔ Verified 6/6 Claims</span>
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+                <div className="flex items-center gap-1 bg-[#F7F7F7] p-1 rounded-[5px] border border-[#DADFE5] text-xs font-nunito">
                   <button
                     onClick={() => setBriefLang('en')}
-                    className={`px-2.5 py-1 rounded font-semibold ${
-                      briefLang === 'en' ? 'bg-cyan-600 text-white' : 'text-slate-400'
+                    className={`px-3 py-1 rounded-[4px] font-semibold ${
+                      briefLang === 'en' ? 'bg-[#212B36] text-white' : 'text-[#646B72]'
                     }`}
                   >
                     English
                   </button>
                   <button
                     onClick={() => setBriefLang('bn')}
-                    className={`px-2.5 py-1 rounded font-semibold ${
-                      briefLang === 'bn' ? 'bg-cyan-600 text-white' : 'text-slate-400'
+                    className={`px-3 py-1 rounded-[4px] font-semibold ${
+                      briefLang === 'bn' ? 'bg-[#212B36] text-white' : 'text-[#646B72]'
                     }`}
                   >
                     বাংলা
@@ -333,24 +333,24 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
               </div>
 
               {isGeneratingBrief ? (
-                <div className="py-8 text-center text-xs text-slate-400">
-                  <Sparkles className="w-6 h-6 text-cyan-400 mx-auto animate-spin mb-2" />
+                <div className="py-8 text-center text-xs font-nunito text-[#646B72]">
+                  <Sparkles className="w-6 h-6 text-[#FF9F43] mx-auto animate-spin mb-2" />
                   <span>Grounding facts with Evidence Pack & Claim Verifier...</span>
                 </div>
               ) : copilotBrief ? (
-                <div className="space-y-4 text-xs">
-                  <p className="text-slate-300 leading-relaxed font-medium bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                <div className="space-y-3.5 text-xs font-nunito">
+                  <p className="text-[#212529] leading-relaxed font-medium bg-[#F7F7F7] p-3.5 rounded-none border border-[#DADFE5]">
                     {copilotBrief.summary}
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {copilotBrief.sections.map((sec: any, idx: number) => (
-                      <div key={idx} className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                        <h5 className="font-bold text-slate-200 mb-2">{sec.title}</h5>
-                        <div className="space-y-1.5 text-slate-300">
+                      <div key={idx} className="p-3.5 bg-[#FFFFFF] rounded-none border border-[#DADFE5]">
+                        <h5 className="font-poppins font-bold text-[#000000] mb-2">{sec.title}</h5>
+                        <div className="space-y-1.5 text-[#212529]">
                           {sec.sentences.map((st: any, sIdx: number) => (
                             <div key={sIdx} className="flex items-start gap-1.5">
-                              <span className="text-emerald-400 font-bold">✔</span>
+                              <span className="text-[#198754] font-bold">✔</span>
                               <span>{st.text}</span>
                             </div>
                           ))}
@@ -359,19 +359,21 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                     ))}
                   </div>
 
-                  {/* Pre-filled STR Draft */}
+                  {/* STR Draft */}
                   {copilotBrief.str_draft && (
-                    <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <div className="p-3.5 bg-[#F7F7F7] rounded-none border border-[#DADFE5]">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-mono text-[11px] text-slate-400">📄 PRE-FILLED STR DRAFT (HUMAN REVIEW REQUIRED)</span>
+                        <span className="font-mono text-[11px] font-bold text-[#646B72]">
+                          📄 PRE-FILLED STR DRAFT (HUMAN REVIEW REQUIRED)
+                        </span>
                         <button
                           onClick={() => alert('STR Draft Exported as PDF/JSON.')}
-                          className="text-[11px] text-cyan-400 font-bold hover:underline"
+                          className="text-[11px] text-[#092C4C] font-bold hover:underline"
                         >
                           Export STR
                         </button>
                       </div>
-                      <pre className="text-[11px] text-slate-300 font-mono whitespace-pre-wrap">
+                      <pre className="text-[11px] text-[#212529] font-mono whitespace-pre-wrap">
                         {copilotBrief.str_draft}
                       </pre>
                     </div>

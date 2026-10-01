@@ -25,7 +25,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#060d1f]">
+    <div className="min-h-screen flex flex-col justify-between bg-[#F7F7F7] text-[#212529]">
       {/* Top App Header */}
       <Header
         activeTab={activeTab}
@@ -33,8 +33,8 @@ export default function Home() {
         onSelectScenario={handleSelectScenario}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+      {/* Main Content Area (Max width 1440px with generous spacing) */}
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 lg:px-6 py-6">
         {activeTab === 'customer' && <CustomerApp />}
         {activeTab === 'analyst' && (
           <AnalystConsole
@@ -50,16 +50,16 @@ export default function Home() {
         {activeTab === 'audit' && <AuditLogView />}
       </main>
 
-      {/* Footer */}
-      <footer className="glass-panel border-t border-slate-800/80 py-4 mt-8">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      {/* Footer (Dreams POS Style: 56px height, Nunito typography) */}
+      <footer className="bg-[#FFFFFF] border-t border-[#DADFE5] py-4 mt-8">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-6 flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-nunito text-[#646B72]">
           <div>
-            <span className="font-bold text-slate-300">upay Shield</span> — AI Hackathon 2026 (DIU CPC × upay).
-            100% Synthetic Data. No production data used.
+            <strong className="text-[#212B36] font-poppins">upay Shield</strong> — AI Hackathon 2026 (DIU CPC × upay).
+            Hosted on Neon PostgreSQL.
           </div>
-          <div className="flex items-center gap-4">
-            <span>IEEE 29148 / 830 Compliant SRS</span>
-            <span>Grounded GenAI &amp; Louvain Graph Engine</span>
+          <div className="flex items-center gap-4 text-[#212529]">
+            <span>IEEE 29148 / 830 Specification</span>
+            <span className="text-[#FF9F43] font-bold">Dreams POS Design System Compliant</span>
           </div>
         </div>
       </footer>

@@ -22,35 +22,37 @@ export const FairnessDrift: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="dream-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-lg text-white">⚖️ Responsible AI, Fairness & PSI Drift Audit</span>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+            <span className="font-poppins font-bold text-lg text-[#000000]">
+              ⚖️ Responsible AI, Fairness &amp; PSI Drift Audit
+            </span>
+            <span className="px-2.5 py-0.5 rounded-[4px] text-xs font-nunito font-bold bg-[#198754]/15 text-[#198754] border border-[#198754]/30">
               RAI-03 &amp; RAI-04 Compliant
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Demographic parity auditing across Gender, Rural vs. Urban, Age Bands, and Onboarding Channels without proxy discrimination.
+          <p className="text-xs font-nunito text-[#646B72] mt-0.5">
+            Demographic parity auditing across Gender, Rural vs. Urban, Age Bands, and Onboarding Channels without proxy bias.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-bold">
+        <div className="flex items-center gap-2 text-xs font-nunito text-[#198754] bg-[#198754]/10 border border-[#198754]/30 px-3.5 py-1.5 rounded-[5px] font-bold">
           <CheckCircle2 className="w-4 h-4" />
           <span>All Disparity Ratios &lt; 1.25x (PASS)</span>
         </div>
       </div>
 
       {/* Fairness Slices Table */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-        <h3 className="text-xs font-bold text-cyan-400 flex items-center gap-1.5 pb-2 border-b border-slate-800">
-          <Users className="w-4 h-4" />
+      <div className="dream-card p-5 space-y-3 shadow-sm">
+        <h3 className="text-xs font-poppins font-bold text-[#092C4C] flex items-center gap-1.5 pb-2 border-b border-[#DADFE5]">
+          <Users className="w-4 h-4 text-[#FF9F43]" />
           <span>DEMOGRAPHIC FAIRNESS SLICES (PROTECTED ATTRIBUTES EXCLUDED FROM MODEL INPUTS)</span>
         </h3>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900/90 text-slate-400 text-[11px] uppercase border-b border-slate-800">
+          <table className="w-full text-left text-xs font-nunito text-[#212529]">
+            <thead className="bg-[#F7F7F7] text-[#000000] font-poppins font-bold text-[11px] uppercase border-b border-[#DADFE5]">
               <tr>
                 <th className="py-3 px-4">Slice Name</th>
                 <th className="py-3 px-4">Category</th>
@@ -62,18 +64,18 @@ export const FairnessDrift: React.FC = () => {
                 <th className="py-3 px-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-[#DADFE5]">
               {slices.map((s, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/40">
-                  <td className="py-3 px-4 font-semibold text-white">{s.slice_name}</td>
-                  <td className="py-3 px-4 text-slate-400 text-[11px]">{s.category}</td>
+                <tr key={idx} className="hover:bg-[#F7F7F7]">
+                  <td className="py-3 px-4 font-semibold text-[#000000]">{s.slice_name}</td>
+                  <td className="py-3 px-4 text-[#646B72] text-[11px]">{s.category}</td>
                   <td className="py-3 px-4 font-mono">{s.total_samples.toLocaleString()}</td>
                   <td className="py-3 px-4">{s.alert_rate_pct}%</td>
-                  <td className="py-3 px-4 text-amber-300 font-semibold">{s.fpr_pct}%</td>
-                  <td className="py-3 px-4 text-emerald-400 font-bold">{s.tpr_recall_pct}%</td>
-                  <td className="py-3 px-4 font-mono font-bold text-cyan-300">{s.disparity_ratio}x</td>
+                  <td className="py-3 px-4 text-[#FF9F43] font-semibold">{s.fpr_pct}%</td>
+                  <td className="py-3 px-4 text-[#198754] font-bold">{s.tpr_recall_pct}%</td>
+                  <td className="py-3 px-4 font-mono font-bold text-[#092C4C]">{s.disparity_ratio}x</td>
                   <td className="py-3 px-4">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-[#198754]/15 text-[#198754] border border-[#198754]/30">
                       FAIR
                     </span>
                   </td>
@@ -85,25 +87,25 @@ export const FairnessDrift: React.FC = () => {
       </div>
 
       {/* Feature PSI Drift Monitors & Model Card */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* PSI Drift (6 Cols) */}
-        <div className="lg:col-span-6 glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-          <h3 className="text-xs font-bold text-amber-400 flex items-center gap-1.5 pb-2 border-b border-slate-800">
-            <Activity className="w-4 h-4" />
+        <div className="lg:col-span-6 dream-card p-5 space-y-3 shadow-sm">
+          <h3 className="text-xs font-poppins font-bold text-[#212B36] flex items-center gap-1.5 pb-2 border-b border-[#DADFE5]">
+            <Activity className="w-4 h-4 text-[#FF9F43]" />
             <span>POPULATION STABILITY INDEX (PSI) DRIFT TELEMETRY</span>
           </h3>
 
-          <div className="space-y-2 text-xs">
+          <div className="space-y-2 text-xs font-nunito">
             {drift.map((d, idx) => (
-              <div key={idx} className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+              <div key={idx} className="p-3 bg-[#F7F7F7] border border-[#DADFE5] flex items-center justify-between">
                 <div>
-                  <span className="font-mono text-slate-200 font-bold">{d.feature_name}</span>
-                  <span className="text-[10px] text-slate-500 block">Baseline vs Live Window</span>
+                  <span className="font-mono text-[#000000] font-bold">{d.feature_name}</span>
+                  <span className="text-[10px] text-[#646B72] block">Baseline vs Live Window</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono text-cyan-400 font-bold text-xs">{d.psi_score}</span>
-                  <span className="block text-[10px] text-emerald-400 font-semibold">{d.status}</span>
+                  <span className="font-mono text-[#FF9F43] font-bold text-xs">{d.psi_score}</span>
+                  <span className="block text-[10px] text-[#198754] font-semibold">{d.status}</span>
                 </div>
               </div>
             ))}
@@ -111,23 +113,23 @@ export const FairnessDrift: React.FC = () => {
         </div>
 
         {/* Model Card Metadata (6 Cols) */}
-        <div className="lg:col-span-6 glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-          <h3 className="text-xs font-bold text-purple-400 flex items-center gap-1.5 pb-2 border-b border-slate-800">
-            <FileCode className="w-4 h-4" />
-            <span>MODEL CARD & ETHICAL DISCLOSURES (GUIDELINE §14)</span>
+        <div className="lg:col-span-6 dream-card p-5 space-y-3 shadow-sm">
+          <h3 className="text-xs font-poppins font-bold text-[#092C4C] flex items-center gap-1.5 pb-2 border-b border-[#DADFE5]">
+            <FileCode className="w-4 h-4 text-[#FF9F43]" />
+            <span>MODEL CARD &amp; ETHICAL DISCLOSURES (GUIDELINE §14)</span>
           </h3>
 
-          <div className="space-y-2.5 text-xs text-slate-300">
-            <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
-              <strong className="text-white block mb-1">Model Architecture:</strong>
-              <p className="text-slate-400 text-[11px]">
+          <div className="space-y-2.5 text-xs font-nunito text-[#212529]">
+            <div className="p-3 bg-[#F7F7F7] border border-[#DADFE5]">
+              <strong className="text-[#000000] block mb-1 font-poppins">Model Architecture:</strong>
+              <p className="text-[#646B72] text-[11px]">
                 Multi-layer Ensemble: Supervised Gradient Boosting + Isolation Forest Anomaly + Heterogeneous Network Graph Proximity + NLP Scam Classifier.
               </p>
             </div>
 
-            <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
-              <strong className="text-white block mb-1">Ethical Bounds & Safeguards:</strong>
-              <p className="text-slate-400 text-[11px]">
+            <div className="p-3 bg-[#F7F7F7] border border-[#DADFE5]">
+              <strong className="text-[#000000] block mb-1 font-poppins">Ethical Bounds &amp; Safeguards:</strong>
+              <p className="text-[#646B72] text-[11px]">
                 Gender, exact religion, and raw demographic attributes are strictly omitted from scoring inputs.
                 Zero autonomous permanent denials; all high-impact actions mandate human-in-the-loop analyst review.
               </p>

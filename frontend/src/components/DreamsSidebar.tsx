@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, ShieldAlert, Network, Clock, BarChart3, 
-  Users, Smartphone, FileText, Shield, Radio, ChevronDown, 
-  ChevronRight, Sparkles, Activity, AlertTriangle
+  Users, Smartphone, FileText, Shield, Radio, Sparkles, 
+  Activity, ShieldCheck
 } from 'lucide-react';
 
 interface DreamsSidebarProps {
@@ -15,9 +15,6 @@ interface DreamsSidebarProps {
 
 export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = false }) => {
   const pathname = usePathname();
-  const [dashboardOpen, setDashboardOpen] = useState(true);
-  const [channelsOpen, setChannelsOpen] = useState(true);
-  const [governanceOpen, setGovernanceOpen] = useState(true);
 
   const isActive = (path: string) => {
     if (path === '/' && pathname === '/') return true;
@@ -28,7 +25,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
   return (
     <aside
       className={`bg-[#FFFFFF] border-r border-[#E8EBED] flex flex-col justify-between select-none transition-all duration-300 ${
-        isCollapsed ? 'w-[72px]' : 'w-[255px]'
+        isCollapsed ? 'w-[72px]' : 'w-[260px]'
       } min-h-[calc(100vh-64px)] shadow-[2px_0px_10px_0px_rgba(0,0,0,0.01)]`}
     >
       <div className="py-4 overflow-y-auto max-h-[calc(100vh-64px)]">
@@ -41,8 +38,8 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             </span>
           )}
 
-          {/* Executive Dashboard Group */}
-          <div>
+          <div className="space-y-1">
+            {/* Executive Dashboard */}
             <Link
               href="/"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -53,16 +50,14 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             >
               <div className="flex items-center gap-2.5">
                 <LayoutDashboard className={`w-4 h-4 ${isActive('/') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
-                {!isCollapsed && <span>Executive Dashboard</span>}
+                {!isCollapsed && <span>Executive Overview</span>}
               </div>
               {!isCollapsed && isActive('/') && (
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF9F43]"></span>
               )}
             </Link>
-          </div>
 
-          {/* Analyst Triage Hub */}
-          <div className="mt-1">
+            {/* Analyst Triage Hub */}
             <Link
               href="/analyst"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -81,10 +76,8 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
                 </span>
               )}
             </Link>
-          </div>
 
-          {/* Ring-12 Mule Network Explorer */}
-          <div className="mt-1">
+            {/* Ring-12 Mule Explorer */}
             <Link
               href="/rings"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -95,16 +88,14 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             >
               <div className="flex items-center gap-2.5">
                 <Network className={`w-4 h-4 ${isActive('/rings') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
-                {!isCollapsed && <span>Ring-12 Explorer</span>}
+                {!isCollapsed && <span>Ring-12 Mule Explorer</span>}
               </div>
               {!isCollapsed && (
                 <span className="text-[10px] text-[#A0AEC0]">Graph</span>
               )}
             </Link>
-          </div>
 
-          {/* Golden-Hour Recovery Trace */}
-          <div className="mt-1">
+            {/* Golden-Hour Recovery Trace */}
             <Link
               href="/recovery"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -124,7 +115,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
           </div>
         </div>
 
-        {/* Section 2: TRANSACTION & INTERCEPTION CHANNELS */}
+        {/* Section 2: CHANNELS & SCAM INTERCEPTION */}
         <div className="px-4 my-3 pt-3 border-t border-[#E8EBED]">
           {!isCollapsed && (
             <span className="text-[11px] font-poppins font-bold text-[#A0AEC0] uppercase tracking-wider block mb-2">
@@ -144,16 +135,16 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             >
               <div className="flex items-center gap-2.5">
                 <Smartphone className={`w-4 h-4 ${isActive('/customer') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
-                {!isCollapsed && <span>Customer App Demo</span>}
+                {!isCollapsed && <span>Customer Mobile App</span>}
               </div>
               {!isCollapsed && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[#1B2850]/10 text-[#1B2850] font-mono">
-                  Bangla AI
+                  Voice AI
                 </span>
               )}
             </Link>
 
-            {/* USSD Simulator */}
+            {/* USSD (*268#) Simulator */}
             <Link
               href="/ussd"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -173,7 +164,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
-            {/* Agent Guard */}
+            {/* Agent Guard Portal */}
             <Link
               href="/agent"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -193,7 +184,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
           </div>
         </div>
 
-        {/* Section 3: GOVERNANCE, FAIRNESS & ROI */}
+        {/* Section 3: FAIRNESS, AUDIT & SIMULATOR */}
         <div className="px-4 my-3 pt-3 border-t border-[#E8EBED]">
           {!isCollapsed && (
             <span className="text-[11px] font-poppins font-bold text-[#A0AEC0] uppercase tracking-wider block mb-2">
@@ -213,7 +204,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             >
               <div className="flex items-center gap-2.5">
                 <Users className={`w-4 h-4 ${isActive('/fairness') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
-                {!isCollapsed && <span>Fairness &amp; Drift</span>}
+                {!isCollapsed && <span>Fairness &amp; Seasonal Drift</span>}
               </div>
               {!isCollapsed && (
                 <span className="text-[10px] text-[#05A677] font-mono font-bold">
@@ -222,7 +213,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
-            {/* Audit Ledger */}
+            {/* Cryptographic Audit Ledger */}
             <Link
               href="/audit"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -242,7 +233,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
-            {/* ROI Simulator */}
+            {/* ROI & Business Impact Simulator */}
             <Link
               href="/simulator"
               className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
@@ -253,7 +244,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             >
               <div className="flex items-center gap-2.5">
                 <BarChart3 className={`w-4 h-4 ${isActive('/simulator') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
-                {!isCollapsed && <span>ROI Simulator</span>}
+                {!isCollapsed && <span>ROI &amp; Impact Simulator</span>}
               </div>
             </Link>
           </div>
@@ -266,7 +257,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
         <div className="p-3 border-t border-[#E8EBED] bg-[#FAFAFA] text-[11px] font-nunito text-[#646B72] flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#05A677] animate-pulse"></span>
-            <span>Ensemble v3.2</span>
+            <span>Ensemble Active</span>
           </div>
           <span className="text-[#FF9F43] font-bold font-mono">upay Shield</span>
         </div>

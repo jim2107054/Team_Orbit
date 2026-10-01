@@ -95,6 +95,26 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
+            {/* Scam Campaign Intelligence */}
+            <Link
+              href="/campaigns"
+              className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
+                isActive('/campaigns')
+                  ? 'bg-[#FFF4E8] text-[#FF9F43]'
+                  : 'text-[#646B72] hover:bg-[#F7F7F7] hover:text-[#212B36]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Sparkles className={`w-4 h-4 ${isActive('/campaigns') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
+                {!isCollapsed && <span>Scam Campaigns</span>}
+              </div>
+              {!isCollapsed && (
+                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#FF9F43]/15 text-[#FF9F43] text-[9px] font-mono font-bold">
+                  HOT
+                </span>
+              )}
+            </Link>
+
             {/* Golden-Hour Recovery Trace */}
             <Link
               href="/recovery"

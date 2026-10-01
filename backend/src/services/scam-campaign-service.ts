@@ -525,10 +525,10 @@ export class ScamCampaignService {
 
     const scriptTemplates = [
       "উপায় কাস্টমার কেয়ার থেকে ফোন করে বলেছে আমার একাউন্ট সিকিউরিটি আপডেটের জন্য বন্ধ হয়ে যাবে। ওটিপি চেয়ে ১৮,৫০০ টাকা পাঠাতে বলেছে।",
-      "ফোন করে বললো উনি উপায় হেড অফিস ঢাকা থেকে বলছেন। আমার একাউন্ট সচল রাখতে এখনি ১৮,৫০০ টাকা পাঠাতে হবে ০১৩৯৯-৯৯১৮২৩ নম্বরে।",
-      "upay customer care theke call diye bolse emergency PIN update na korle taka freeze hobe. 18500 taka send korte bolse.",
-      "উপায় কর্মকর্তা পরিচয়ে ফোন দিয়ে ভয় দেখিয়েছে। বলেছে পুলিশ কেইস হবে যদি এখনি ১৮,৫০০ টাকা সিকিউরিটি ডিপোজিট না করি।",
-      "Customer care officer bolteche amar NID verification incomplete. 18500 BDT pathate bolche OTP shoho."
+      "উপায় হেড অফিস কাস্টমার কেয়ার ঢাকা থেকে বলছে। একাউন্ট সচল রাখতে এখনি ওটিপি বলুন এবং ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান।",
+      "upay customer care theke call diye bolse emergency PIN update na korle account bondho hobe. 18500 taka OTP shoho send korte bolse.",
+      "উপায় কাস্টমার কেয়ার কর্মকর্তা পরিচয়ে ফোন দিয়ে বলেছে একাউন্ট ভেরিফিকেশনের জন্য এখনই ওটিপি ও ১৮,৫০০ টাকা পাঠাতে হবে।",
+      "upay customer care officer bolteche account security verification er jonno 18500 BDT pathate bolche OTP shoho."
     ];
 
     const baseNumbers = [

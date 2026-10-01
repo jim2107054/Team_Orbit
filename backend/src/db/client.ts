@@ -1,34 +1,42 @@
-import { createClient, Client } from '@libsql/client';
-import path from 'path';
-import fs from 'fs';
-import { DDL_SCHEMA } from './schema.js';
+import pg from 'pg';
+import dotenv from 'dotenv';
+import { POSTGRES_DDL_SCHEMA } from './schema.js';
 
-let dbClient: Client | null = null;
+dotenv.config();
 
-export function getDbClient(): Client {
-  if (dbClient) {
-    return dbClient;
+const { Pool } = pg;
+
+let pool: pg.Pool | null = null;
+
+export function getDbPool(): pg.Pool {
+  if (pool) {
+    return pool;
   }
 
-  const dbDir = path.resolve(process.cwd(), 'data');
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-  }
+  const connectionString = process.env.DATABASE_URL;
 
-  const dbUrl = process.env.DATABASE_URL || `file:${path.join(dbDir, 'upay_shield.db')}`;
-  
-  dbClient = createClient({
-    url: dbUrl
+  pool = new Pool({
+    connectionString,
+    ssl: {
+      rejectUnauthorized: false
+    },
+    max: 20, // Connection pooling (20 concurrent connections)
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
   });
 
-  return dbClient;
+  pool.on('error', (err) => {
+    console.error('Unexpected error on idle PostgreSQL client', err);
+  });
+
+  return pool;
 }
 
 export async function initDatabase(): Promise<void> {
-  const db = getDbClient();
-  
-  // Clean comments and execute individual statements
-  const cleanSql = DDL_SCHEMA
+  const db = getDbPool();
+  console.log('Connecting to Neon PostgreSQL and initializing schema...');
+
+  const cleanSql = POSTGRES_DDL_SCHEMA
     .split('\n')
     .filter(line => !line.trim().startsWith('--'))
     .join('\n');
@@ -38,7 +46,13 @@ export async function initDatabase(): Promise<void> {
     .map(s => s.trim())
     .filter(s => s.length > 0);
 
-  for (const statement of statements) {
-    await db.execute(statement);
+  const client = await db.connect();
+  try {
+    for (const statement of statements) {
+      await client.query(statement);
+    }
+    console.log('Neon PostgreSQL tables and composite indexes initialized successfully.');
+  } finally {
+    client.release();
   }
 }

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Header, TabType } from '../components/Header';
 import { CustomerApp } from '../components/CustomerApp';
+import { UssdSimulator } from '../components/UssdSimulator';
 import { AnalystConsole } from '../components/AnalystConsole';
 import { RingExplorer } from '../components/RingExplorer';
 import { RecoveryTracer } from '../components/RecoveryTracer';
@@ -36,6 +37,7 @@ export default function Home() {
       {/* Main Content Area (Max width 1440px with generous spacing) */}
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 lg:px-6 py-6">
         {activeTab === 'customer' && <CustomerApp />}
+        {activeTab === 'ussd' && <UssdSimulator />}
         {activeTab === 'analyst' && (
           <AnalystConsole
             onOpenRing={() => setActiveTab('rings')}

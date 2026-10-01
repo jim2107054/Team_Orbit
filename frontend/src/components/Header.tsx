@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Shield, ShieldAlert, Network, Clock, BarChart3, Users, Smartphone, FileText, CheckCircle2 } from 'lucide-react';
+import { Shield, ShieldAlert, Network, Clock, BarChart3, Users, Smartphone, FileText, CheckCircle2, Radio } from 'lucide-react';
 
 export type TabType = 
   | 'customer'
+  | 'ussd'
   | 'analyst'
   | 'rings'
   | 'recovery'
@@ -22,6 +23,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onSelectScenario }) => {
   const tabs = [
     { id: 'customer', label: '📱 Customer Demo', icon: Smartphone },
+    { id: 'ussd', label: '📟 USSD (*268#)', icon: Radio },
     { id: 'analyst', label: '🛡️ Analyst Triage', icon: ShieldAlert },
     { id: 'rings', label: '🕸️ Ring Explorer', icon: Network },
     { id: 'recovery', label: '⚡ Golden-Hour Trace', icon: Clock },

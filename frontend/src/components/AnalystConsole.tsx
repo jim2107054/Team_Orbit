@@ -206,6 +206,22 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   <strong className="text-[#212529]">{selectedCase.receiver_wallet}</strong> | Amount:{' '}
                   <strong className="text-[#FF9F43] font-poppins font-bold">৳ {selectedCase.amount_bdt.toLocaleString()}</strong>
                 </div>
+
+                {/* Channel & Device Context Telemetry */}
+                <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-[#DADFE5] text-[11px] font-nunito">
+                  <span className="px-2 py-0.5 bg-[#FF9F43]/15 text-[#FF9F43] font-mono font-bold">
+                    Channel: USSD (*268#)
+                  </span>
+                  <span className="px-2 py-0.5 bg-[#212B36] text-white font-mono font-bold">
+                    Device: FEATURE_PHONE (GSM)
+                  </span>
+                  <span className="px-2 py-0.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
+                    Network: <strong>USSD</strong>
+                  </span>
+                  <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 font-semibold">
+                    Previous 30d Behavior: <strong>95% APP</strong> ➔ Sudden 1st-time USSD (Score: 0.70)
+                  </span>
+                </div>
               </div>
 
               {/* Action Buttons */}

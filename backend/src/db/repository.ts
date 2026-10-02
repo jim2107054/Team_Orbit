@@ -409,6 +409,19 @@ export class ShieldRepository {
     const res = await this.pool.query(`SELECT * FROM customer_interventions ORDER BY shown_ts DESC LIMIT $1`, [limit]);
     return res.rows;
   }
+
+  // ================= SUMMARY STATS =================
+  async getSummaryStats(): Promise<{ totalTxns: number; totalAlerts: number; totalRings: number; totalVolume: number }> {
+    const txnRes = await this.pool.query('SELECT COUNT(*) as count, COALESCE(SUM(amount_bdt), 0) as vol FROM transactions');
+    const alertRes = await this.pool.query('SELECT COUNT(*) as count FROM alert_cases');
+    const ringRes = await this.pool.query('SELECT COUNT(*) as count FROM ring_cases');
+    return {
+      totalTxns: Number(txnRes.rows[0]?.count || 0),
+      totalVolume: Number(txnRes.rows[0]?.vol || 0),
+      totalAlerts: Number(alertRes.rows[0]?.count || 0),
+      totalRings: Number(ringRes.rows[0]?.count || 0)
+    };
+  }
 }
 
 export const repository = new ShieldRepository();

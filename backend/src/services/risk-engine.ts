@@ -26,10 +26,16 @@ export class RiskEngineService {
   private modelVersion = 'shield-ensemble-v1.4.2';
   private rulesVersion = 'policy-yaml-v0.9.1';
 
-  evaluateRisk(features: CalculatedFeatures, recipientRingRisk: number = 0.0): RiskEvaluationResult {
+  evaluateRisk(
+    features: CalculatedFeatures, 
+    recipientRingRisk: number = 0.0,
+    safetyModeActive: boolean = false
+  ): RiskEvaluationResult {
     const startMs = performance.now();
     const ruleTrace: Array<{ rule: string; fired: boolean }> = [];
     const triggeredReasons: Array<{ code: string; weight: number }> = [];
+
+    const isSafetyMode = safetyModeActive || Boolean((features as any).safety_mode_active);
 
     const temporal = features.temporal_features;
     const isHighSeasonalAlignment = temporal && temporal.temporal_behavior_similarity >= 0.75;
@@ -159,16 +165,26 @@ export class RiskEngineService {
     const baselineCalibrated = Math.min(0.99, Math.max(0.01, Number((1 / (1 + Math.exp(-6 * (baselineRawBlend - 0.45)))).toFixed(2))));
 
     // Determine Risk Tier & Action Band (M10 Policy Engine)
+    // Policy thresholds adjust dynamically under Customer Safety Mode (without modifying ML predictions)
     let tier: RiskTier = 'T0';
     let action: PolicyAction = 'ALLOW';
 
-    if (calibratedScore >= 0.85 || atoScore >= 0.8 || (features.is_new_recipient && effectiveZScore >= 4.0 && features.is_night_time)) {
+    const holdThreshold = isSafetyMode ? 0.70 : 0.85;
+    const pauseThreshold = isSafetyMode ? 0.40 : 0.60;
+    const nudgeThreshold = isSafetyMode ? 0.20 : 0.30;
+
+    if (isSafetyMode) {
+      triggeredReasons.push({ code: 'RC16', weight: 0.35 });
+      ruleTrace.push({ rule: 'SAFETY_MODE_PROTECTED_POLICY_THRESHOLDS', fired: true });
+    }
+
+    if (calibratedScore >= holdThreshold || atoScore >= (isSafetyMode ? 0.70 : 0.80) || conversationScamScore >= (isSafetyMode ? 0.70 : 0.85) || (features.is_new_recipient && effectiveZScore >= 4.0 && features.is_night_time)) {
       tier = 'T3';
       action = 'HOLD_ASSIST';
-    } else if (calibratedScore >= 0.60 || features.recipient_report_count >= 2 || (features.is_new_recipient && effectiveZScore >= 2.0)) {
+    } else if (calibratedScore >= pauseThreshold || features.recipient_report_count >= 2 || conversationScamScore >= (isSafetyMode ? 0.40 : 0.60) || (features.is_new_recipient && (effectiveZScore >= (isSafetyMode ? 1.2 : 2.0) || isSafetyMode))) {
       tier = 'T2';
       action = 'PAUSE_VERIFY';
-    } else if (calibratedScore >= 0.30) {
+    } else if (calibratedScore >= nudgeThreshold) {
       tier = 'T1';
       action = 'NUDGE';
     } else {

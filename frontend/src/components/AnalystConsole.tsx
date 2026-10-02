@@ -209,17 +209,20 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
 
                 {/* Channel & Device Context Telemetry */}
                 <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-[#DADFE5] text-[11px] font-nunito">
+                  <span className="px-2 py-0.5 bg-[#05A677]/15 text-[#05A677] border border-[#05A677]/30 font-mono font-bold">
+                    🔒 Safety Mode: ACTIVE (Self-Activated)
+                  </span>
                   <span className="px-2 py-0.5 bg-[#FF9F43]/15 text-[#FF9F43] font-mono font-bold">
-                    Channel: USSD (*268#)
+                    Channel: APP
                   </span>
                   <span className="px-2 py-0.5 bg-[#212B36] text-white font-mono font-bold">
-                    Device: FEATURE_PHONE (GSM)
+                    Device: SMARTPHONE (Android)
                   </span>
                   <span className="px-2 py-0.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
-                    Network: <strong>USSD</strong>
+                    Network: <strong>MOBILE_DATA</strong>
                   </span>
                   <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 font-semibold">
-                    Previous 30d Behavior: <strong>95% APP</strong> ➔ Sudden 1st-time USSD (Score: 0.70)
+                    Policy Action: <strong>PAUSE_VERIFY (-33% threshold under Safety Mode)</strong>
                   </span>
                 </div>
               </div>

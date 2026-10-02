@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, ShieldAlert, Network, Clock, BarChart3, 
   Users, Smartphone, FileText, Shield, Radio, Sparkles, 
-  Activity, ShieldCheck
+  Activity, ShieldCheck, QrCode, MapPin
 } from 'lucide-react';
 
 interface DreamsSidebarProps {
@@ -115,6 +115,26 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
+            {/* Community Scam Spread Map */}
+            <Link
+              href="/propagation"
+              className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
+                isActive('/propagation')
+                  ? 'bg-[#FFF4E8] text-[#FF9F43]'
+                  : 'text-[#646B72] hover:bg-[#F7F7F7] hover:text-[#212B36]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <MapPin className={`w-4 h-4 ${isActive('/propagation') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
+                {!isCollapsed && <span>Scam Spread Map</span>}
+              </div>
+              {!isCollapsed && (
+                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#FF0000]/10 text-[#FF0000] text-[9px] font-mono font-bold">
+                  LIVE
+                </span>
+              )}
+            </Link>
+
             {/* Golden-Hour Recovery Trace */}
             <Link
               href="/recovery"
@@ -180,6 +200,26 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               {!isCollapsed && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[#FF9F43] text-white font-mono font-bold">
                   GSM
+                </span>
+              )}
+            </Link>
+
+            {/* Merchant / QR Scam Shield */}
+            <Link
+              href="/merchants"
+              className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
+                isActive('/merchants')
+                  ? 'bg-[#FFF4E8] text-[#FF9F43]'
+                  : 'text-[#646B72] hover:bg-[#F7F7F7] hover:text-[#212B36]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <QrCode className={`w-4 h-4 ${isActive('/merchants') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
+                {!isCollapsed && <span>Merchant QR Shield</span>}
+              </div>
+              {!isCollapsed && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[#05A677]/10 text-[#05A677] font-mono font-bold">
+                  QR M3
                 </span>
               )}
             </Link>

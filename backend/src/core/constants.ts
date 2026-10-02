@@ -105,6 +105,13 @@ export const REASON_CODES: Record<string, ReasonCodeDetail> = {
     label_bn: 'ডিভাইস এবং লেনদেন চ্যানেলের মধ্যে অস্বাভাবিক অমিল',
     weight: 0.25,
     description: 'Feature-phone device identifier attempting smart mobile application endpoint calls.'
+  },
+  RC16: {
+    code: 'RC16',
+    label_en: 'Customer Safety Mode is active: elevated verification friction applied',
+    label_bn: 'গ্রাহক সুরক্ষা মোড সক্রিয় রয়েছে: অতিরিক্ত নিরাপত্তা যাচাইকরণ ও সতর্কতা প্রযোজ্য',
+    weight: 0.35,
+    description: 'Customer voluntarily activated temporary high-protection Safety Mode.'
   }
 };
 

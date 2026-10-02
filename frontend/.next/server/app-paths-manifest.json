@@ -1,4 +1,15 @@
 {
   "/customer/page": "app/customer/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/ussd/page": "app/ussd/page.js",
+  "/analyst/page": "app/analyst/page.js",
+  "/rings/page": "app/rings/page.js",
+  "/recovery/page": "app/recovery/page.js",
+  "/merchants/page": "app/merchants/page.js",
+  "/propagation/page": "app/propagation/page.js",
+  "/campaigns/page": "app/campaigns/page.js",
+  "/agent/page": "app/agent/page.js",
+  "/audit/page": "app/audit/page.js",
+  "/fairness/page": "app/fairness/page.js",
+  "/simulator/page": "app/simulator/page.js"
 }

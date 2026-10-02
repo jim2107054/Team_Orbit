@@ -5,10 +5,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UpayNavbar } from './UpayNavbar';
 import { UpaySidebar } from './UpaySidebar';
-import { 
-  Settings, X, Shield, Activity, Database, 
-  ArrowRight, RefreshCw, Cpu
+import {
+  X, Shield, Activity, Database, Cpu, ArrowRight,
 } from 'lucide-react';
+
+const QUICK_LINKS = [
+  { label: 'Incident Investigation Desk', href: '/investigations', badge: 'EVIDENCE' },
+  { label: 'Mule Ring Topology', href: '/rings', badge: 'GRAPH' },
+  { label: 'Attack & ROI Simulator', href: '/simulator', badge: 'SIM' },
+  { label: 'Responsible AI & Fairness', href: '/fairness', badge: 'AUDIT' },
+  { label: 'Immutable Audit Ledger', href: '/audit', badge: 'SHA-256' },
+  { label: 'Customer Safety Simulator', href: '/customer', badge: 'APP' },
+  { label: 'USSD Feature-Phone Shield', href: '/ussd', badge: '*268#' },
+];
 
 export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -18,31 +27,29 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
   const [systemHealth, setSystemHealth] = useState<'HEALTHY' | 'CHECKING'>('CHECKING');
   const [dbStatus, setDbStatus] = useState<'CONNECTED' | 'CHECKING'>('CHECKING');
 
-  if (pathname === '/' || pathname === '/intro') {
-    return <>{children}</>;
-  }
+  const isLanding = pathname === '/' || pathname === '/intro';
 
   useEffect(() => {
-    if (drawerOpen) {
-      fetch('/health')
-        .then(r => r.json())
-        .then(d => {
-          if (d.success) setSystemHealth('HEALTHY');
-        })
-        .catch(() => setSystemHealth('HEALTHY'));
+    if (!drawerOpen) return;
 
-      fetch('/api/v1/metrics/summary')
-        .then(r => r.json())
-        .then(d => {
-          if (d.success) setDbStatus('CONNECTED');
-        })
-        .catch(() => setDbStatus('CONNECTED'));
-    }
+    fetch('/health')
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setSystemHealth('HEALTHY'); })
+      .catch(() => setSystemHealth('HEALTHY'));
+
+    fetch('/api/v1/metrics/summary')
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setDbStatus('CONNECTED'); })
+      .catch(() => setDbStatus('CONNECTED'));
   }, [drawerOpen]);
 
+  if (isLanding) return <>{children}</>;
+
   return (
-    <div suppressHydrationWarning className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070E18] text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      {/* Upay Top Navigation Bar */}
+    <div
+      suppressHydrationWarning
+      className="min-h-screen flex flex-col bg-canvas text-ink-body transition-colors duration-200"
+    >
       <UpayNavbar
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -50,126 +57,117 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
-      {/* Main Layout Body: Sidebar + Active Page Content */}
-      <div className="flex-1 flex overflow-hidden">
-        <UpaySidebar 
+      {/* Rail + inset content panel, as in the reference dashboard */}
+      <div className="flex-1 flex gap-0 lg:pr-3 min-h-0">
+        <UpaySidebar
           isCollapsed={isSidebarCollapsed}
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
-        {/* Dynamic Content Canvas */}
-        <main className="flex-1 p-3 sm:p-5 lg:p-6 overflow-y-auto max-h-[calc(100vh-64px)] w-full">
-          <div className="max-w-[1600px] mx-auto animate-fade-in">
-            {children}
+        <main className="flex-1 min-w-0 fx-panel overflow-y-auto max-h-[calc(100vh-72px)] lg:rounded-b-none">
+          <div className="p-4 sm:p-6 lg:p-7">
+            <div className="max-w-[1680px] mx-auto animate-fadeIn">{children}</div>
+
+            {/* Panel footer */}
+            <footer className="max-w-[1680px] mx-auto mt-8 pt-5 border-t border-hairsoft flex flex-col sm:flex-row items-center justify-between gap-2 text-[11.5px] font-ui text-ink-dim">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                <strong className="font-display font-bold text-ink-muted">upay Shield</strong>
+                <span>— Autonomous MFS fraud defense &amp; mule ring intelligence.</span>
+              </span>
+              <span className="flex items-center gap-4 font-num">
+                <span>UCB Fintech Hackathon</span>
+                <span className="text-flame-500 font-bold">Neon PostgreSQL (Pooled)</span>
+              </span>
+            </footer>
           </div>
         </main>
       </div>
 
-      {/* Institutional Upay Shield Footer */}
-      <footer className="bg-white dark:bg-[#0A1322] border-t border-slate-200 dark:border-slate-800 py-3 px-4 lg:px-6 select-none z-20 transition-colors duration-200">
-        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-jakarta text-slate-500 dark:text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>
-              <strong className="text-slate-800 dark:text-slate-200 font-outfit">upay Shield</strong> — Autonomous MFS Fraud Defense &amp; Mule Ring Intelligence Platform.
-            </span>
-          </div>
-          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-            <span>UCB Fintech Hackathon</span>
-            <span className="text-amber-500 dark:text-amber-400 font-bold">Neon PostgreSQL (Pooled)</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* Floating Telemetry Drawer Trigger */}
+      {/* Telemetry drawer trigger */}
       <button
         onClick={() => setDrawerOpen(!drawerOpen)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 w-9 h-9 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-l-lg flex items-center justify-center shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all z-30 cursor-pointer"
-        title="upay Shield Quick Telemetry & Health"
+        className="fixed right-0 top-1/2 -translate-y-1/2 w-9 h-16 rounded-l-2xl bg-flame-gradient text-white flex items-center justify-center shadow-flame-lg hover:w-10 transition-all z-30"
+        title="Quick telemetry & health"
+        aria-label="Open telemetry drawer"
       >
         <Cpu className="w-4 h-4 animate-spin-slow" />
       </button>
 
-      {/* Quick Tools & Telemetry Drawer */}
+      {/* Telemetry drawer */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/50 backdrop-blur-sm animate-fadeIn">
-          <div className="w-80 sm:w-96 bg-white dark:bg-[#0D1726] h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto border-l border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="fixed inset-0 z-50 flex justify-end bg-canvas/70 backdrop-blur-sm animate-fadeIn">
+          <div className="w-80 sm:w-96 h-full bg-panel border-l border-hair shadow-glass p-5 flex flex-col justify-between overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between pb-4 border-b border-hairsoft">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center border border-amber-500/30">
+                  <span className="fx-icon-tile !w-9 !h-9 !bg-flame-500/12 !border-flame-500/30 !text-flame-500">
                     <Shield className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-outfit font-bold text-sm text-slate-900 dark:text-white">System Telemetry</h3>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-jakarta">upay Shield Live Ops</span>
-                  </div>
+                  </span>
+                  <span className="flex flex-col leading-tight">
+                    <strong className="font-display font-bold text-[13.5px] text-ink">
+                      System Telemetry
+                    </strong>
+                    <span className="text-[11px] font-ui text-ink-dim">upay Shield live ops</span>
+                  </span>
                 </div>
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer"
+                  className="fx-icon-btn !w-8 !h-8"
+                  aria-label="Close telemetry drawer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Status Pills */}
               <div className="space-y-2.5 py-4">
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-jakarta">
-                  <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                    <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Risk Scoring Engine</span>
+                <div className="p-3 rounded-xl bg-elev border border-hair flex items-center justify-between text-xs font-ui">
+                  <span className="flex items-center gap-2 font-medium text-ink-muted">
+                    <Activity className="w-3.5 h-3.5 text-success" />
+                    Risk Scoring Engine
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold font-mono text-[10px]">
-                    ONLINE (p95 &lt; 5ms)
+                  <span className="px-2 py-0.5 rounded-full bg-success/15 text-success font-num font-bold text-[10px]">
+                    {systemHealth === 'HEALTHY' ? 'ONLINE · p95 < 5ms' : 'CHECKING…'}
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-jakarta">
-                  <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                    <Database className="w-3.5 h-3.5 text-sky-500" />
-                    <span>Neon PostgreSQL Pool</span>
+                <div className="p-3 rounded-xl bg-elev border border-hair flex items-center justify-between text-xs font-ui">
+                  <span className="flex items-center gap-2 font-medium text-ink-muted">
+                    <Database className="w-3.5 h-3.5 text-info" />
+                    Neon PostgreSQL Pool
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold font-mono text-[10px]">
-                    CONNECTED (25 POOL)
+                  <span className="px-2 py-0.5 rounded-full bg-info/15 text-info font-num font-bold text-[10px]">
+                    {dbStatus === 'CONNECTED' ? 'CONNECTED · 25' : 'CHECKING…'}
                   </span>
                 </div>
               </div>
 
-              {/* Quick Navigation Links */}
-              <div className="space-y-2 pt-2">
-                <span className="text-[10px] font-outfit font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest block px-1">
-                  Fast Dispatch Links
-                </span>
+              <span className="fx-eyebrow block px-1 pt-1 pb-2">Fast Dispatch</span>
 
-                {[
-                  { label: 'Incident Investigation Desk', href: '/investigations', badge: 'EVIDENCE' },
-                  { label: 'Mule Ring Topology', href: '/rings', badge: 'GRAPH' },
-                  { label: 'Attack & ROI Simulator', href: '/simulator', badge: 'SIM' },
-                  { label: 'Responsible AI & Fairness', href: '/fairness', badge: 'AUDIT' },
-                  { label: 'Immutable Audit Ledger', href: '/audit', badge: 'SHA-256' },
-                  { label: 'Customer Safety Simulator', href: '/customer', badge: 'APP' },
-                  { label: 'USSD Feature-Phone Shield', href: '/ussd', badge: '*268#' },
-                ].map((item) => (
+              <div className="space-y-1.5">
+                {QUICK_LINKS.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setDrawerOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-jakarta font-semibold text-slate-800 dark:text-slate-200 hover:bg-amber-500/10 hover:border-amber-500/40 hover:text-amber-500 transition-colors cursor-pointer shadow-sm"
+                    className="group flex items-center justify-between gap-2 p-2.5 rounded-xl bg-card border border-hair text-[12px] font-ui font-semibold text-ink-body hover:border-flame-500/45 hover:text-flame-500 transition-colors"
                   >
-                    <span>{item.label}</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-[9px] font-bold">
-                      {item.badge}
+                    <span className="truncate">{item.label}</span>
+                    <span className="flex items-center gap-1.5 shrink-0">
+                      <span className="px-1.5 py-0.5 rounded-full bg-elev text-ink-dim font-num text-[9px] font-bold">
+                        {item.badge}
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
-              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 block">
-                upay Shield v2.4 · All Systems Nominal
+            <div className="pt-4 mt-4 border-t border-hairsoft text-center">
+              <span className="font-num text-[11px] text-ink-dim">
+                upay Shield v2.4 · all systems nominal
               </span>
             </div>
           </div>

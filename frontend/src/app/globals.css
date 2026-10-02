@@ -1,294 +1,896 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+/* ==========================================================================
+   upay Shield — "Fintrixity" Design System
+   Reference: Finance Analytics landing page / dashboard
+   (near-black canvas · inset rounded panel · matte elevated cards ·
+    one vivid flame-orange accent · hairline borders · generous radii)
+
+   Typeface: Merriweather (display) + Merriweather Sans (interface)
+             Noto Sans Bengali (Bengali script)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Merriweather+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-outfit: 'Outfit', sans-serif;
-  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-bn: 'Hind Siliguri', sans-serif;
-  --font-syne: 'Syne', sans-serif;
-  
-  --primary-flame: #E85D04;
-  --primary-amber: #FF5500;
-  --primary-gold: #FF8800;
-  
-  --canvas-bg: #040508;
-  --surface-bg: #0D0F17;
-  --surface-elevated: #121520;
-  --border-color: #1A1E2C;
-  --text-main: #FFFFFF;
-  --text-muted: #8E95A5;
-  
-  color-scheme: dark;
+/* ===========================================================================
+   Everything below is layered deliberately:
+     · @layer base       — tokens, element defaults, typography, chrome
+     · @layer components — the reusable surface/control classes
+   Layering matters: Tailwind emits utilities AFTER components, so a utility
+   such as `hidden` still beats `.fx-icon-btn { display: inline-flex }`.
+   =========================================================================== */
+
+@layer base {
+  /* --------------------------------------------------------------------------
+     1. Design tokens
+     `--c-*` are space-separated RGB channels so Tailwind can apply
+     opacity modifiers (e.g. `bg-card/80`, `border-hair/60`).
+     -------------------------------------------------------------------------- */
+
+  :root {
+    /* Type stacks — Merriweather only, no generic fallbacks */
+    --font-display: 'Merriweather', 'Noto Sans Bengali';
+    --font-ui: 'Merriweather Sans', 'Noto Sans Bengali';
+    --font-num: 'Merriweather Sans', 'Noto Sans Bengali';
+    --font-bn: 'Noto Sans Bengali', 'Merriweather Sans';
+
+    /* Legacy aliases */
+    --font-outfit: var(--font-display);
+    --font-jakarta: var(--font-ui);
+    --font-mono: var(--font-num);
+    --font-syne: var(--font-display);
+
+    /* Flame accent — constant across themes */
+    --accent: #FF5A1F;
+    --accent-hi: #FF7A3D;
+    --accent-lo: #F04405;
+    --accent-deep: #C73504;
+    --accent-ember: #FFB23D;
+    --accent-rgb: 255 90 31;
+
+    --flame-grad: linear-gradient(135deg, #FF4A00 0%, #FF5A1F 45%, #FF8A3D 100%);
+    --flame-grad-hover: linear-gradient(135deg, #FF5F14 0%, #FF6E33 45%, #FFA055 100%);
+
+    /* ── Light theme ─────────────────────────────────────────────────── */
+    --c-canvas: 244 244 246;        /* #F4F4F6 page */
+    --c-panel: 255 255 255;         /* #FFFFFF content panel */
+    --c-card: 255 255 255;          /* #FFFFFF card */
+    --c-elev: 245 245 247;          /* #F5F5F7 inner / footer strip */
+    --c-raise: 234 234 238;         /* #EAEAEE chip / hover */
+
+    --c-hair: 222 222 228;          /* #DEDEE4 */
+    --c-hairsoft: 237 237 241;      /* #EDEDF1 */
+    --c-hairbold: 203 203 211;      /* #CBCBD3 */
+
+    --c-ink: 14 14 19;              /* #0E0E13 */
+    --c-ink-body: 42 42 51;         /* #2A2A33 */
+    --c-ink-muted: 99 99 110;       /* #63636E */
+    --c-ink-dim: 138 138 149;       /* #8A8A95 */
+
+    --c-inverse: 21 21 27;          /* dark block on a light page */
+    --c-inverse-hi: 44 44 53;
+
+    --c-success: 12 139 86;
+    --c-success-hi: 19 169 104;
+    --c-success-lo: 11 111 70;
+
+    --c-danger: 210 42 42;
+    --c-danger-hi: 232 64 63;
+    --c-danger-lo: 175 33 34;
+
+    --c-info: 18 101 178;
+    --c-info-hi: 26 127 214;
+    --c-info-lo: 17 81 142;
+
+    --c-iris: 99 85 232;
+    --c-iris-hi: 142 130 255;
+    --c-iris-lo: 78 63 209;
+
+    /* Surfaces & effects */
+    --panel-radius: 26px;
+    --card-radius: 18px;
+    --control-radius: 12px;
+
+    --c-flame-50: 255 244 238;      /* warm wash, light theme */
+    --c-flame-100: 255 228 213;
+
+    --c-bar-top: 219 219 226;       /* chart bar gradient, light theme */
+    --c-bar-bottom: 234 234 238;
+
+    --shadow-card: 0 1px 2px rgba(10, 10, 14, 0.05), 0 10px 28px -16px rgba(10, 10, 14, 0.16);
+    --shadow-pop: 0 20px 48px -18px rgba(10, 10, 14, 0.28);
+    --ring-focus: 0 0 0 3px rgba(255, 90, 31, 0.28);
+
+    color-scheme: light;
+  }
+
+  html.dark {
+    /* ── Dark theme — the reference aesthetic ───────────────────────── */
+    --c-canvas: 4 4 7;              /* #040407 near-black page + rail */
+    --c-panel: 16 16 21;            /* #101015 inset content panel */
+    --c-card: 21 21 27;             /* #15151B matte card */
+    --c-elev: 30 30 38;             /* #1E1E26 card footer / input */
+    --c-raise: 39 39 48;            /* #272730 chip / active pill */
+
+    --c-hair: 38 38 46;             /* ≈ rgba(255,255,255,.08) over card */
+    --c-hairsoft: 29 29 36;
+    --c-hairbold: 56 56 66;
+
+    --c-ink: 255 255 255;
+    --c-ink-body: 227 227 232;      /* #E3E3E8 */
+    --c-ink-muted: 154 154 165;     /* #9A9AA5 */
+    --c-ink-dim: 107 107 118;       /* #6B6B76 */
+
+    --c-inverse: 35 35 41;
+    --c-inverse-hi: 48 48 56;
+
+    --c-success: 35 193 125;
+    --c-success-hi: 85 212 154;
+    --c-success-lo: 19 169 104;
+
+    --c-danger: 242 97 100;
+    --c-danger-hi: 247 143 145;
+    --c-danger-lo: 232 64 63;
+
+    --c-info: 61 157 236;
+    --c-info-hi: 113 187 245;
+    --c-info-lo: 26 127 214;
+
+    --c-iris: 142 130 255;
+    --c-iris-hi: 173 164 248;
+    --c-iris-lo: 99 85 232;
+
+    --c-flame-50: 36 24 19;         /* warm wash, dark theme */
+    --c-flame-100: 52 32 23;
+
+    --c-bar-top: 43 43 53;          /* chart bar gradient, dark theme */
+    --c-bar-bottom: 28 28 35;
+
+    --shadow-card: inset 0 1px 0 0 rgba(255, 255, 255, 0.045), 0 18px 44px -20px rgba(0, 0, 0, 0.8);
+    --shadow-pop: 0 28px 64px -18px rgba(0, 0, 0, 0.9);
+
+    color-scheme: dark;
+  }
+
+  /* --------------------------------------------------------------------------
+     2. Base
+     -------------------------------------------------------------------------- */
+
+  * {
+    border-color: rgb(var(--c-hair));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    letter-spacing: -0.003em;
+    background-color: rgb(var(--c-canvas));
+    color: rgb(var(--c-ink-body));
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.24s ease, color 0.24s ease;
+  }
+
+  /* Faint ambient warmth behind the dark canvas, as in the reference.
+     Deliberately NOT `background-attachment: fixed` — that promotes the glow
+     to its own composited layer, which then fails to repaint when the theme
+     is toggled and leaves a dark band behind the rail. */
+  html.dark body {
+    background-image:
+      radial-gradient(ellipse 62% 32% at 50% -4%, rgba(255, 74, 0, 0.11) 0%, transparent 72%),
+      radial-gradient(circle at 96% 8%, rgba(255, 90, 31, 0.045) 0%, transparent 42%);
+    background-repeat: no-repeat;
+    background-size: 100% 820px, 100% 820px;
+    background-position: top center, top right;
+  }
+
+  /* --------------------------------------------------------------------------
+     3. Typography
+     -------------------------------------------------------------------------- */
+
+  h1, h2, h3, h4, h5, h6,
+  .font-display, .font-outfit, .font-poppins, .font-syne {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
+    color: rgb(var(--c-ink));
+  }
+
+  h1, h2 { line-height: 1.14; }
+  h3, h4 { line-height: 1.22; }
+
+  .font-ui, .font-jakarta, .font-nunito, .font-sans {
+    font-family: var(--font-ui);
+    letter-spacing: -0.003em;
+  }
+
+  /* Data / numeral treatment — replaces the old monospace role */
+  .font-num, .font-mono {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: 0.004em;
+  }
+
+  .font-bangla, :lang(bn) {
+    font-family: var(--font-bn);
+    letter-spacing: 0;
+  }
+
+  /* Hero figures: serif, tight, tabular — the reference's big balance numbers */
+  .fx-figure {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-weight: 700;
+    letter-spacing: -0.032em;
+    line-height: 1.02;
+    color: rgb(var(--c-ink));
+  }
+
+  /* Eyebrow / section label */
+  .fx-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--c-ink-dim));
+  }
+
+  /* --------------------------------------------------------------------------
+     9. Scrollbars
+     -------------------------------------------------------------------------- */
+
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--c-hairbold));
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  * { scrollbar-width: thin; scrollbar-color: rgb(var(--c-hairbold)) transparent; }
+
+  /* --------------------------------------------------------------------------
+     10. Focus & selection
+     -------------------------------------------------------------------------- */
+
+  :focus-visible {
+    outline: 2px solid rgba(255, 90, 31, 0.75);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(255, 90, 31, 0.28);
+    color: rgb(var(--c-ink));
+  }
+
 }
 
-html.dark {
-  /* Ultra-Deep Obsidian Matte Charcoal from Reference Design */
-  --canvas-bg: #090A0F;
-  --surface-bg: #12151F;
-  --surface-elevated: #181C2A;
-  --border-color: #222738;
-  --text-main: #FFFFFF;
-  --text-muted: #8E95A5;
+@layer components {
+  /* --------------------------------------------------------------------------
+     4. Surfaces
+     -------------------------------------------------------------------------- */
+
+  /* The inset rounded content panel that the reference dashboard sits in */
+  .fx-panel {
+    background-color: rgb(var(--c-panel));
+    border: 1px solid rgb(var(--c-hair));
+    border-radius: var(--panel-radius);
+  }
+
+  html.dark .fx-panel {
+    border-color: rgba(255, 255, 255, 0.055);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.035);
+  }
+
+  /* Standard matte card */
+  .upay-card,
+  .dream-card,
+  .fx-card {
+    position: relative;
+    background-color: rgb(var(--c-card));
+    border: 1px solid rgb(var(--c-hair));
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  html.dark .upay-card,
+  html.dark .dream-card,
+  html.dark .fx-card {
+    border-color: rgba(255, 255, 255, 0.07);
+  }
+
+  .upay-card:hover,
+  .dream-card:hover,
+  .fx-card:hover {
+    border-color: rgba(255, 90, 31, 0.3);
+  }
+
+  /* Footer action strip inside a card ("See details →", "View summary →") */
+  .fx-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 18px;
+    background-color: rgb(var(--c-elev));
+    border-top: 1px solid rgb(var(--c-hairsoft));
+    border-radius: 0 0 calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgb(var(--c-ink-muted));
+    transition: color 0.18s ease, background-color 0.18s ease;
+  }
+
+  .fx-card-foot:hover {
+    color: var(--accent);
+    background-color: rgb(var(--c-raise));
+  }
+
+  /* The one vivid orange hero card (reference: "My balance") */
+  .fx-card-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 138, 61, 0.55);
+    border-radius: var(--card-radius);
+    background: var(--flame-grad);
+    color: #fff;
+    box-shadow: 0 18px 44px -18px rgba(255, 74, 0, 0.55),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease;
+  }
+
+  .fx-card-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 120% 80% at 85% 110%, rgba(255, 255, 255, 0.22) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .fx-card-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 56px -18px rgba(255, 74, 0, 0.68),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .fx-card-hero .fx-figure,
+  .fx-card-hero h1,
+  .fx-card-hero h2,
+  .fx-card-hero h3,
+  .fx-card-hero h4 {
+    color: #fff;
+  }
+
+  /* Hero card's translucent footer strip */
+  .fx-card-hero-foot {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 18px;
+    background: rgba(255, 255, 255, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 0 0 calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #fff;
+    transition: background-color 0.18s ease;
+  }
+
+  .fx-card-hero-foot:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Glass variants retained from the previous system, retuned */
+  .upay-glass {
+    background: rgb(var(--c-card) / 0.86);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgb(var(--c-hair));
+  }
+
+  html.dark .upay-glass {
+    border-color: rgba(255, 255, 255, 0.075);
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* Card with the signature top flame bloom */
+  .glass-glow-card {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 85% 58% at 50% -14%, rgba(255, 90, 31, 0.26) 0%, rgba(255, 138, 61, 0.05) 52%, transparent 100%),
+      rgb(var(--c-card));
+    border: 1px solid rgb(var(--c-hair));
+    border-top-color: rgba(255, 122, 61, 0.42);
+    border-radius: 22px;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.26s ease,
+      border-color 0.26s ease;
+  }
+
+  .glass-glow-card:hover {
+    border-top-color: rgba(255, 122, 61, 0.78);
+    box-shadow: 0 26px 54px -18px rgba(255, 74, 0, 0.3), var(--shadow-card);
+    transform: translateY(-2px);
+  }
+
+  /* Icon tile used on the left of every card header in the reference */
+  .fx-icon-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    background-color: rgb(var(--c-raise));
+    border: 1px solid rgb(var(--c-hair));
+    color: rgb(var(--c-ink));
+  }
+
+  .fx-card-hero .fx-icon-tile {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #C73504;
+  }
+
+  /* On the dark theme the reference uses pale tiles with a dark glyph —
+     it is what keeps the matte cards from reading as flat. */
+  html.dark .fx-icon-tile {
+    background-color: #EDEDF1;
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #15151B;
+  }
+
+  /* --------------------------------------------------------------------------
+     5. Controls
+     -------------------------------------------------------------------------- */
+
+  /* Primary flame CTA */
+  .dream-btn-primary,
+  .btn-upay-gold,
+  .btn-flame,
+  .fx-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: var(--flame-grad);
+    color: #fff;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 138, 61, 0.5);
+    box-shadow: 0 6px 20px -6px rgba(255, 74, 0, 0.55);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+
+  .dream-btn-primary:hover,
+  .btn-upay-gold:hover,
+  .btn-flame:hover,
+  .fx-btn-primary:hover {
+    background: var(--flame-grad-hover);
+    box-shadow: 0 10px 28px -6px rgba(255, 74, 0, 0.7);
+    transform: translateY(-1px);
+  }
+
+  .dream-btn-primary:active,
+  .btn-flame:active,
+  .fx-btn-primary:active {
+    transform: translateY(0) scale(0.985);
+  }
+
+  /* Neutral elevated button */
+  .dream-btn-navy,
+  .btn-upay-navy,
+  .fx-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background-color: rgb(var(--c-elev));
+    color: rgb(var(--c-ink));
+    font-family: var(--font-ui);
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--c-hair));
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .dream-btn-navy:hover,
+  .btn-upay-navy:hover,
+  .fx-btn-ghost:hover {
+    background-color: rgb(var(--c-raise));
+    border-color: rgb(var(--c-hairbold));
+    transform: translateY(-1px);
+  }
+
+  .dream-btn-outline,
+  .fx-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background-color: transparent;
+    border: 1px solid rgb(var(--c-hair));
+    color: rgb(var(--c-ink-body));
+    font-family: var(--font-ui);
+    font-weight: 600;
+    border-radius: 999px;
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .dream-btn-outline:hover,
+  .fx-btn-outline:hover {
+    background-color: rgb(var(--c-elev));
+    border-color: rgba(255, 90, 31, 0.45);
+    color: rgb(var(--c-ink));
+  }
+
+  /* Circular top-bar icon button (reference header: help / mail / bell) */
+  .fx-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hair));
+    color: rgb(var(--c-ink-muted));
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    cursor: pointer;
+  }
+
+  .fx-icon-btn:hover {
+    background-color: rgb(var(--c-raise));
+    border-color: rgb(var(--c-hairbold));
+    color: rgb(var(--c-ink));
+  }
+
+  /* Pill search field (reference sidebar) */
+  .fx-search {
+    width: 100%;
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hair));
+    border-radius: 999px;
+    color: rgb(var(--c-ink));
+    font-family: var(--font-ui);
+    font-size: 13px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .fx-search::placeholder { color: rgb(var(--c-ink-dim)); }
+
+  .fx-search:focus {
+    outline: none;
+    border-color: rgba(255, 90, 31, 0.6);
+    box-shadow: var(--ring-focus);
+  }
+
+  /* Generic input / select */
+  .fx-input {
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hair));
+    border-radius: var(--control-radius);
+    color: rgb(var(--c-ink));
+    font-family: var(--font-ui);
+  }
+
+  .fx-input::placeholder { color: rgb(var(--c-ink-dim)); }
+
+  .fx-input:focus {
+    outline: none;
+    border-color: rgba(255, 90, 31, 0.6);
+    box-shadow: var(--ring-focus);
+  }
+
+  /* Segmented control — white active chip vs flame active chip */
+  .fx-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hair));
+    border-radius: 999px;
+  }
+
+  .fx-seg-item {
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(var(--c-ink-muted));
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .fx-seg-item:hover { color: rgb(var(--c-ink)); }
+
+  .fx-seg-item[data-active='true'] {
+    background-color: rgb(var(--c-ink));
+    color: rgb(var(--c-canvas));
+  }
+
+  .fx-seg-item[data-accent='true'][data-active='true'] {
+    background: var(--flame-grad);
+    color: #fff;
+  }
+
+  /* Small status / meta chip */
+  .fx-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hair));
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: rgb(var(--c-ink-muted));
+  }
+
+  .fx-chip-accent {
+    background-color: rgba(255, 90, 31, 0.12);
+    border-color: rgba(255, 90, 31, 0.32);
+    color: var(--accent);
+  }
+
+  /* Delta badge (+1.5% ↑) */
+  .fx-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-num);
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+  }
+
+  .fx-card-hero .fx-delta {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #C73504;
+  }
+
+  /* --------------------------------------------------------------------------
+     6. Navigation
+     -------------------------------------------------------------------------- */
+
+  /* Active rail item — elevated pill with a flame edge marker */
+  .fx-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    color: rgb(var(--c-ink-muted));
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+
+  .fx-nav-item:hover {
+    background-color: rgb(var(--c-elev));
+    color: rgb(var(--c-ink));
+  }
+
+  .fx-nav-item[data-active='true'],
+  .glass-active-item {
+    background-color: rgb(var(--c-raise));
+    color: rgb(var(--c-ink));
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .fx-nav-item[data-active='true']::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    width: 3px;
+    height: 18px;
+    border-radius: 0 3px 3px 0;
+    background: var(--flame-grad);
+  }
+
+  /* Legacy active-pill class used across older views */
+  .nav-pill-active {
+    background: linear-gradient(90deg, rgba(255, 90, 31, 0.16) 0%, rgba(255, 138, 61, 0.03) 100%);
+    border-left: 3px solid var(--accent);
+    color: var(--accent) !important;
+    font-weight: 700;
+  }
+
+  /* --------------------------------------------------------------------------
+     7. Data visualisation
+     -------------------------------------------------------------------------- */
+
+  /* Resting bar: matte neutral with a soft top fade (reference cash-flow chart) */
+  .fx-bar {
+    background: linear-gradient(180deg, rgb(var(--c-bar-top)) 0%, rgb(var(--c-bar-bottom)) 100%);
+    border-radius: 10px 10px 4px 4px;
+    transition: background 0.22s ease, filter 0.22s ease;
+  }
+
+  .fx-bar:hover { filter: brightness(1.18); }
+
+  /* Focused bar: flame column fading to white at the top */
+  .fx-bar-active {
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFD6A8 14%, #FF8A3D 44%, #FF4A00 100%);
+    border-radius: 10px 10px 4px 4px;
+    box-shadow: 0 0 26px -2px rgba(255, 74, 0, 0.55);
+  }
+
+  /* The circular scrubber on top of the focused bar */
+  .fx-bar-knob {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: #fff;
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 14px 0 rgba(255, 90, 31, 0.8);
+  }
+
+  /* Chart tooltip */
+  .fx-tooltip {
+    background-color: rgb(var(--c-elev));
+    border: 1px solid rgb(var(--c-hairbold));
+    border-radius: 12px;
+    box-shadow: var(--shadow-pop);
+    font-family: var(--font-ui);
+    color: rgb(var(--c-ink));
+  }
+
+  /* Hairline grid for chart backdrops */
+  .fx-grid-lines {
+    background-image: linear-gradient(to bottom, rgb(var(--c-hair) / 0.75) 1px, transparent 1px);
+    background-size: 100% 20%;
+  }
+
+  /* The signature vertical flame beam from the reference hero */
+  .fx-beam {
+    position: absolute;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 214, 168, 0.5) 18%,
+      rgba(255, 138, 61, 0.85) 52%,
+      rgba(255, 74, 0, 0.95) 100%);
+    filter: blur(2px);
+  }
+
+  .fx-beam-bloom {
+    position: absolute;
+    pointer-events: none;
+    background: radial-gradient(ellipse 50% 100% at 50% 100%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 180, 90, 0.55) 22%,
+      rgba(255, 74, 0, 0.3) 48%,
+      transparent 72%);
+    filter: blur(18px);
+  }
+
+  /* --------------------------------------------------------------------------
+     8. Tables
+     -------------------------------------------------------------------------- */
+
+  .fx-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+  .fx-table thead th {
+    background-color: rgb(var(--c-elev));
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--c-ink-dim));
+    padding: 11px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .fx-table thead th:first-child { border-radius: 12px 0 0 12px; }
+  .fx-table thead th:last-child { border-radius: 0 12px 12px 0; }
+
+  .fx-table tbody td {
+    padding: 13px 16px;
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    color: rgb(var(--c-ink-body));
+    border-bottom: 1px solid rgb(var(--c-hairsoft));
+  }
+
+  .fx-table tbody tr:last-child td { border-bottom: none; }
+  .fx-table tbody tr:hover td { background-color: rgb(var(--c-elev) / 0.6); }
+
 }
 
-body {
-  font-family: var(--font-jakarta);
-  background-color: var(--canvas-bg);
-  color: var(--text-main);
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
+/* --------------------------------------------------------------------------
+   11. Animation utilities
+   -------------------------------------------------------------------------- */
 
-/* Ambient Radial Underglow from Reference Image */
-html.dark body {
-  background-image: 
-    radial-gradient(ellipse 90% 40% at 50% -10%, rgba(255, 94, 0, 0.12) 0%, transparent 70%),
-    radial-gradient(circle at 100% 20%, rgba(220, 38, 38, 0.05) 0%, transparent 40%);
-  background-attachment: fixed;
-}
-
-/* Typography Helpers */
-h1, h2, h3, h4, h5, h6, .font-outfit, .font-poppins {
-  font-family: var(--font-outfit);
-}
-
-.font-jakarta, .font-nunito {
-  font-family: var(--font-jakarta);
-}
-
-.font-mono {
-  font-family: var(--font-mono);
-  font-feature-settings: "tnum" 1, "zero" 1;
-}
-
-.font-bangla {
-  font-family: var(--font-bn);
-}
-
-/* Frosted Glassmorphism Card Style (From Reference Samples) */
-.upay-card, .dream-card {
-  background-color: var(--surface-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-html.dark .upay-card, html.dark .dream-card {
-  background: rgba(18, 21, 31, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
-    0 12px 30px -4px rgba(0, 0, 0, 0.5);
-}
-
-/* Elevated Glass Surface */
-.upay-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-html.dark .upay-glass {
-  background: rgba(18, 21, 31, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.6);
-}
-
-/* Frosted Glass Card with Top Warm Orange Radial Ambient Glow (User Reference Image) */
-.glass-glow-card {
-  background: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(255, 94, 0, 0.24) 0%, rgba(255, 138, 0, 0.06) 50%, rgba(18, 21, 31, 0.9) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-top: 1px solid rgba(255, 138, 0, 0.4);
-  border-radius: 18px;
-  box-shadow: 
-    0 20px 45px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.glass-glow-card:hover {
-  border-top-color: rgba(255, 138, 0, 0.7);
-  box-shadow: 
-    0 24px 50px -10px rgba(255, 94, 0, 0.22),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Active Nav Glow (User Reference Image 1) */
-.glass-active-item {
-  background: radial-gradient(ellipse 90% 70% at 50% -20%, rgba(255, 120, 0, 0.35) 0%, rgba(255, 94, 0, 0.06) 65%, transparent 100%), #181C28;
-  border-top: 1px solid rgba(255, 138, 0, 0.5);
-  box-shadow: 0 4px 18px -2px rgba(255, 94, 0, 0.2);
-}
-
-/* Vibrant Flame Orange Gradient CTA Buttons (Reference Image 1, 2, 3) */
-.dream-btn-primary, .btn-upay-gold, .btn-flame {
-  background: linear-gradient(135deg, #FF5E00 0%, #FF8A00 50%, #FFA000 100%);
-  color: #FFFFFF;
-  font-family: var(--font-outfit);
-  font-weight: 700;
-  border-radius: 9px;
-  border: none;
-  box-shadow: 0 4px 18px -2px rgba(255, 94, 0, 0.45);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dream-btn-primary:hover, .btn-upay-gold:hover, .btn-flame:hover {
-  background: linear-gradient(135deg, #FF6F1A 0%, #FF991A 50%, #FFAC1A 100%);
-  box-shadow: 0 6px 26px 0 rgba(255, 94, 0, 0.6);
-  transform: translateY(-1px);
-}
-
-/* Matte Charcoal Dark Buttons */
-.dream-btn-navy, .btn-upay-navy {
-  background: #181C2A;
-  color: #FFFFFF;
-  font-family: var(--font-outfit);
-  font-weight: 600;
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.2s ease;
-}
-
-.dream-btn-navy:hover, .btn-upay-navy:hover {
-  background: #202538;
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.dream-btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  font-family: var(--font-jakarta);
-  font-weight: 600;
-  border-radius: 9px;
-  transition: all 0.2s ease;
-}
-
-.dream-btn-outline:hover {
-  background-color: var(--surface-elevated);
-  border-color: #CBD5E1;
-}
-
-html.dark .dream-btn-outline:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Active FinTech Nav Pill (Image 3) */
-.nav-pill-active {
-  background: linear-gradient(90deg, rgba(255, 94, 0, 0.18) 0%, rgba(255, 138, 0, 0.04) 100%);
-  border-left: 3px solid #FF5E00;
-  color: #FF8A00 !important;
-  font-weight: 700;
-}
-
-/* High-Precision Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #222738;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #36405C;
-}
-
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.animate-fadeIn { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes marquee {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
 }
 
-.animate-marquee {
-  display: inline-flex;
-  animation: marquee 30s linear infinite;
-  will-change: transform;
+@layer components {
+  .animate-marquee {
+    display: inline-flex;
+    animation: marquee 30s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-marquee:hover { animation-play-state: paused; }
 }
 
-.animate-marquee:hover {
-  animation-play-state: paused;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
-/* Universal Dark Mode Fallback Harmonization */
-html.dark .bg-\[\#FFFFFF\],
-html.dark .bg-white {
-  background-color: rgba(18, 21, 31, 0.9) !important;
-}
+/* --------------------------------------------------------------------------
+   12. Legacy literal-colour harmonisation
+   A handful of views still hardcode light-mode whites. Keep them in step
+   with the token system so dark mode never shows a white slab.
+   -------------------------------------------------------------------------- */
 
-html.dark .bg-\[\#F7F7F7\],
-html.dark .bg-\[\#FAFAFA\],
-html.dark .bg-\[\#F1F3F5\] {
-  background-color: #181C2A !important;
-}
-
-html.dark .border-\[\#DADFE5\],
-html.dark .border-\[\#E8EBED\],
-html.dark .border-\[\#E2E8F0\],
-html.dark .border-\[\#CBD5E1\] {
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-html.dark .text-\[\#000000\],
-html.dark .text-\[\#1B2850\],
-html.dark .text-\[\#212B36\],
-html.dark .text-\[\#212529\],
-html.dark .text-\[\#092C4C\] {
-  color: #FFFFFF !important;
-}
-
-html.dark .text-\[\#646B72\],
-html.dark .text-\[\#64748B\],
-html.dark .text-\[\#A0AEC0\] {
-  color: #8E95A5 !important;
-}
+html.dark .bg-white { background-color: rgb(var(--c-card)) !important; }
+html.dark .bg-white\/90 { background-color: rgb(var(--c-card) / 0.9) !important; }
+html.dark .bg-white\/85 { background-color: rgb(var(--c-card) / 0.85) !important; }
+html.dark .bg-white\/80 { background-color: rgb(var(--c-card) / 0.8) !important; }
+html.dark .bg-white\/70 { background-color: rgb(var(--c-card) / 0.7) !important; }
 
 html.dark svg text[fill="#000000"],
-html.dark svg text[fill="#212529"],
-html.dark svg text[fill="#212B36"] {
-  fill: #FFFFFF !important;
-}
+html.dark svg text[fill="#0E0E13"],
+html.dark svg text[fill="#15151B"] { fill: #FFFFFF !important; }
 
-html.dark svg text[fill="#646B72"] {
-  fill: #8E95A5 !important;
-}
-
-html.dark svg line[stroke="#212B36"] {
-  stroke: #36405C !important;
-}
+html.dark svg text[fill="#63636E"] { fill: #9A9AA5 !important; }
+html.dark svg line[stroke="#DEDEE4"] { stroke: #2A2A33 !important; }

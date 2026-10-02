@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  ShieldAlert, ShieldCheck, Shield, RotateCcw, Clock, 
-  Target, Hash, Calendar, X, AlertCircle, ShoppingCart, 
-  Users, User, ChevronRight, ArrowUpRight, ArrowDownRight, 
-  Settings, Sparkles, ExternalLink, ArrowRight, Smartphone, Radio,
-  Activity, Layers, FileText, Network
+import {
+  ShieldAlert, ShieldCheck, RotateCcw, Clock,
+  Calendar, X, AlertCircle, ChevronRight, ChevronDown,
+  Sparkles, ArrowRight, Smartphone, Radio, MoreHorizontal,
+  Activity, FileText, Network, Users, QrCode, Store,
+  Search, SlidersHorizontal, TrendingUp,
 } from 'lucide-react';
 
 interface DbStats {
@@ -30,289 +30,475 @@ interface DbStats {
   chartData: Array<{ month: string; clean: number; intercepted: number }>;
 }
 
+type ChartRange = '1D' | '1W' | '1M' | '3M' | '6M' | '1Y';
+
+const RANGE_WEIGHT: Record<ChartRange, number> = {
+  '1D': 0.05,
+  '1W': 0.28,
+  '1M': 0.75,
+  '3M': 1.8,
+  '6M': 2.9,
+  '1Y': 1,
+};
+
+const DATE_PRESETS = [
+  { label: 'Today (live feed)', range: '02/10/2026 (Today)' },
+  { label: 'Last 7 days (active cycle)', range: '26/09/2026 - 02/10/2026' },
+  { label: 'Last 30 days (monthly)', range: '02/09/2026 - 02/10/2026' },
+  { label: 'Current quarter (Q3 2026)', range: '01/07/2026 - 02/10/2026' },
+  { label: 'Year to date (2026 full)', range: '01/01/2026 - 02/10/2026' },
+];
+
+const FEED_ROWS = [
+  {
+    id: 'TXN-98765A9',
+    account: '01712 •••• 891',
+    amount: '৳25,000',
+    amountTone: 'text-flame-500',
+    vector: 'USSD OTP Phish',
+    date: '02 Oct, 2026',
+    time: '03:45 PM',
+    status: 'Intercepted',
+    tone: 'bg-danger/12 text-danger border-danger/25',
+    dot: 'bg-danger',
+  },
+  {
+    id: 'INV-56789LMN',
+    account: '01823 •••• 412',
+    amount: '৳12,450',
+    amountTone: 'text-ink',
+    vector: 'Rapid Velocity',
+    date: '02 Oct, 2026',
+    time: '02:18 PM',
+    status: 'Under Hold',
+    tone: 'bg-flame-500/12 text-flame-500 border-flame-500/25',
+    dot: 'bg-flame-500',
+  },
+  {
+    id: 'PAY-12345XYZ',
+    account: '01991 •••• 773',
+    amount: '৳1,500',
+    amountTone: 'text-success',
+    vector: 'Clean App P2P',
+    date: '02 Oct, 2026',
+    time: '01:02 PM',
+    status: 'Verified Clean',
+    tone: 'bg-success/12 text-success border-success/25',
+    dot: 'bg-success',
+  },
+  {
+    id: 'AGT-44120QRS',
+    account: '01554 •••• 108',
+    amount: '৳48,900',
+    amountTone: 'text-flame-500',
+    vector: 'Agent Cash-out Ring',
+    date: '01 Oct, 2026',
+    time: '11:36 AM',
+    status: 'Frozen',
+    tone: 'bg-iris/12 text-iris border-iris/25',
+    dot: 'bg-iris',
+  },
+];
+
 export const AdminDashboard: React.FC = () => {
   const [alertDismissed, setAlertDismissed] = useState(false);
-  const [activeChartRange, setActiveChartRange] = useState<'1D' | '1W' | '1M' | '3M' | '6M' | '1Y'>('1Y');
+  const [activeChartRange, setActiveChartRange] = useState<ChartRange>('1Y');
+  const [chartMode, setChartMode] = useState<'monthly' | 'yearly'>('yearly');
   const [dbStats, setDbStats] = useState<DbStats | null>(null);
+  const [dateRangeDropdown, setDateRangeDropdown] = useState(false);
+  const [selectedDateRange, setSelectedDateRange] = useState('26/09/2026 - 02/10/2026');
+  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [feedQuery, setFeedQuery] = useState('');
 
   const fetchDashboardStats = (range: string = activeChartRange) => {
     fetch(`/api/v1/metrics/summary?range=${range}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setDbStats(data);
-        }
+        if (data.success) setDbStats(data);
       })
       .catch((err) => console.error('Error loading dashboard summary stats from DB:', err));
   };
 
   useEffect(() => {
     fetchDashboardStats(activeChartRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChartRange]);
 
-  const [dateRangeDropdown, setDateRangeDropdown] = useState(false);
-  const [selectedDateRange, setSelectedDateRange] = useState('26/09/2026 - 02/10/2026');
+  /* ── Derived display values (unchanged contract with the backend) ── */
 
-  // Dynamic Volume multiplier based on activeChartRange and DB
   const currentVolume = dbStats !== null
-    ? `৳${Math.round(
-        activeChartRange === '1D' ? (dbStats.totalVolume || 0) * 0.05
-        : activeChartRange === '1W' ? (dbStats.totalVolume || 0) * 0.28
-        : activeChartRange === '1M' ? (dbStats.totalVolume || 0) * 0.75
-        : activeChartRange === '3M' ? (dbStats.totalVolume || 0) * 1.8
-        : activeChartRange === '6M' ? (dbStats.totalVolume || 0) * 2.9
-        : (dbStats.totalVolume || 0)
-      ).toLocaleString()}`
-    : '...';
+    ? `৳${Math.round((dbStats.totalVolume || 0) * RANGE_WEIGHT[activeChartRange]).toLocaleString()}`
+    : '—';
 
-  const displayTxns = dbStats !== null ? (dbStats.totalTxns || 0).toLocaleString() : '...';
-  const displayAlerts = dbStats !== null ? (dbStats.totalAlerts || 0).toString() : '...';
-  const displayRings = dbStats !== null ? (dbStats.totalRings || 0).toString() : '...';
-  const displayFP = dbStats !== null 
-    ? `${(dbStats.falsePositivesCount || 0).toLocaleString()} (${dbStats.falsePositivesRate || 0}%)` 
-    : '...';
-  const displayGoldenHour = dbStats !== null ? `৳${(dbStats.goldenHourRecovered || 0).toLocaleString()}` : '...';
-  const displayCleanUssd = dbStats !== null ? `৳${(dbStats.cleanUssdVolume || 0).toLocaleString()}` : '...';
-  const displayPreventedLoss = dbStats !== null ? `৳${(dbStats.preventedLoss || 0).toLocaleString()}` : '...';
-  const displayActiveHolds = dbStats !== null ? `${dbStats.activeHolds || 0} Active Holds` : '...';
-  const displayInterceptions = dbStats !== null ? `${(dbStats.scamInterceptions || 0).toLocaleString()} Logged` : '...';
-  const displayMuleWallets = dbStats !== null ? `${dbStats.muleWalletsCount || 0} Mule Wallets` : '...';
-  const displayCustomers = dbStats !== null ? (dbStats.totalCustomers || 0).toLocaleString() : '...';
-  const displayOutlets = dbStats !== null ? (dbStats.totalOutlets || 0).toLocaleString() : '...';
-  const displayCleanM = dbStats !== null ? `৳${((dbStats.cleanVolume || 0) / 1000000).toFixed(2)}M` : '৳0.00M';
-  const displayInterceptedM = dbStats !== null ? `৳${((dbStats.preventedLoss || 0) / 1000000).toFixed(2)}M` : '৳0.00M';
+  const displayTxns = dbStats !== null ? (dbStats.totalTxns || 0).toLocaleString() : '—';
+  const displayAlerts = dbStats !== null ? (dbStats.totalAlerts || 0).toString() : '—';
+  const displayFP = dbStats !== null
+    ? `${(dbStats.falsePositivesCount || 0).toLocaleString()}`
+    : '—';
+  const displayFPRate = dbStats !== null ? `${dbStats.falsePositivesRate || 0}%` : '—';
+  const displayGoldenHour = dbStats !== null ? `৳${(dbStats.goldenHourRecovered || 0).toLocaleString()}` : '—';
+  const displayCleanUssd = dbStats !== null ? `৳${(dbStats.cleanUssdVolume || 0).toLocaleString()}` : '—';
+  const displayCleanApp = dbStats !== null ? `৳${(dbStats.cleanAppVolume || 0).toLocaleString()}` : '—';
+  const displayPreventedLoss = dbStats !== null ? `৳${(dbStats.preventedLoss || 0).toLocaleString()}` : '—';
+  const displayInterceptions = dbStats !== null ? (dbStats.scamInterceptions || 0).toLocaleString() : '—';
+  const displayCustomers = dbStats !== null ? (dbStats.totalCustomers || 0).toLocaleString() : '—';
+  const displayOutlets = dbStats !== null ? (dbStats.totalOutlets || 0).toLocaleString() : '—';
+  const displayCleanM = dbStats !== null ? `৳${((dbStats.cleanVolume || 0) / 1_000_000).toFixed(2)}M` : '৳0.00M';
+  const displayInterceptedM = dbStats !== null ? `৳${((dbStats.preventedLoss || 0) / 1_000_000).toFixed(2)}M` : '৳0.00M';
 
   const chartData = dbStats?.chartData || [];
 
+  /* Scale bars against the real maximum and focus the worst month */
+  const chart = useMemo(() => {
+    if (chartData.length === 0) return { bars: [], peakIndex: -1, axis: [] as number[] };
+
+    const totals = chartData.map((d) => (d.clean || 0) + (d.intercepted || 0));
+    const max = Math.max(...totals, 1);
+    const peakIndex = chartData.reduce(
+      (best, d, i) => ((d.intercepted || 0) > (chartData[best]?.intercepted || 0) ? i : best),
+      0,
+    );
+
+    const bars = chartData.map((d, i) => ({
+      month: d.month,
+      clean: d.clean || 0,
+      intercepted: d.intercepted || 0,
+      total: totals[i],
+      pct: Math.max(8, Math.round((totals[i] / max) * 100)),
+    }));
+
+    const step = max / 5;
+    const axis = [5, 4, 3, 2, 1, 0].map((n) => Math.round(step * n));
+
+    return { bars, peakIndex, axis };
+  }, [chartData]);
+
+  const focusIndex = hoveredBar ?? chart.peakIndex;
+
+  const filteredFeed = useMemo(() => {
+    const q = feedQuery.trim().toLowerCase();
+    if (!q) return FEED_ROWS;
+    return FEED_ROWS.filter((r) =>
+      [r.id, r.account, r.vector, r.status].some((v) => v.toLowerCase().includes(q)),
+    );
+  }, [feedQuery]);
+
+  const compact = (n: number) =>
+    n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${Math.round(n / 1_000)}k` : `${n}`;
+
+  /** "1 ring" / "4 rings" — the raw counts are often 0 or 1 in a fresh seed */
+  const plural = (count: number | undefined, one: string, many: string) =>
+    `${(count ?? 0).toLocaleString()} ${count === 1 ? one : many}`;
+
   return (
-    <div className="space-y-6 pb-12 animate-fadeIn relative">
-      
-      {/* Top Welcome Title & FinTech Quick Action Controls (Sample 3) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              Live Gateway SOC Telemetry
-            </span>
-            <span className="text-[11px] font-mono text-slate-500">Autonomous 2.4 Engine</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-outfit font-black text-slate-900 dark:text-white tracking-tight mt-1.5">
-            Executive Risk Operations Hub
+    <div className="space-y-5 pb-4">
+
+      {/* ── Overview header ──────────────────────────────────────────── */}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="font-display text-[26px] sm:text-[31px] font-bold text-ink tracking-tight">
+            Overview
           </h1>
-          <p className="text-xs font-jakarta text-slate-600 dark:text-slate-400 mt-1">
-            Real-time multi-tier defense: <span className="text-rose-500 font-mono font-bold">{displayAlerts}</span> active triage alerts &amp; <span className="text-emerald-500 font-mono font-bold">{displayTxns}</span> verified transactions under protection.
+          <p className="text-[13px] font-ui text-ink-muted mt-1">
+            Real-time multi-tier defense ·{' '}
+            <span className="font-num font-bold text-danger">{displayAlerts}</span> active triage alerts across{' '}
+            <span className="font-num font-bold text-success">{displayTxns}</span> protected transactions.
           </p>
         </div>
 
-        {/* Quick Action Buttons (Sample 3 Style) */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Interactive Date Filter Button */}
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <button
               onClick={() => setDateRangeDropdown(!dateRangeDropdown)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-jakarta font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm transition-all cursor-pointer"
+              className="fx-btn-ghost px-3.5 py-2 text-[12px]"
             >
-              <Calendar className="w-3.5 h-3.5 text-amber-500" />
-              <span className="font-mono text-[11px]">{selectedDateRange}</span>
-              <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${dateRangeDropdown ? 'rotate-90' : ''}`} />
+              <Calendar className="w-3.5 h-3.5 text-flame-500" />
+              <span className="font-num">{selectedDateRange}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-ink-dim transition-transform ${dateRangeDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             {dateRangeDropdown && (
-              <div className="absolute right-0 mt-1.5 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn text-xs font-jakarta backdrop-blur-xl">
-                {[
-                  { label: 'Today (Live Feed)', range: '02/10/2026 (Today)' },
-                  { label: 'Last 7 Days (Active Cycle)', range: '26/09/2026 - 02/10/2026' },
-                  { label: 'Last 30 Days (Monthly)', range: '02/09/2026 - 02/10/2026' },
-                  { label: 'Current Quarter (Q3 2026)', range: '01/07/2026 - 02/10/2026' },
-                  { label: 'Year to Date (2026 Full)', range: '01/01/2026 - 02/10/2026' }
-                ].map((opt) => (
+              <div className="absolute right-0 mt-2 w-64 fx-tooltip py-1.5 z-40 animate-fadeIn">
+                {DATE_PRESETS.map((opt) => (
                   <button
                     key={opt.range}
-                    onClick={() => {
-                      setSelectedDateRange(opt.range);
-                      setDateRangeDropdown(false);
-                    }}
-                    className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/80 flex items-center justify-between cursor-pointer ${
-                      selectedDateRange === opt.range ? 'text-amber-500 font-bold bg-amber-500/10' : 'text-slate-700 dark:text-slate-300'
+                    onClick={() => { setSelectedDateRange(opt.range); setDateRangeDropdown(false); }}
+                    className={`w-full text-left px-3.5 py-2 text-[12.5px] font-ui flex items-center justify-between hover:bg-elev transition-colors ${
+                      selectedDateRange === opt.range ? 'text-flame-500 font-bold' : 'text-ink-body'
                     }`}
                   >
                     <span>{opt.label}</span>
-                    {selectedDateRange === opt.range && <span className="text-[10px] text-amber-500 font-bold">●</span>}
+                    {selectedDateRange === opt.range && <span className="text-flame-500 text-[10px]">●</span>}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <Link
-            href="/audit"
-            className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-xs font-jakarta font-semibold text-slate-700 dark:text-slate-300 hover:text-amber-500 flex items-center gap-1.5 transition-all shadow-sm"
+          <button
+            onClick={() => fetchDashboardStats(activeChartRange)}
+            className="fx-btn-ghost px-3.5 py-2 text-[12px]"
+            title="Re-pull metrics from the risk engine"
           >
-            <FileText className="w-3.5 h-3.5 text-slate-400" />
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset Data</span>
+          </button>
+
+          <Link href="/audit" className="fx-btn-ghost px-3.5 py-2 text-[12px]">
+            <FileText className="w-3.5 h-3.5" />
             <span>Export Audit</span>
           </Link>
 
-          <Link
-            href="/analyst"
-            className="px-4 py-2 rounded-xl btn-flame text-xs font-outfit font-bold flex items-center gap-1.5 shadow-lg shadow-orange-500/25"
-          >
+          <Link href="/analyst" className="fx-btn-primary px-4 py-2 text-[12px]">
             <ShieldAlert className="w-3.5 h-3.5" />
-            <span>+ Triage Alert</span>
+            <span>Triage Alert</span>
           </Link>
         </div>
       </div>
 
-      {/* Dismissable Warning Banner */}
+      {/* ── Threat advisory ──────────────────────────────────────────── */}
       {!alertDismissed && (dbStats?.activeHolds ? dbStats.activeHolds > 0 : true) && (
-        <div className="p-3.5 bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/30 rounded-xl text-xs font-jakarta flex items-center justify-between gap-3 shadow-sm animate-fadeIn backdrop-blur-md">
-          <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-300">
-            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+        <div className="flex items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-flame-500/[0.07] border border-flame-500/25 animate-fadeIn">
+          <div className="flex items-start sm:items-center gap-2.5 text-[12.5px] font-ui text-ink-body min-w-0">
+            <AlertCircle className="w-4 h-4 text-flame-500 shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              <strong className="font-outfit font-bold uppercase tracking-wide">Live Threat Advisory:</strong> {dbStats?.activeHolds || 0} active hold cases requiring compliance review (৳{((dbStats?.preventedLoss || 0)).toLocaleString()} prevented).{' '}
-              <Link href="/analyst" className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-500">
-                Review Alert in Triage Queue →
+              <strong className="font-display font-bold text-ink">Live threat advisory — </strong>
+              <span className="font-num font-bold text-flame-500">{dbStats?.activeHolds ?? 0}</span> hold cases
+              await compliance review, <span className="font-num font-bold">{displayPreventedLoss}</span> in loss
+              already prevented.{' '}
+              <Link href="/analyst" className="font-semibold text-flame-500 hover:text-flame-400 underline decoration-flame-500/40">
+                Review the triage queue →
               </Link>
             </span>
           </div>
           <button
             onClick={() => setAlertDismissed(true)}
-            className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-amber-500/20 transition-colors cursor-pointer"
-            title="Dismiss Advisory"
+            className="fx-icon-btn !w-7 !h-7 shrink-0"
+            title="Dismiss advisory"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* ROW 1: 4 Executive KPI Cards (Sample 3 FinTech Aesthetic) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {/* Card 1: Total Protected Volume */}
-        <div className="upay-card p-5 relative overflow-hidden group hover:border-amber-500/40 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-jakarta font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Total Protected Volume
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              +22%
-            </span>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <strong className="text-2xl lg:text-3xl font-mono font-black text-slate-900 dark:text-white tracking-tight">
-              {currentVolume}
-            </strong>
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
-              <ShieldCheck className="w-4 h-4" />
+      {/* ── Row 1: hero card + peer metric cards ─────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+        {/* Hero: the single vivid card, as in the reference */}
+        <div className="fx-card-hero flex flex-col">
+          <div className="p-5 pb-4 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="fx-icon-tile">
+                  <ShieldCheck className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                </span>
+                <span className="flex flex-col leading-tight min-w-0">
+                  <strong className="font-display font-bold text-[15px] text-white truncate">
+                    Protected Volume
+                  </strong>
+                  <span className="text-[11.5px] font-ui text-white/80 truncate">
+                    All channels · {activeChartRange}
+                  </span>
+                </span>
+              </div>
+              <MoreHorizontal className="w-4 h-4 text-white/70 shrink-0" />
+            </div>
+
+            <div className="mt-5 flex items-end gap-2.5 flex-wrap">
+              <span className="fx-figure text-[26px] lg:text-[30px]">{currentVolume}</span>
+              <span className="fx-delta mb-1">+22.0% ↑</span>
             </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 font-jakarta flex items-center gap-1">
-            <span className="text-emerald-500 font-bold">↑ ৳280k</span> vs previous cycle
-          </div>
+
+          <Link href="/simulator" className="fx-card-hero-foot">
+            <span>See details</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {/* Card 2: False Positives Avoided */}
-        <div className="upay-card p-5 relative overflow-hidden group hover:border-emerald-500/40 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-jakarta font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              False Positives Avoided
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              -91.8%
-            </span>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <strong className="text-2xl lg:text-3xl font-mono font-black text-slate-900 dark:text-white tracking-tight">
-              {displayFP}
-            </strong>
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-              <RotateCcw className="w-4 h-4" />
+        {/* Peer card: false positives */}
+        <div className="fx-card flex flex-col">
+          <div className="p-5 pb-4 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="fx-icon-tile"><RotateCcw className="w-[18px] h-[18px]" /></span>
+                <span className="flex flex-col leading-tight min-w-0">
+                  <strong className="font-display font-bold text-[15px] text-ink truncate">
+                    False Positives
+                  </strong>
+                  <span className="text-[11.5px] font-ui text-ink-muted truncate">
+                    Avoided friction · {displayFPRate}
+                  </span>
+                </span>
+              </div>
+              <MoreHorizontal className="w-4 h-4 text-ink-dim shrink-0" />
+            </div>
+
+            <div className="mt-5 flex items-end gap-2.5 flex-wrap">
+              <span className="fx-figure text-[26px] lg:text-[30px]">{displayFP}</span>
+              <span className="fx-delta mb-1 !text-success">−91.8% ↓</span>
             </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 font-jakarta flex items-center gap-1">
-            <span className="text-emerald-500 font-bold">Zero</span> legitimate friction
-          </div>
+
+          <Link href="/fairness" className="fx-card-foot">
+            <span>View summary</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {/* Card 3: Golden-Hour Recovered */}
-        <div className="upay-card p-5 relative overflow-hidden group hover:border-amber-500/40 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-jakarta font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Golden-Hour Recovered
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              +18%
-            </span>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <strong className="text-2xl lg:text-3xl font-mono font-black text-slate-900 dark:text-white tracking-tight">
-              {displayGoldenHour}
-            </strong>
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-              <Clock className="w-4 h-4" />
+        {/* Peer card: golden-hour recovery */}
+        <div className="fx-card flex flex-col">
+          <div className="p-5 pb-4 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="fx-icon-tile"><Clock className="w-[18px] h-[18px]" /></span>
+                <span className="flex flex-col leading-tight min-w-0">
+                  <strong className="font-display font-bold text-[15px] text-ink truncate">
+                    Golden-Hour Recovery
+                  </strong>
+                  <span className="text-[11.5px] font-ui text-ink-muted truncate">
+                    14m average freeze SLA
+                  </span>
+                </span>
+              </div>
+              <MoreHorizontal className="w-4 h-4 text-ink-dim shrink-0" />
+            </div>
+
+            <div className="mt-5 flex items-end gap-2.5 flex-wrap">
+              <span className="fx-figure text-[26px] lg:text-[30px]">{displayGoldenHour}</span>
+              <span className="fx-delta mb-1 !text-success">+18.0% ↑</span>
             </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 font-jakarta flex items-center gap-1">
-            <span className="text-emerald-500 font-bold">14m</span> avg freeze SLA
-          </div>
+
+          <Link href="/recovery" className="fx-card-foot">
+            <span>Trace the money</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {/* Card 4: Clean USSD & App Volume */}
-        <div className="upay-card p-5 relative overflow-hidden group hover:border-sky-500/40 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-jakarta font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Clean USSD &amp; App Volume
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/20">
-              +25%
-            </span>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <strong className="text-2xl lg:text-3xl font-mono font-black text-slate-900 dark:text-white tracking-tight">
-              {displayCleanUssd}
-            </strong>
-            <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-500 flex items-center justify-center border border-sky-500/20 group-hover:scale-110 transition-transform">
-              <Radio className="w-4 h-4" />
+        {/* Peer card: interceptions */}
+        <div className="fx-card flex flex-col">
+          <div className="p-5 pb-4 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="fx-icon-tile"><ShieldAlert className="w-[18px] h-[18px]" /></span>
+                <span className="flex flex-col leading-tight min-w-0">
+                  <strong className="font-display font-bold text-[15px] text-ink truncate">
+                    Scam Interceptions
+                  </strong>
+                  <span className="text-[11.5px] font-ui text-ink-muted truncate">
+                    {plural(dbStats?.muleWalletsCount, 'mule wallet', 'mule wallets')} ·{' '}
+                    {plural(dbStats?.totalRings, 'ring', 'rings')}
+                  </span>
+                </span>
+              </div>
+              <MoreHorizontal className="w-4 h-4 text-ink-dim shrink-0" />
+            </div>
+
+            <div className="mt-5 flex items-end gap-2.5 flex-wrap">
+              <span className="fx-figure text-[26px] lg:text-[30px]">{displayInterceptions}</span>
+              <span className="fx-delta mb-1">+25.0% ↑</span>
             </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 font-jakarta flex items-center gap-1">
-            <span className="text-sky-500 font-bold">99.8%</span> legitimate flow
-          </div>
-        </div>
 
+          <Link href="/analyst" className="fx-card-foot">
+            <span>Analyze performance</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
-      {/* ROW 2: Main FinTech Split: Analytics Chart & Recent Activity (8 Cols) vs Executive Shield Card & Quota (4 Cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Left: Volume & Interception Analytics Chart (8 Cols) */}
-        <div className="lg:col-span-8 space-y-5">
-          
-          {/* Main Chart Card (Sample 3 Style) */}
-          <div className="upay-card p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-jakarta text-slate-500">Transaction Velocity &amp; Defense</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-mono font-bold border border-emerald-500/20">
-                    Live Feed
+      {/* ── Row 2: channel wallet grid + cash-flow chart ─────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+
+        {/* Channel breakdown — the reference's "My Wallet" block */}
+        <div className="xl:col-span-5 fx-card p-5">
+          <div className="flex items-start justify-between gap-3 mb-1">
+            <div className="min-w-0">
+              <h3 className="font-display font-bold text-[17px] text-ink">Channel Coverage</h3>
+              <p className="text-[11.5px] font-ui text-ink-muted mt-0.5">
+                Live exchange · 1 USD = <span className="font-num">122.20 BDT</span>
+              </p>
+            </div>
+            <Link href="/merchants" className="fx-btn-primary px-3 py-1.5 text-[11.5px] shrink-0">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Add New</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+            {[
+              { icon: Smartphone, label: 'App P2P', value: displayCleanApp, limit: 'Clean app settlement', state: 'Active', tone: 'text-success' },
+              { icon: Radio, label: 'USSD *268#', value: displayCleanUssd, limit: 'Feature-phone shield', state: 'Active', tone: 'text-success' },
+              { icon: Store, label: 'Agent Outlets', value: displayOutlets, limit: 'Guarded cash-out points', state: 'Active', tone: 'text-success' },
+              { icon: Users, label: 'Customers', value: displayCustomers, limit: 'Under active protection', state: 'Monitored', tone: 'text-flame-500' },
+            ].map((ch) => (
+              <div key={ch.label} className="p-4 rounded-2xl bg-elev border border-hair hover:border-flame-500/30 transition-colors">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="w-7 h-7 rounded-xl bg-card border border-hair flex items-center justify-center shrink-0">
+                      <ch.icon className="w-3.5 h-3.5 text-flame-500" />
+                    </span>
+                    <strong className="font-ui font-semibold text-[12.5px] text-ink truncate">{ch.label}</strong>
                   </span>
+                  <MoreHorizontal className="w-3.5 h-3.5 text-ink-dim shrink-0" />
                 </div>
-                <h3 className="font-outfit font-black text-xl text-slate-900 dark:text-white mt-0.5">
-                  {currentVolume}
-                </h3>
+                <strong className="block mt-3 font-display font-bold text-[19px] text-ink tracking-tight tabular-nums">
+                  {ch.value}
+                </strong>
+                <span className="block mt-1 text-[10.5px] font-ui text-ink-dim">{ch.limit}</span>
+                <span className={`block mt-1.5 text-[10.5px] font-ui font-bold ${ch.tone}`}>{ch.state}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Cash-flow chart — reference bar chart with the flame focus column */}
+        <div className="xl:col-span-7 fx-card p-5 flex flex-col">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <span className="text-[12px] font-ui text-ink-muted">Transaction Velocity &amp; Defense</span>
+              <h3 className="fx-figure text-[25px] lg:text-[29px] mt-0.5">{currentVolume}</h3>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2 text-[11.5px] font-ui">
+                <span className="flex items-center gap-1.5 text-ink-muted">
+                  <span className="w-2 h-2 rounded-full bg-raise" />
+                  Normal flow <strong className="font-num text-ink">{displayCleanM}</strong>
+                </span>
+                <span className="flex items-center gap-1.5 text-ink-muted">
+                  <span className="w-2 h-2 rounded-full bg-flame-500" />
+                  Intercepted <strong className="font-num text-flame-500">{displayInterceptedM}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="fx-seg">
+                <button
+                  className="fx-seg-item"
+                  data-active={chartMode === 'monthly'}
+                  onClick={() => setChartMode('monthly')}
+                >
+                  Monthly
+                </button>
+                <button
+                  className="fx-seg-item"
+                  data-accent="true"
+                  data-active={chartMode === 'yearly'}
+                  onClick={() => setChartMode('yearly')}
+                >
+                  Yearly
+                </button>
               </div>
 
-              {/* Time Filter Buttons */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono">
+              <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-elev border border-hair">
                 {(['1D', '1W', '1M', '3M', '6M', '1Y'] as const).map((range) => (
                   <button
                     key={range}
                     onClick={() => setActiveChartRange(range)}
-                    className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                    className={`px-2 py-1 rounded-full font-num text-[10.5px] font-bold transition-colors ${
                       activeChartRange === range
-                        ? 'bg-gradient-to-r from-amber-500 to-[#FF5E00] text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
+                        ? 'bg-flame-500 text-white'
+                        : 'text-ink-dim hover:text-ink'
                     }`}
                   >
                     {range}
@@ -320,286 +506,288 @@ export const AdminDashboard: React.FC = () => {
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Sub-Legend Stats */}
-            <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-jakarta">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-700"></span>
-                  <span className="text-slate-500 dark:text-slate-400">Normal Flow:</span>
-                  <strong className="text-slate-900 dark:text-white font-bold font-mono">{displayCleanM}</strong>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                  <span className="text-slate-500 dark:text-slate-400">Peak Threat Intercepted:</span>
-                  <strong className="text-amber-500 font-bold font-mono">{displayInterceptedM}</strong>
-                </div>
-              </div>
-
-              <span className="text-[11px] font-mono text-slate-400">Unit: Millions BDT (৳)</span>
+          {/* Plot */}
+          <div className="mt-6 flex-1 flex gap-3 min-h-[250px]">
+            {/* Y axis */}
+            <div className="w-10 shrink-0 flex flex-col justify-between py-0.5 text-right">
+              {chart.axis.map((v, i) => (
+                <span key={i} className="font-num text-[10px] text-ink-dim leading-none">
+                  {compact(v)}
+                </span>
+              ))}
             </div>
 
-            {/* High-End Sleek Bar Chart (Matching Sample 3 with Glowing Apex Peak) */}
-            <div className="pt-6 h-[240px] flex items-end justify-between gap-2 sm:gap-4 px-2 border-b border-slate-200/80 dark:border-slate-800 relative">
-              {chartData.map((d, index) => {
-                // Determine peak bar (e.g. index 3 or highest intercepted)
-                const isPeak = index === 3;
-                return (
-                  <div key={d.month} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
-                    
-                    {/* Floating Value Tooltip Pill on Active / Peak Bar (Sample 3) */}
-                    {isPeak && (
-                      <div className="absolute -top-1 px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-black border border-amber-500/40 text-white font-mono text-[10px] font-bold shadow-xl shadow-orange-500/20 flex items-center gap-1 z-10 animate-bounce">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                        <span>৳16,251</span>
-                      </div>
-                    )}
-
-                    <div className="w-full max-w-[32px] sm:max-w-[40px] flex items-end justify-center h-[180px] relative">
-                      {isPeak ? (
-                        /* Glowing Active Bar with Flame Gradient and White Apex Dot */
+            {/* Bars */}
+            <div className="relative flex-1 fx-grid-lines">
+              <div className="absolute inset-0 flex items-end justify-between gap-1.5 sm:gap-2.5">
+                {chart.bars.map((bar, i) => {
+                  const isFocus = i === focusIndex;
+                  return (
+                    <div
+                      key={bar.month}
+                      className="group relative flex-1 h-full flex flex-col justify-end items-center"
+                      onMouseEnter={() => setHoveredBar(i)}
+                      onMouseLeave={() => setHoveredBar(null)}
+                    >
+                      {/* Tooltip on the focused column — anchored beside the bar,
+                          and clamped so a tall column can't push it into the controls */}
+                      {isFocus && (
                         <div
-                          style={{ height: '82%' }}
-                          className="w-full bg-gradient-to-t from-orange-600 via-amber-500 to-amber-300 rounded-t-xl transition-all shadow-[0_0_24px_rgba(255,94,0,0.55)] relative flex justify-center"
+                          className={`fx-tooltip absolute z-20 px-3 py-2 w-[158px] pointer-events-none ${
+                            i > chart.bars.length - 3 ? 'right-full mr-2' : 'left-full ml-2'
+                          }`}
+                          style={{ bottom: `${Math.min(bar.pct, 64)}%` }}
                         >
-                          {/* Glowing White Dot at Apex */}
-                          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_#ffffff] absolute top-1"></div>
+                          <span className="block font-num text-[10px] text-ink-dim mb-1">
+                            {bar.month} 2026
+                          </span>
+                          <span className="flex items-center justify-between gap-4 text-[11px]">
+                            <span className="text-ink-muted">Clean</span>
+                            <strong className="font-num text-ink">{compact(bar.clean)}</strong>
+                          </span>
+                          <span className="flex items-center justify-between gap-4 text-[11px] mt-0.5">
+                            <span className="text-ink-muted">Intercepted</span>
+                            <strong className="font-num text-flame-500">−{compact(bar.intercepted)}</strong>
+                          </span>
                         </div>
-                      ) : (
-                        /* Normal Sleek Dark Bar */
-                        <div
-                          style={{ height: `${Math.min(90, Math.max(20, d.clean))}%` }}
-                          className="w-full bg-slate-200 dark:bg-slate-800/80 rounded-t-xl group-hover:bg-slate-300 dark:group-hover:bg-slate-700/80 transition-all"
-                        ></div>
                       )}
-                    </div>
 
-                    <span className={`text-[10px] sm:text-[11px] font-mono font-semibold transition-colors ${
-                      isPeak ? 'text-amber-500 font-bold' : 'text-slate-500 dark:text-slate-400'
-                    }`}>
-                      {d.month}
+                      <div className="relative w-full max-w-[46px] flex justify-center" style={{ height: `${bar.pct}%` }}>
+                        {isFocus && (
+                          <span className="fx-bar-knob absolute -top-2 z-10" />
+                        )}
+                        <span className={`w-full h-full ${isFocus ? 'fx-bar-active' : 'fx-bar'}`} />
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {chart.bars.length === 0 && (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-[12px] font-ui text-ink-dim">
+                      Awaiting telemetry from the risk engine…
                     </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Incident Telemetry Table (Sample 3 Bottom Section) */}
-          <div className="upay-card p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200/80 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-500" />
-                <h4 className="font-outfit font-bold text-sm text-slate-900 dark:text-white">
-                  Real-time Interception Feed
-                </h4>
+                )}
               </div>
-              <Link href="/analyst" className="text-xs font-jakarta font-semibold text-amber-500 hover:text-amber-400 flex items-center gap-1">
-                <span>View All Cases</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-jakarta">
-                <thead>
-                  <tr className="text-slate-400 font-mono text-[10px] uppercase border-b border-slate-200/60 dark:border-slate-800">
-                    <th className="pb-2 font-semibold">Incident ID</th>
-                    <th className="pb-2 font-semibold">Target Account</th>
-                    <th className="pb-2 font-semibold">Amount</th>
-                    <th className="pb-2 font-semibold">Vector</th>
-                    <th className="pb-2 font-semibold text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200/50 dark:divide-slate-800/60 font-mono text-[11px]">
-                  <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="py-2.5 font-bold text-slate-900 dark:text-white">TXN-98765A9</td>
-                    <td className="py-2.5 text-slate-600 dark:text-slate-300">01712 •••• 891</td>
-                    <td className="py-2.5 font-bold text-amber-500">৳25,000</td>
-                    <td className="py-2.5 text-slate-400">USSD OTP Phish</td>
-                    <td className="py-2.5 text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                        Intercepted
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="py-2.5 font-bold text-slate-900 dark:text-white">INV-56789LMN</td>
-                    <td className="py-2.5 text-slate-600 dark:text-slate-300">01823 •••• 412</td>
-                    <td className="py-2.5 font-bold text-slate-900 dark:text-white">৳12,450</td>
-                    <td className="py-2.5 text-slate-400">Rapid Velocity</td>
-                    <td className="py-2.5 text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                        Under Hold
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="py-2.5 font-bold text-slate-900 dark:text-white">PAY-12345XYZ</td>
-                    <td className="py-2.5 text-slate-600 dark:text-slate-300">01991 •••• 773</td>
-                    <td className="py-2.5 font-bold text-emerald-500">৳1,500</td>
-                    <td className="py-2.5 text-slate-400">Clean App P2P</td>
-                    <td className="py-2.5 text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                        Verified Clean
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
 
+          {/* X axis */}
+          <div className="flex gap-3 mt-2.5">
+            <span className="w-10 shrink-0" />
+            <div className="flex-1 flex items-center justify-between gap-1.5 sm:gap-2.5">
+              {chart.bars.map((bar, i) => (
+                <span
+                  key={bar.month}
+                  className={`flex-1 text-center font-num text-[10.5px] font-semibold transition-colors ${
+                    i === focusIndex ? 'text-flame-500' : 'text-ink-dim'
+                  }`}
+                >
+                  {bar.month}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-
-        {/* Right: Executive MFS Card & Daily Quota Sentinel (4 Cols, Sample 1 & Sample 3) */}
-        <div className="lg:col-span-4 space-y-5">
-          
-          {/* Luxury Executive MFS Card Mockup (Sample 1 & Sample 3) */}
-          <div className="relative rounded-2xl p-6 bg-gradient-to-br from-slate-900 via-[#131722] to-[#0A0D15] border border-white/10 shadow-2xl shadow-black/60 text-white overflow-hidden group">
-            {/* Ambient Warm Underglow */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-amber-500/20 to-orange-600/10 rounded-full blur-2xl pointer-events-none"></div>
-
-            <div className="flex items-center justify-between relative z-10">
-              {/* Contactless waves */}
-              <div className="flex items-center gap-1 text-slate-400">
-                <Radio className="w-5 h-5 text-amber-400" />
-                <span className="text-[10px] font-mono tracking-widest uppercase">NFC / USSD</span>
-              </div>
-              <div className="text-right font-mono text-[11px] text-slate-400">
-                <span>•••• 6541</span>
-                <span className="block text-[9px] text-slate-500">12/28</span>
-              </div>
-            </div>
-
-            {/* Chip & Masked Wallet */}
-            <div className="my-6 flex items-center justify-between relative z-10">
-              {/* Gold Chip */}
-              <div className="w-10 h-8 rounded-md bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 p-1 flex items-center justify-center shadow-md">
-                <div className="w-full h-full border border-amber-800/40 rounded-sm grid grid-cols-2 gap-0.5 opacity-80">
-                  <div className="border-r border-b border-amber-800/40"></div>
-                  <div className="border-b border-amber-800/40"></div>
-                  <div className="border-r border-amber-800/40"></div>
-                  <div></div>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="text-[10px] font-jakarta text-slate-400 block uppercase">Shield Balance</span>
-                <strong className="text-xl font-mono font-bold text-white tracking-tight">৳ 12,680.42</strong>
-              </div>
-            </div>
-
-            {/* Card Holder & upay Brand */}
-            <div className="flex items-end justify-between relative z-10 pt-2 border-t border-white/5">
-              <div>
-                <span className="text-[9px] font-jakarta text-slate-400 uppercase tracking-widest block">Card Holder Name</span>
-                <strong className="text-xs font-outfit font-bold tracking-wider text-slate-200 uppercase">
-                  upay Shield SOC Executive
-                </strong>
-              </div>
-              <div className="text-right">
-                <span className="font-outfit font-black text-lg text-amber-500 tracking-tighter">upay</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Action Pill Controls (Sample 3) */}
-          <div className="upay-card p-4 space-y-3">
-            <span className="text-[10px] font-outfit font-extrabold text-slate-400 uppercase tracking-widest block px-1">
-              Rapid SOC Actions
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs font-jakarta font-semibold">
-              <Link
-                href="/analyst"
-                className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-between hover:bg-amber-500/20 transition-all"
-              >
-                <span>+ Emergency Hold</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-              <Link
-                href="/rings"
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 flex items-center justify-between hover:bg-slate-200 dark:hover:bg-slate-800 transition-all"
-              >
-                <span>↗ Ring Freeze</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Daily Quota / Spending Limits (Sample 3) */}
-          <div className="upay-card p-5 space-y-4">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="text-xs font-jakarta text-slate-500 uppercase tracking-wider block">Protection Quota</span>
-                <strong className="text-lg font-mono font-bold text-slate-900 dark:text-white">
-                  ৳1,200k used <span className="text-xs font-normal text-slate-500">from ৳2,000k limit</span>
-                </strong>
-              </div>
-              <span className="text-xs font-mono font-bold text-emerald-500">60%</span>
-            </div>
-
-            {/* Segmented Progress Bar (Sample 3) */}
-            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex gap-0.5 p-0.5">
-              <div className="h-full bg-amber-500 rounded-full" style={{ width: '27%' }}></div>
-              <div className="h-full bg-orange-500 rounded-full" style={{ width: '35%' }}></div>
-              <div className="h-full bg-emerald-500 rounded-full" style={{ width: '18%' }}></div>
-              <div className="h-full bg-slate-600 rounded-full" style={{ width: '20%' }}></div>
-            </div>
-
-            {/* Category breakdown (Sample 3) */}
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-jakarta text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                <span>P2P Wallets (27%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                <span>Agent Cashout (35%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Merchant QR (18%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-slate-600"></span>
-                <span>Other USSD (20%)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Launchpad to Modules */}
-          <div className="upay-card p-5 space-y-3">
-            <span className="text-[10px] font-outfit font-extrabold text-slate-400 uppercase tracking-widest block">
-              Module Launchpad
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs font-jakarta font-semibold">
-              <Link
-                href="/customer"
-                className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center justify-between hover:bg-amber-500/20 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>Customer App</span>
-                </div>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-              <Link
-                href="/ussd"
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Radio className="w-3.5 h-3.5 text-amber-500" />
-                  <span>*268# USSD</span>
-                </div>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-
-        </div>
-
       </div>
 
+      {/* ── Row 3: activity table + side rail ───────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+
+        <div className="xl:col-span-8 fx-card p-5 self-start">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <h3 className="font-display font-bold text-[17px] text-ink">Recent Activities</h3>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="w-[14px] h-[14px] text-ink-dim absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  value={feedQuery}
+                  onChange={(e) => setFeedQuery(e.target.value)}
+                  placeholder="Search"
+                  aria-label="Search interception feed"
+                  className="fx-search pl-9 pr-3 py-2 w-[150px] sm:w-[190px] !text-[12px]"
+                />
+              </div>
+              <Link href="/analyst" className="fx-btn-ghost px-3 py-2 text-[12px]">
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Filter</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="fx-table min-w-[600px]">
+              <thead>
+                <tr>
+                  <th>Activity</th>
+                  <th>Incident ID</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th aria-label="Row actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {filteredFeed.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <span className="flex items-center gap-2.5">
+                        <span className="w-8 h-8 rounded-xl bg-elev border border-hair flex items-center justify-center shrink-0">
+                          <Activity className="w-3.5 h-3.5 text-flame-500" />
+                        </span>
+                        <span className="flex flex-col leading-tight min-w-0">
+                          <strong className="font-ui font-semibold text-ink truncate">{row.vector}</strong>
+                          <span className="font-num text-[10.5px] text-ink-dim">{row.account}</span>
+                        </span>
+                      </span>
+                    </td>
+                    <td className="font-num text-ink-muted whitespace-nowrap">{row.id}</td>
+                    <td className="font-num text-ink-muted whitespace-nowrap">{row.date}</td>
+                    <td className="font-num text-ink-muted whitespace-nowrap">{row.time}</td>
+                    <td className={`font-num font-bold whitespace-nowrap ${row.amountTone}`}>{row.amount}</td>
+                    <td>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10.5px] font-ui font-bold whitespace-nowrap ${row.tone}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${row.dot}`} />
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="!text-right">
+                      <Link href="/analyst" className="inline-flex text-ink-dim hover:text-flame-500 transition-colors" aria-label={`Open ${row.id}`}>
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+
+                {filteredFeed.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="!py-10 text-center text-ink-dim">
+                      No incident matches “{feedQuery}”.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Side rail */}
+        <div className="xl:col-span-4 space-y-4">
+
+          {/* Protection quota */}
+          <div className="fx-card p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="fx-eyebrow block">Protection Quota</span>
+                <strong className="block mt-1.5 font-display font-bold text-[18px] text-ink">
+                  ৳1,200k <span className="text-[12px] font-ui font-normal text-ink-muted">of ৳2,000k</span>
+                </strong>
+              </div>
+              <span className="font-num text-[13px] font-bold text-success">60%</span>
+            </div>
+
+            <div className="mt-4 h-2 w-full rounded-full bg-elev overflow-hidden flex gap-0.5">
+              <span className="h-full bg-flame-500" style={{ width: '27%' }} />
+              <span className="h-full bg-ember-400" style={{ width: '35%' }} />
+              <span className="h-full bg-success" style={{ width: '18%' }} />
+              <span className="h-full bg-raise" style={{ width: '20%' }} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] font-ui text-ink-muted">
+              {[
+                { c: 'bg-flame-500', l: 'P2P wallets (27%)' },
+                { c: 'bg-ember-400', l: 'Agent cash-out (35%)' },
+                { c: 'bg-success', l: 'Merchant QR (18%)' },
+                { c: 'bg-raise', l: 'Other USSD (20%)' },
+              ].map((s) => (
+                <span key={s.l} className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${s.c}`} />
+                  {s.l}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Executive shield card mockup */}
+          <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-white/10 text-white shadow-glass">
+            <span className="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-flame-500/20 blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Radio className="w-[18px] h-[18px] text-flame-400" />
+                <span className="font-num text-[9.5px] tracking-[0.18em] uppercase text-slate-400">
+                  NFC / USSD
+                </span>
+              </span>
+              <span className="text-right font-num text-[11px] text-slate-400 leading-tight">
+                •••• 6541
+                <span className="block text-[9px] text-slate-500">12/28</span>
+              </span>
+            </div>
+
+            <div className="relative z-10 my-6 flex items-end justify-between gap-3">
+              <span className="w-10 h-7 rounded-md bg-gradient-to-br from-ember-300 via-ember-400 to-ember-600 p-1 shadow-md">
+                <span className="grid w-full h-full rounded-sm border border-ember-800/40 grid-cols-2 gap-0.5 opacity-80">
+                  <span className="border-r border-b border-ember-800/40" />
+                  <span className="border-b border-ember-800/40" />
+                  <span className="border-r border-ember-800/40" />
+                  <span />
+                </span>
+              </span>
+              <span className="text-right">
+                <span className="block text-[9.5px] font-ui uppercase tracking-wider text-slate-400">
+                  Shield Balance
+                </span>
+                <strong className="font-display font-bold text-[20px] text-white tracking-tight tabular-nums">
+                  ৳12,680.42
+                </strong>
+              </span>
+            </div>
+
+            <div className="relative z-10 pt-3 border-t border-white/10 flex items-end justify-between gap-3">
+              <span>
+                <span className="block text-[9px] font-ui uppercase tracking-[0.16em] text-slate-400">
+                  Card Holder
+                </span>
+                <strong className="font-display text-[11.5px] font-bold uppercase tracking-wide text-slate-200">
+                  upay Shield SOC Executive
+                </strong>
+              </span>
+              <span className="font-display font-bold text-[17px] text-flame-500 tracking-tight">upay</span>
+            </div>
+          </div>
+
+          {/* Module launchpad */}
+          <div className="fx-card p-5">
+            <span className="fx-eyebrow block mb-3">Module Launchpad</span>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { href: '/customer', label: 'Customer Safety App', icon: Smartphone },
+                { href: '/ussd', label: 'USSD *268# Engine', icon: Radio },
+                { href: '/rings', label: 'Mule Ring Topology', icon: Network },
+                { href: '/merchants', label: 'Merchant QR Shield', icon: QrCode },
+                { href: '/simulator', label: 'ROI & Impact Simulator', icon: TrendingUp },
+              ].map((m) => (
+                <Link
+                  key={m.href}
+                  href={m.href}
+                  className="group flex items-center justify-between gap-2 p-2.5 rounded-xl bg-elev border border-hair text-[12.5px] font-ui font-semibold text-ink-body hover:border-flame-500/40 hover:text-flame-500 transition-colors"
+                >
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <m.icon className="w-3.5 h-3.5 text-flame-500 shrink-0" />
+                    <span className="truncate">{m.label}</span>
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

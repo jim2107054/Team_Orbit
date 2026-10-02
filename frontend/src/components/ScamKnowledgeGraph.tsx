@@ -198,13 +198,13 @@ export const ScamKnowledgeGraph: React.FC = () => {
       case 'CUSTOMER':
         return { bg: '#0EA5E9', border: '#0284C7', text: '#FFFFFF', code: 'CU', label: 'Customer' };
       case 'WALLET':
-        return { bg: isSuspicious ? '#EA5455' : '#28C76F', border: isSuspicious ? '#D94344' : '#1EAE5D', text: '#FFFFFF', code: 'WA', label: 'Wallet' };
+        return { bg: isSuspicious ? '#F26164' : '#23C17D', border: isSuspicious ? '#D94344' : '#1EAE5D', text: '#FFFFFF', code: 'WA', label: 'Wallet' };
       case 'PHONE':
         return { bg: '#8B5CF6', border: '#7C3AED', text: '#FFFFFF', code: 'PH', label: 'Phone' };
       case 'DEVICE':
-        return { bg: '#64748B', border: '#475569', text: '#FFFFFF', code: 'DV', label: 'Device' };
+        return { bg: '#70707B', border: '#3C3C45', text: '#FFFFFF', code: 'DV', label: 'Device' };
       case 'AGENT':
-        return { bg: '#FF9F43', border: '#E88E35', text: '#FFFFFF', code: 'AG', label: 'Agent' };
+        return { bg: '#FF5A1F', border: '#E88E35', text: '#FFFFFF', code: 'AG', label: 'Agent' };
       case 'MERCHANT':
         return { bg: '#3B82F6', border: '#2563EB', text: '#FFFFFF', code: 'MC', label: 'Merchant' };
       case 'TRANSACTION':
@@ -214,7 +214,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
       case 'SCAM_CONVERSATION':
         return { bg: '#A855F7', border: '#9333EA', text: '#FFFFFF', code: 'NL', label: 'Voice NLP' };
       case 'SCAM_TYPOLOGY':
-        return { bg: '#EF4444', border: '#DC2626', text: '#FFFFFF', code: 'TY', label: 'Typology' };
+        return { bg: '#F26164', border: '#DC2626', text: '#FFFFFF', code: 'TY', label: 'Typology' };
       case 'CAMPAIGN':
         return { bg: '#E11D48', border: '#BE123C', text: '#FFFFFF', code: 'CM', label: 'Campaign' };
       case 'RING':
@@ -224,9 +224,9 @@ export const ScamKnowledgeGraph: React.FC = () => {
       case 'EVENT':
         return { bg: '#EAB308', border: '#CA8A04', text: '#FFFFFF', code: 'EV', label: 'Event' };
       case 'CASE':
-        return { bg: '#092C4C', border: '#051829', text: '#FFFFFF', code: 'CS', label: 'MLRO Case' };
+        return { bg: '#15151B', border: '#051829', text: '#FFFFFF', code: 'CS', label: 'MLRO Case' };
       default:
-        return { bg: '#7367F0', border: '#5E50EE', text: '#FFFFFF', code: 'ND', label: 'Node' };
+        return { bg: '#6355E8', border: '#5E50EE', text: '#FFFFFF', code: 'ND', label: 'Node' };
     }
   };
 
@@ -285,17 +285,17 @@ export const ScamKnowledgeGraph: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="p-2 rounded-[8px] bg-amber-500/10 text-amber-500">
+              <span className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
                 <Network className="w-5 h-5" />
               </span>
-              <h2 className="font-outfit font-extrabold text-xl text-slate-900 dark:text-slate-100">
+              <h2 className="font-display font-extrabold text-xl text-slate-900 dark:text-slate-100">
                 Bangladesh Scam Knowledge Graph (Semantic Intelligence Layer)
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-nunito font-bold bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-ui font-bold bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
                 15 Entity Types • 100% Evidence-Backed
               </span>
             </div>
-            <p className="text-xs font-nunito text-slate-600 dark:text-slate-400 max-w-4xl leading-relaxed">
+            <p className="text-xs font-ui text-slate-600 dark:text-slate-400 max-w-4xl leading-relaxed">
               Unified semantic knowledge network connecting victims, spoofed caller lines, mule aggregator wallets, 
               cash-out agent counters, coordinated scam campaigns, and NLP acoustic transcripts. 
               <strong className="text-slate-800 dark:text-slate-200"> Every relationship is grounded in synthetic audit records with verifiable citations.</strong>
@@ -306,7 +306,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
             <button
               onClick={() => fetchGraph(selectedNode?.id || 'CMP-2026-0914', depth)}
               disabled={isLoading}
-              className="px-3.5 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-nunito font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-ui font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-amber-500 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh Graph</span>
@@ -315,26 +315,26 @@ export const ScamKnowledgeGraph: React.FC = () => {
         </div>
 
         {/* Global Entity Stat Chips */}
-        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs font-nunito">
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10">
+        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs font-ui">
+          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Total Knowledge Nodes</span>
-            <div className="font-outfit font-bold text-base text-slate-900 dark:text-slate-100">{subgraph?.total_nodes_count || 15} Entities</div>
+            <div className="font-display font-bold text-base text-slate-900 dark:text-slate-100">{subgraph?.total_nodes_count || 15} Entities</div>
           </div>
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10">
+          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Evidence Relationships</span>
-            <div className="font-outfit font-bold text-base text-amber-500 dark:text-amber-400">{subgraph?.total_edges_count || 22} Verified Edges</div>
+            <div className="font-display font-bold text-base text-amber-500 dark:text-amber-400">{subgraph?.total_edges_count || 22} Verified Edges</div>
           </div>
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10">
+          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Coordinated Campaigns</span>
-            <div className="font-outfit font-bold text-base text-rose-500">CAMP-2026-EID-01</div>
+            <div className="font-display font-bold text-base text-rose-500">CAMP-2026-EID-01</div>
           </div>
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10">
+          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Mule Network Hub</span>
-            <div className="font-outfit font-bold text-base text-orange-500">RING-003 Savar</div>
+            <div className="font-display font-bold text-base text-orange-500">RING-003 Savar</div>
           </div>
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10">
+          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Active MLRO Case</span>
-            <div className="font-outfit font-bold text-base text-amber-500 dark:text-amber-300">CASE-2026-MLRO-042</div>
+            <div className="font-display font-bold text-base text-amber-500 dark:text-amber-300">CASE-2026-MLRO-042</div>
           </div>
         </div>
       </div>
@@ -342,11 +342,11 @@ export const ScamKnowledgeGraph: React.FC = () => {
       {/* 2. Natural Language Query & Investigation Copilot Bar */}
       <div className="upay-card p-5 shadow-sm space-y-3 bg-white/80 dark:bg-slate-900/60">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-outfit font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-xs font-display font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>Investigation Query Copilot (Ask in Natural Bangla or English):</span>
           </span>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-nunito">Instant Graph Citation Resolver</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-ui">Instant Graph Citation Resolver</span>
         </div>
 
         {/* Input bar */}
@@ -359,13 +359,13 @@ export const ScamKnowledgeGraph: React.FC = () => {
               onChange={(e) => setNlQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleNLQuery(nlQuery)}
               placeholder="e.g. এই নম্বরের সাথে কোন wallet যুক্ত? অথবা এই wallet-এর টাকা কোথায় গেছে?"
-              className="w-full pl-9 pr-4 py-2.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-nunito text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-ui text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             />
           </div>
           <button
             onClick={() => handleNLQuery(nlQuery)}
             disabled={isQuerying || !nlQuery.trim()}
-            className="px-5 py-2.5 btn-flame text-white text-xs font-nunito font-bold rounded-[8px] shadow-sm flex items-center gap-1.5 transition-all disabled:opacity-50"
+            className="px-5 py-2.5 btn-flame text-white text-xs font-ui font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all disabled:opacity-50"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{isQuerying ? 'Traversing Graph...' : 'Ask Copilot'}</span>
@@ -373,7 +373,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
         </div>
 
         {/* Preset Query Chips */}
-        <div className="flex items-center gap-2 flex-wrap text-[11px] font-nunito text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-2 flex-wrap text-[11px] font-ui text-slate-600 dark:text-slate-400">
           <span className="font-bold text-slate-900 dark:text-slate-200">Quick Questions:</span>
           {[
             'এই নম্বরের সাথে কোন wallet যুক্ত?',
@@ -388,7 +388,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                 setNlQuery(preset);
                 handleNLQuery(preset);
               }}
-              className="px-2.5 py-1 rounded-[6px] bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-500/10 hover:text-amber-500 dark:hover:text-amber-400 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 transition-colors"
+              className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-500/10 hover:text-amber-500 dark:hover:text-amber-400 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 transition-colors"
             >
               &quot;{preset}&quot;
             </button>
@@ -397,29 +397,29 @@ export const ScamKnowledgeGraph: React.FC = () => {
 
         {/* Query Result Card */}
         {queryResult && (
-          <div className="mt-3 p-4 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 rounded-[8px] space-y-2 animate-fade-in">
+          <div className="mt-3 p-4 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 rounded-xl space-y-2 animate-fade-in">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-outfit font-bold text-amber-500">
+              <div className="flex items-center gap-2 text-xs font-display font-bold text-amber-500">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Copilot Structured Graph Answer:</span>
               </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">
+              <span className="text-[11px] font-num px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">
                 Confidence: {(queryResult.confidence * 100).toFixed(0)}%
               </span>
             </div>
 
-            <p className="text-xs font-nunito text-slate-900 dark:text-slate-100 font-bangla leading-relaxed">
+            <p className="text-xs font-ui text-slate-900 dark:text-slate-100 font-bangla leading-relaxed">
               {queryResult.answer_text_bn}
             </p>
-            <p className="text-[11px] font-nunito text-slate-500 dark:text-slate-400 italic">
+            <p className="text-[11px] font-ui text-slate-500 dark:text-slate-400 italic">
               {queryResult.answer_text}
             </p>
 
             {queryResult.evidence_citations && queryResult.evidence_citations.length > 0 && (
-              <div className="pt-2 border-t border-amber-500/20 flex items-center gap-2 flex-wrap text-[10px] font-nunito">
+              <div className="pt-2 border-t border-amber-500/20 flex items-center gap-2 flex-wrap text-[10px] font-ui">
                 <span className="font-bold text-amber-500">Verified Citations:</span>
                 {queryResult.evidence_citations.map((ev, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-amber-500/30 text-amber-500 font-mono font-bold flex items-center gap-1">
+                  <span key={i} className="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-amber-500/30 text-amber-500 font-num font-bold flex items-center gap-1">
                     <Pin className="w-2.5 h-2.5 text-amber-500" />
                     <span>{ev.source_event_id} ({ev.verification_source})</span>
                   </span>
@@ -435,11 +435,11 @@ export const ScamKnowledgeGraph: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-amber-500" />
-            <h3 className="font-outfit font-bold text-xs text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+            <h3 className="font-display font-bold text-xs text-slate-900 dark:text-slate-100 uppercase tracking-wider">
               Guided Investigation Demo: Unfolding the Fraud Ecosystem (Complaint → Ring → Campaign)
             </h3>
           </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-nunito">Step {demoStep + 1} of {demoSteps.length}</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-ui">Step {demoStep + 1} of {demoSteps.length}</span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
@@ -449,7 +449,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
               <button
                 key={s.step}
                 onClick={() => handleStepClick(idx)}
-                className={`p-2.5 rounded-[8px] text-left border transition-all duration-200 flex flex-col justify-between ${
+                className={`p-2.5 rounded-xl text-left border transition-all duration-200 flex flex-col justify-between ${
                   isActive 
                     ? 'btn-flame text-white border-amber-500 shadow-md ring-2 ring-amber-500/30' 
                     : 'bg-white dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -459,7 +459,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                   <span className={`text-[10px] font-bold block ${isActive ? 'text-white/80' : 'text-amber-500'}`}>
                     Step {s.step}
                   </span>
-                  <p className="font-outfit font-bold text-[11px] leading-tight truncate mt-0.5">
+                  <p className="font-display font-bold text-[11px] leading-tight truncate mt-0.5">
                     {s.title.split(' ')[0]}
                   </p>
                 </div>
@@ -471,7 +471,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
           })}
         </div>
 
-        <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-[8px] flex items-center justify-between text-xs font-nunito">
+        <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-xl flex items-center justify-between text-xs font-ui">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-900 dark:text-slate-100">{demoSteps[demoStep].title} ({demoSteps[demoStep].title_bn}):</span>
             <span className="text-slate-600 dark:text-slate-400">{demoSteps[demoStep].desc}</span>
@@ -480,7 +480,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
             {demoStep > 0 && (
               <button
                 onClick={() => handleStepClick(demoStep - 1)}
-                className="px-2.5 py-1 text-xs rounded-[6px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="px-2.5 py-1 text-xs rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 Previous
               </button>
@@ -488,7 +488,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
             {demoStep < demoSteps.length - 1 && (
               <button
                 onClick={() => handleStepClick(demoStep + 1)}
-                className="px-2.5 py-1 text-xs font-bold rounded-[6px] btn-flame text-white hover:opacity-95"
+                className="px-2.5 py-1 text-xs font-bold rounded-xl btn-flame text-white hover:opacity-95"
               >
                 Next Step →
               </button>
@@ -504,7 +504,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
         <div className="lg:col-span-8 upay-card p-4 shadow-sm flex flex-col justify-between space-y-3 bg-white/80 dark:bg-slate-900/60">
           
           {/* Top Control Bar: Filters, Depth, Suspicious Toggle */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-white/10 text-xs font-nunito">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-white/10 text-xs font-ui">
             
             {/* Depth Selector */}
             <div className="flex items-center gap-1.5">
@@ -516,7 +516,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                     setDepth(d);
                     fetchGraph(selectedNode?.id, d);
                   }}
-                  className={`px-2.5 py-0.5 rounded-[6px] text-xs font-bold transition-all ${
+                  className={`px-2.5 py-0.5 rounded-xl text-xs font-bold transition-all ${
                     depth === d ? 'btn-flame text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10'
                   }`}
                 >
@@ -532,7 +532,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                 <button
                   key={t}
                   onClick={() => setTimeFilter(t)}
-                  className={`px-2 py-0.5 rounded-[6px] text-xs font-bold transition-all ${
+                  className={`px-2 py-0.5 rounded-xl text-xs font-bold transition-all ${
                     timeFilter === t ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10'
                   }`}
                 >
@@ -556,22 +556,22 @@ export const ScamKnowledgeGraph: React.FC = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setZoom(z => Math.max(0.6, z - 0.15))}
-                className="p-1 rounded-[6px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+                className="p-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              <span className="text-[11px] font-mono px-1 text-slate-700 dark:text-slate-300">{(zoom * 100).toFixed(0)}%</span>
+              <span className="text-[11px] font-num px-1 text-slate-700 dark:text-slate-300">{(zoom * 100).toFixed(0)}%</span>
               <button
                 onClick={() => setZoom(z => Math.min(1.8, z + 0.15))}
-                className="p-1 rounded-[6px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+                className="p-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
                 title="Zoom In"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-                className="p-1 rounded-[6px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+                className="p-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
                 title="Reset View"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
@@ -580,7 +580,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
           </div>
 
           {/* Interactive SVG Canvas */}
-          <div className="relative w-full h-[520px] bg-slate-100 dark:bg-[#070D18] rounded-[12px] border border-slate-200 dark:border-white/10 overflow-hidden shadow-inner">
+          <div className="relative w-full h-[520px] bg-slate-100 dark:bg-canvas rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-inner">
             <svg
               ref={svgRef}
               className="w-full h-full cursor-grab active:cursor-grabbing"
@@ -605,7 +605,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                     <circle cx="20" cy="20" r="1.2" className="fill-slate-300 dark:fill-slate-800" />
                   </pattern>
                 </defs>
-                <rect width="860" height="540" className="fill-slate-50 dark:fill-[#070D18]" />
+                <rect width="860" height="540" className="fill-slate-50 dark:fill-canvas" />
                 <rect width="860" height="540" fill="url(#graph-grid)" />
 
                 {/* 1. EDGES */}
@@ -626,7 +626,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                         y1={srcPos.y}
                         x2={tgtPos.x}
                         y2={tgtPos.y}
-                        stroke={isEdgeSelected ? '#7367F0' : isSuspicious ? '#EA5455' : '#CBD5E1'}
+                        stroke={isEdgeSelected ? '#6355E8' : isSuspicious ? '#F26164' : '#CBD5E1'}
                         strokeWidth={isEdgeSelected ? 3 : isSuspicious ? 2.5 : 1.5}
                         strokeDasharray={isSuspicious ? '4 2' : undefined}
                       />
@@ -639,8 +639,8 @@ export const ScamKnowledgeGraph: React.FC = () => {
                           width="90"
                           height="20"
                           rx="4"
-                          fill={isSuspicious ? 'rgba(234, 84, 85, 0.2)' : 'rgba(15, 23, 42, 0.85)'}
-                          stroke={isSuspicious ? '#EA5455' : 'rgba(255, 255, 255, 0.15)'}
+                          fill={isSuspicious ? 'rgba(242, 97, 100, 0.22)' : 'rgba(21, 21, 27, 0.9)'}
+                          stroke={isSuspicious ? '#F26164' : 'rgba(255, 255, 255, 0.15)'}
                           strokeWidth="1"
                         />
                         <text
@@ -681,7 +681,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                         <circle
                           r="28"
                           fill="none"
-                          stroke="#EA5455"
+                          stroke="#F26164"
                           strokeWidth="1.5"
                           strokeOpacity="0.6"
                           className="animate-ping"
@@ -693,7 +693,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                         <circle
                           r="26"
                           fill="none"
-                          stroke="#FF8A00"
+                          stroke="#FF7A3D"
                           strokeWidth="3"
                           strokeDasharray="4 2"
                         />
@@ -703,7 +703,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                       <circle
                         r="20"
                         fill={visuals.bg}
-                        stroke={isSelected ? '#FF8A00' : visuals.border}
+                        stroke={isSelected ? '#FF7A3D' : visuals.border}
                         strokeWidth="2"
                         filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.35))"
                       />
@@ -729,7 +729,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                           width="120"
                           height="18"
                           rx="4"
-                          fill="rgba(15, 23, 42, 0.85)"
+                          fill="rgba(21, 21, 27, 0.9)"
                           stroke="rgba(255, 255, 255, 0.15)"
                           strokeWidth="0.8"
                         />
@@ -739,7 +739,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                           fontSize="9.5"
                           fontFamily="sans-serif"
                           fontWeight="bold"
-                          fill="#E2E8F0"
+                          fill="#DDDDE2"
                         >
                           {node.label.length > 18 ? node.label.slice(0, 16) + '...' : node.label}
                         </text>
@@ -751,17 +751,17 @@ export const ScamKnowledgeGraph: React.FC = () => {
             </svg>
 
             {/* Floating Quick Legend */}
-            <div className="absolute bottom-3 left-3 p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-[8px] border border-slate-200 dark:border-white/10 shadow-lg text-[10px] font-nunito flex items-center gap-3 text-slate-700 dark:text-slate-300">
+            <div className="absolute bottom-3 left-3 p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl border border-slate-200 dark:border-white/10 shadow-lg text-[10px] font-ui flex items-center gap-3 text-slate-700 dark:text-slate-300">
               <div className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#EA5455]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-danger"></span>
                 <span>Suspicious / Mule</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#28C76F]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-success-hi"></span>
                 <span>Legitimate Flow</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#7367F0]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-iris"></span>
                 <span>Campaign Hub</span>
               </div>
             </div>
@@ -777,10 +777,10 @@ export const ScamKnowledgeGraph: React.FC = () => {
               {/* Header Details */}
               <div className="pb-3 border-b border-slate-200 dark:border-white/10">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-num font-bold uppercase bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400">
                     {selectedNode.type}
                   </span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-nunito font-bold ${
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-ui font-bold ${
                     selectedNode.risk_level === 'CRITICAL' ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30' :
                     selectedNode.risk_level === 'HIGH' ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' :
                     'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
@@ -789,21 +789,21 @@ export const ScamKnowledgeGraph: React.FC = () => {
                   </span>
                 </div>
 
-                <h4 className="font-outfit font-extrabold text-sm text-slate-900 dark:text-slate-100">
+                <h4 className="font-display font-extrabold text-sm text-slate-900 dark:text-slate-100">
                   {selectedNode.label}
                 </h4>
-                <p className="text-xs font-nunito text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-ui text-slate-500 dark:text-slate-400">
                   {selectedNode.label_bn} {selectedNode.subtitle && `• ${selectedNode.subtitle}`}
                 </p>
-                <div className="text-[11px] font-mono text-slate-400 dark:text-slate-500 mt-1">
+                <div className="text-[11px] font-num text-slate-400 dark:text-slate-500 mt-1">
                   ID: {selectedNode.id}
                 </div>
               </div>
 
               {/* Attributes Grid */}
-              <div className="space-y-1.5 text-xs font-nunito">
+              <div className="space-y-1.5 text-xs font-ui">
                 <span className="font-bold text-slate-800 dark:text-slate-200 uppercase text-[10px] block">Entity Attributes:</span>
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10 space-y-1 font-mono text-[11px]">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10 space-y-1 font-num text-[11px]">
                   {Object.entries(selectedNode.attributes || {}).map(([k, v]) => (
                     <div key={k} className="flex justify-between">
                       <span className="text-slate-500 dark:text-slate-400">{k}:</span>
@@ -818,7 +818,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
               </div>
 
               {/* Connected Relationships List */}
-              <div className="space-y-1.5 text-xs font-nunito">
+              <div className="space-y-1.5 text-xs font-ui">
                 <span className="font-bold text-slate-800 dark:text-slate-200 uppercase text-[10px] block">Connected Relationships:</span>
                 <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
                   {subgraph?.edges
@@ -827,7 +827,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                       <button
                         key={e.id}
                         onClick={() => setEvidenceModalEdge(e)}
-                        className="w-full p-2 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-white/10 rounded-[6px] text-left flex items-center justify-between transition-colors text-[11px]"
+                        className="w-full p-2 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-white/10 rounded-xl text-left flex items-center justify-between transition-colors text-[11px]"
                       >
                         <div>
                           <span className={`font-bold ${e.is_suspicious ? 'text-rose-500' : 'text-amber-500 dark:text-amber-400'}`}>
@@ -837,7 +837,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
                             {e.source === selectedNode.id ? `→ ${e.target}` : `← ${e.source}`}
                           </p>
                         </div>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-num">
                           {e.evidence.source_event_id}
                         </span>
                       </button>
@@ -847,7 +847,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
 
               {/* Copilot Evidence Pack Summary */}
               {evidencePack && (
-                <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-[8px] space-y-1.5 text-xs font-nunito">
+                <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1.5 text-xs font-ui">
                   <div className="flex items-center gap-1.5 text-amber-500 font-bold text-[11px]">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Copilot Evidence Summary:</span>
@@ -865,14 +865,14 @@ export const ScamKnowledgeGraph: React.FC = () => {
               <div className="pt-2 border-t border-slate-200 dark:border-white/10 flex items-center gap-2">
                 <button
                   onClick={() => fetchGraph(selectedNode.id, depth + 1)}
-                  className="flex-1 py-2 btn-flame text-white text-xs font-nunito font-bold rounded-[8px] shadow-sm flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 btn-flame text-white text-xs font-ui font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5"
                 >
                   <Network className="w-3.5 h-3.5" />
                   <span>Expand Connections</span>
                 </button>
                 <button
                   onClick={() => copyToClipboard(JSON.stringify(selectedNode, null, 2), 'NODE')}
-                  className="p-2 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-[8px] text-slate-600 dark:text-slate-400"
+                  className="p-2 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-400"
                   title="Copy Node JSON"
                 >
                   {copiedKey === 'NODE' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -883,7 +883,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
           ) : (
             <div className="upay-card p-8 text-center space-y-3 bg-white/80 dark:bg-slate-900/60">
               <Network className="w-8 h-8 text-slate-400 dark:text-slate-600 mx-auto animate-pulse" />
-              <p className="text-xs font-nunito text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-ui text-slate-500 dark:text-slate-400">
                 Select any entity node in the graph or choose a demo step to inspect relationships and evidence.
               </p>
             </div>
@@ -894,21 +894,21 @@ export const ScamKnowledgeGraph: React.FC = () => {
       {/* 5. EVIDENCE RECORD MODAL */}
       {evidenceModalEdge && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-[14px] max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-white/10">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-white/10">
             
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-[6px] bg-amber-500/10 text-amber-500">
+                <span className="p-1.5 rounded-xl bg-amber-500/10 text-amber-500">
                   <FileText className="w-4 h-4" />
                 </span>
-                <h4 className="font-outfit font-extrabold text-sm text-slate-900 dark:text-slate-100">
+                <h4 className="font-display font-extrabold text-sm text-slate-900 dark:text-slate-100">
                   Immutable Synthetic Evidence Dossier
                 </h4>
               </div>
               <button
                 onClick={() => setEvidenceModalEdge(null)}
-                className="text-xs font-nunito font-bold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 flex items-center gap-1"
+                className="text-xs font-ui font-bold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 flex items-center gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Close</span>
@@ -916,8 +916,8 @@ export const ScamKnowledgeGraph: React.FC = () => {
             </div>
 
             {/* Content */}
-            <div className="space-y-3 text-xs font-nunito">
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-[8px] border border-slate-200 dark:border-white/10 font-mono text-[11px]">
+            <div className="space-y-3 text-xs font-ui">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-white/10 font-num text-[11px]">
                 <div>
                   <span className="text-slate-500 dark:text-slate-400 block">Evidence ID:</span>
                   <strong className="text-amber-500">{evidenceModalEdge.evidence.source_event_id}</strong>
@@ -938,14 +938,14 @@ export const ScamKnowledgeGraph: React.FC = () => {
 
               <div>
                 <span className="font-bold text-slate-900 dark:text-slate-100 block mb-1">Relationship Type:</span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-mono font-bold text-xs">
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-num font-bold text-xs">
                   {evidenceModalEdge.source} → [{evidenceModalEdge.type}] → {evidenceModalEdge.target}
                 </span>
               </div>
 
               <div>
                 <span className="font-bold text-slate-900 dark:text-slate-100 block mb-1">Evidence Summary (বাংলা ও ইংরেজি):</span>
-                <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-[8px] space-y-1">
+                <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1">
                   <p className="font-bangla text-slate-900 dark:text-slate-100 leading-relaxed">
                     {evidenceModalEdge.evidence.evidence_summary_bn || evidenceModalEdge.evidence.evidence_summary}
                   </p>
@@ -958,7 +958,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
               {evidenceModalEdge.evidence.raw_payload && (
                 <div>
                   <span className="font-bold text-slate-900 dark:text-slate-100 block mb-1">Raw Telemetry / Ledger Payload:</span>
-                  <pre className="p-2.5 bg-slate-950 text-emerald-400 rounded-[8px] text-[10px] overflow-x-auto font-mono border border-slate-800">
+                  <pre className="p-2.5 bg-slate-950 text-emerald-400 rounded-xl text-[10px] overflow-x-auto font-num border border-slate-800">
                     {JSON.stringify(evidenceModalEdge.evidence.raw_payload, null, 2)}
                   </pre>
                 </div>
@@ -970,7 +970,7 @@ export const ScamKnowledgeGraph: React.FC = () => {
               <span className="text-[10px] text-slate-500 dark:text-slate-400">Audit Hash: SHA256-verified</span>
               <button
                 onClick={() => setEvidenceModalEdge(null)}
-                className="px-4 py-1.5 btn-flame text-white font-nunito font-bold text-xs rounded-[8px]"
+                className="px-4 py-1.5 btn-flame text-white font-ui font-bold text-xs rounded-xl"
               >
                 Done
               </button>

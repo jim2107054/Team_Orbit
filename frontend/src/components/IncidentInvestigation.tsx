@@ -53,52 +53,51 @@ const VERDICT_STYLE: Record<EvidenceVerdict, {
   CONSISTENT: {
     label: 'CONSISTENT',
     sublabel: 'Available evidence is consistent with the reported incident',
-    color: '#28C76F',
-    bg: 'rgba(40, 199, 111, 0.10)',
-    border: 'rgba(40, 199, 111, 0.30)',
+    color: '#23C17D',
+    bg: 'rgba(35, 193, 125, 0.12)',
+    border: 'rgba(35, 193, 125, 0.32)',
     Icon: CheckCircle2
   },
   INCONSISTENT: {
     label: 'INCONSISTENT',
     sublabel: 'Available evidence does not support the reported claim',
-    color: '#EA5455',
-    bg: 'rgba(234, 84, 85, 0.10)',
-    border: 'rgba(234, 84, 85, 0.30)',
+    color: '#F26164',
+    bg: 'rgba(242, 97, 100, 0.12)',
+    border: 'rgba(242, 97, 100, 0.32)',
     Icon: XCircle
   },
   INSUFFICIENT_DATA: {
     label: 'INSUFFICIENT DATA',
     sublabel: 'Available evidence is insufficient to determine the incident',
-    color: '#FF9F43',
-    bg: 'rgba(255, 159, 67, 0.10)',
-    border: 'rgba(255, 159, 67, 0.30)',
+    color: '#FF5A1F',
+    bg: 'rgba(255, 90, 31, 0.12)',
+    border: 'rgba(255, 90, 31, 0.32)',
     Icon: HelpCircle
   }
 };
 
 const RISK_COLOR: Record<string, string> = {
-  LOW: '#28C76F',
-  MEDIUM: '#FF9F43',
-  HIGH: '#FF6B35',
-  CRITICAL: '#EA5455'
+  LOW: '#23C17D',
+  MEDIUM: '#FF5A1F',
+  HIGH: '#FF7A3D',
+  CRITICAL: '#F26164'
 };
 
 const SOURCE_STATE_COLOR: Record<string, string> = {
-  AVAILABLE: '#28C76F',
-  EMPTY: '#A0AEC0',
-  UNAVAILABLE: '#EA5455',
-  NOT_APPLICABLE: '#A0AEC0'
+  AVAILABLE: '#23C17D',
+  EMPTY: '#9A9AA5',
+  UNAVAILABLE: '#F26164',
+  NOT_APPLICABLE: '#9A9AA5'
 };
 
 /** Small provenance chip that marks where a fact came from. */
 const ProvenanceChip: React.FC<{ kind: 'EVIDENCE' | 'GENERATED'; label: string }> = ({ kind, label }) => (
   <span
-    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px] text-[9px] font-mono font-bold uppercase tracking-wide shrink-0"
-    style={
+    className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[9px] font-num font-bold uppercase tracking-wide shrink-0 ${
       kind === 'EVIDENCE'
-        ? { background: 'rgba(27, 40, 80, 0.08)', color: '#1B2850' }
-        : { background: 'rgba(115, 103, 240, 0.12)', color: '#7367F0' }
-    }
+        ? 'bg-elev border-hair text-ink-muted'
+        : 'bg-iris/12 border-iris/30 text-iris'
+    }`}
   >
     {kind === 'EVIDENCE' ? <Database className="w-2.5 h-2.5" /> : <Sparkles className="w-2.5 h-2.5" />}
     {label}
@@ -117,7 +116,7 @@ const SectionCard: React.FC<{
     <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-slate-200 dark:border-white/10">
       <div className="flex items-center gap-2.5 min-w-0">
         <span className="text-amber-500 shrink-0">{icon}</span>
-        <h3 className="text-sm font-outfit font-extrabold text-slate-900 dark:text-slate-100 truncate">{title}</h3>
+        <h3 className="text-sm font-display font-extrabold text-slate-900 dark:text-slate-100 truncate">{title}</h3>
         {provenance && <ProvenanceChip kind={provenance} label={provenanceLabel || provenance} />}
       </div>
       {right}
@@ -128,28 +127,28 @@ const SectionCard: React.FC<{
 
 const EvidenceRow: React.FC<{ item: EvidenceItem }> = ({ item }) => {
   const dirColor =
-    item.direction === 'supports' ? '#28C76F' : item.direction === 'contradicts' ? '#EA5455' : '#646B72';
+    item.direction === 'supports' ? '#23C17D' : item.direction === 'contradicts' ? '#F26164' : '#9A9AA5';
   const DirIcon = item.direction === 'supports' ? CheckCircle2 : item.direction === 'contradicts' ? XCircle : HelpCircle;
 
   return (
-    <li className="flex items-start gap-2.5 p-2.5 rounded-[8px] bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 shadow-xs">
+    <li className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 shadow-xs">
       <DirIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: dirColor }} />
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-nunito text-slate-800 dark:text-slate-200 leading-relaxed">{item.claim}</p>
+        <p className="text-[11px] font-ui text-slate-800 dark:text-slate-200 leading-relaxed">{item.claim}</p>
         <div className="flex flex-wrap items-center gap-1.5 mt-1">
-          <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono uppercase">
+          <span className="px-1.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-num uppercase">
             {item.source}
           </span>
           {item.reference_id && (
-            <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono">
+            <span className="px-1.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-num">
               {item.reference_id}
             </span>
           )}
-          <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500">{item.evidence_id}</span>
+          <span className="text-[9px] font-num text-slate-400 dark:text-slate-500">{item.evidence_id}</span>
           {item.reason_codes.map(code => (
             <span
               key={code}
-              className="px-1.5 py-0.5 rounded-[4px] bg-amber-500/10 text-amber-500 font-mono font-bold text-[9px]"
+              className="px-1.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 font-num font-bold text-[9px]"
             >
               {code}
             </span>
@@ -163,20 +162,20 @@ const EvidenceRow: React.FC<{ item: EvidenceItem }> = ({ item }) => {
 const SignalPill: React.FC<{ signal: MatchSignalResult }> = ({ signal }) => {
   const matched = signal.strength >= 0.9;
   const partial = signal.strength > 0 && signal.strength < 0.9;
-  const color = matched ? '#28C76F' : partial ? '#FF9F43' : '#EA5455';
+  const color = matched ? '#23C17D' : partial ? '#FF5A1F' : '#F26164';
   const Icon = matched ? CheckCircle2 : partial ? HelpCircle : XCircle;
   return (
-    <div className="flex items-start gap-2 p-2 rounded-[5px] bg-white border border-[#E8EBED]" title={signal.explanation}>
+    <div className="flex items-start gap-2 p-2 rounded-lg bg-white border border-hairsoft" title={signal.explanation}>
       <Icon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color }} />
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono font-bold text-[#1B2850]">{signal.signal}</span>
-          <span className="text-[9px] font-mono" style={{ color }}>
+          <span className="text-[10px] font-num font-bold text-ink">{signal.signal}</span>
+          <span className="text-[9px] font-num" style={{ color }}>
             {matched ? 'YES' : partial ? 'PARTIAL' : 'NO'}
           </span>
-          <span className="text-[9px] font-mono text-[#A0AEC0]">w={signal.weight.toFixed(2)}</span>
+          <span className="text-[9px] font-num text-ink-dim">w={signal.weight.toFixed(2)}</span>
         </div>
-        <p className="text-[10px] text-[#646B72] mt-0.5 leading-snug">{signal.explanation}</p>
+        <p className="text-[10px] text-ink-muted mt-0.5 leading-snug">{signal.explanation}</p>
       </div>
     </div>
   );
@@ -371,19 +370,19 @@ export const IncidentInvestigation: React.FC = () => {
       {/* ─── Header ───────────────────────────────────────────────────── */}
       <div className="upay-card p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-[10px] bg-amber-500/10 text-amber-500">
+          <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500">
             <FileSearch className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+              <h1 className="text-xl font-display font-extrabold text-slate-900 dark:text-slate-100">
                 Evidence-Driven Incident Investigation
               </h1>
-              <span className="px-2 py-0.5 rounded-[6px] bg-amber-500/15 text-amber-500 dark:text-amber-400 text-[10px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded-xl bg-amber-500/15 text-amber-500 dark:text-amber-400 text-[10px] font-num font-bold">
                 UNDERSTAND · INVESTIGATE · EXPLAIN
               </span>
             </div>
-            <p className="text-xs font-nunito text-slate-600 dark:text-slate-400 mt-0.5 max-w-3xl">
+            <p className="text-xs font-ui text-slate-600 dark:text-slate-400 mt-0.5 max-w-3xl">
               Compares a customer&apos;s account of an incident against transaction, risk, graph and campaign
               evidence. It does not assume the customer is right, and it does not assume a model is right —
               it reports what the available evidence supports.
@@ -395,7 +394,7 @@ export const IncidentInvestigation: React.FC = () => {
           <button
             onClick={handleReseedLedger}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-[8px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-nunito font-bold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-ui font-bold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
             title="Refresh the synthetic evidence ledger so the golden-hour scenario is live again"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-amber-500 ${isLoading ? 'animate-spin' : ''}`} />
@@ -406,7 +405,7 @@ export const IncidentInvestigation: React.FC = () => {
 
       {notice && (
         <div
-          className={`p-4 rounded-[8px] text-xs font-nunito font-bold flex items-start justify-between gap-3 animate-fadeIn ${
+          className={`p-4 rounded-xl text-xs font-ui font-bold flex items-start justify-between gap-3 animate-fadeIn ${
             notice.kind === 'ok'
               ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
               : 'bg-rose-500/10 border border-rose-500/20 text-rose-500'
@@ -432,7 +431,7 @@ export const IncidentInvestigation: React.FC = () => {
           ].map(card => (
             <div key={card.label} className={`upay-card p-4 border-l-4 ${card.border} bg-white/80 dark:bg-slate-900/60 shadow-xs`}>
               <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{card.label}</div>
-              <div className={`text-2xl font-extrabold font-mono mt-1 ${card.color}`}>{card.value}</div>
+              <div className={`text-2xl font-extrabold font-num mt-1 ${card.color}`}>{card.value}</div>
               <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{card.hint}</div>
             </div>
           ))}
@@ -454,7 +453,7 @@ export const IncidentInvestigation: React.FC = () => {
                 onChange={e => setComplaintText(e.target.value)}
                 rows={4}
                 placeholder="বাংলা, Banglish or English — e.g. vai amar 5k taka vul number e chole gese ajke 2tar dike"
-                className="w-full p-3 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-nunito text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 resize-y"
+                className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-ui text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 resize-y"
               />
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
@@ -465,7 +464,7 @@ export const IncidentInvestigation: React.FC = () => {
                     value={reporterWallet}
                     onChange={e => setReporterWallet(e.target.value)}
                     placeholder="W-SYN-004512"
-                    className="w-full px-3 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div className="flex-1">
@@ -476,14 +475,14 @@ export const IncidentInvestigation: React.FC = () => {
                     value={reportedAt}
                     onChange={e => setReportedAt(e.target.value)}
                     placeholder="defaults to now"
-                    className="w-full px-3 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div className="flex items-end">
                   <button
                     type="submit"
                     disabled={isAnalyzing || !complaintText.trim()}
-                    className="flex items-center gap-2 px-5 py-2 rounded-[8px] btn-flame text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 disabled:opacity-50 transition-all"
+                    className="flex items-center gap-2 px-5 py-2 rounded-xl btn-flame text-white text-xs font-ui font-bold shadow-sm hover:opacity-95 disabled:opacity-50 transition-all"
                   >
                     {isAnalyzing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                     <span>{isAnalyzing ? 'Investigating…' : 'Investigate'}</span>
@@ -497,7 +496,7 @@ export const IncidentInvestigation: React.FC = () => {
         <SectionCard title="Demo Scenarios" icon={<Play className="w-4 h-4" />}>
           <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
             {samples.length === 0 && (
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-nunito">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-ui">
                 Scenario list unavailable — check that the backend is running.
               </p>
             )}
@@ -508,13 +507,13 @@ export const IncidentInvestigation: React.FC = () => {
                   key={sample.scenario_id}
                   onClick={() => handleRunScenario(sample)}
                   disabled={isAnalyzing}
-                  className="w-full text-left p-2.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800/60 hover:border-amber-500 hover:bg-amber-500/5 transition-colors disabled:opacity-60"
+                  className="w-full text-left p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800/60 hover:border-amber-500 hover:bg-amber-500/5 transition-colors disabled:opacity-60"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-nunito font-bold text-slate-900 dark:text-slate-100 truncate">
+                    <span className="text-[11px] font-ui font-bold text-slate-900 dark:text-slate-100 truncate">
                       {sc?.title || sample.scenario_id}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono uppercase shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-num uppercase shrink-0">
                       {sample.language}
                     </span>
                   </div>
@@ -529,7 +528,7 @@ export const IncidentInvestigation: React.FC = () => {
       {!inv && (
         <div className="upay-card p-10 text-center bg-white/80 dark:bg-slate-900/60">
           <FileSearch className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
-          <p className="text-sm font-nunito font-bold text-slate-700 dark:text-slate-300 mt-3">No investigation selected</p>
+          <p className="text-sm font-ui font-bold text-slate-700 dark:text-slate-300 mt-3">No investigation selected</p>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
             Submit a complaint above or run a demo scenario to see the full evidence chain.
           </p>
@@ -548,36 +547,36 @@ export const IncidentInvestigation: React.FC = () => {
                 <verdictStyle.Icon className="w-8 h-8 shrink-0" style={{ color: verdictStyle.color }} />
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-lg font-nunito font-extrabold" style={{ color: verdictStyle.color }}>
+                    <span className="text-lg font-ui font-extrabold" style={{ color: verdictStyle.color }}>
                       {verdictStyle.label}
                     </span>
                     <ProvenanceChip kind="EVIDENCE" label="Deterministic policy" />
-                    <span className="text-[10px] font-mono text-[#646B72]">
+                    <span className="text-[10px] font-num text-ink-muted">
                       verdict confidence {formatPercentage(inv.evidence.verdict_confidence)}
                     </span>
                   </div>
-                  <p className="text-xs font-nunito text-[#212B36] mt-0.5">{verdictStyle.sublabel}</p>
+                  <p className="text-xs font-ui text-ink mt-0.5">{verdictStyle.sublabel}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-1 rounded-[6px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200">
+                <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-num font-bold text-slate-800 dark:text-slate-200">
                   {inv.classification.case_type}
                 </span>
                 <span
-                  className="px-2.5 py-1 rounded-[6px] text-[10px] font-mono font-bold text-white shadow-xs"
-                  style={{ background: inv.risk_context.fraud_risk ? RISK_COLOR[inv.risk_context.fraud_risk] : '#A0AEC0' }}
+                  className="px-2.5 py-1 rounded-xl text-[10px] font-num font-bold text-white shadow-xs"
+                  style={{ background: inv.risk_context.fraud_risk ? RISK_COLOR[inv.risk_context.fraud_risk] : '#9A9AA5' }}
                 >
                   FRAUD RISK {inv.risk_context.fraud_risk || 'UNAVAILABLE'}
                 </span>
-                <span className="px-2.5 py-1 rounded-[6px] bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-mono font-bold">
+                <span className="px-2.5 py-1 rounded-xl bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-num font-bold">
                   {inv.classification.routing_department}
                 </span>
-                <span className="px-2.5 py-1 rounded-[6px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200">
+                <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-num font-bold text-slate-800 dark:text-slate-200">
                   {inv.classification.priority}
                 </span>
                 {inv.classification.is_golden_hour && (
-                  <span className="px-2.5 py-1 rounded-[6px] bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center gap-1 shadow-xs">
+                  <span className="px-2.5 py-1 rounded-xl bg-rose-500 text-white text-[10px] font-num font-bold flex items-center gap-1 shadow-xs">
                     <Clock className="w-3 h-3" />
                     GOLDEN HOUR {inv.classification.golden_hour_remaining_mins}m
                   </span>
@@ -585,7 +584,7 @@ export const IncidentInvestigation: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-3 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-3 text-[10px] font-num text-slate-500 dark:text-slate-400">
               <span>{inv.investigation_id}</span>
               <span>·</span>
               <span>claim language {inv.claim.language}</span>
@@ -608,7 +607,7 @@ export const IncidentInvestigation: React.FC = () => {
               right={
                 <button
                   onClick={() => setShowRawClaim(!showRawClaim)}
-                  className="flex items-center gap-1 text-[10px] font-nunito font-bold text-slate-500 hover:text-amber-500 transition-colors"
+                  className="flex items-center gap-1 text-[10px] font-ui font-bold text-slate-500 hover:text-amber-500 transition-colors"
                 >
                   {showRawClaim ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                   {showRawClaim ? 'Hide stored text' : 'Show stored text'}
@@ -616,8 +615,8 @@ export const IncidentInvestigation: React.FC = () => {
               }
             >
               {showRawClaim && (
-                <div className="p-3 rounded-[8px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 mb-3 shadow-inner">
-                  <p className="text-[11px] font-nunito text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 mb-3 shadow-inner">
+                  <p className="text-[11px] font-ui text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words">
                     {inv.claim.raw_complaint}
                   </p>
                 </div>
@@ -626,23 +625,23 @@ export const IncidentInvestigation: React.FC = () => {
               {(inv.claim.injection_attempt_detected || inv.claim.credential_digits_redacted) && (
                 <div className="mb-3 space-y-2">
                   {inv.claim.injection_attempt_detected && (
-                    <div className="p-2.5 rounded-[5px] bg-[#EA5455]/10 border border-[#EA5455]/20 flex items-start gap-2">
-                      <Ban className="w-3.5 h-3.5 text-[#EA5455] mt-0.5 shrink-0" />
+                    <div className="p-2.5 rounded-lg bg-danger/10 border border-danger/20 flex items-start gap-2">
+                      <Ban className="w-3.5 h-3.5 text-danger mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-[11px] font-nunito font-bold text-[#EA5455]">
+                        <p className="text-[11px] font-ui font-bold text-danger">
                           Embedded instructions detected and neutralised
                         </p>
-                        <p className="text-[10px] text-[#646B72] mt-0.5">
+                        <p className="text-[10px] text-ink-muted mt-0.5">
                           The complaint text was processed strictly as data. Patterns:{' '}
-                          <span className="font-mono">{inv.claim.injection_patterns_matched.join(', ')}</span>
+                          <span className="font-num">{inv.claim.injection_patterns_matched.join(', ')}</span>
                         </p>
                       </div>
                     </div>
                   )}
                   {inv.claim.credential_digits_redacted && (
-                    <div className="p-2.5 rounded-[5px] bg-[#FF9F43]/10 border border-[#FF9F43]/20 flex items-start gap-2">
-                      <Lock className="w-3.5 h-3.5 text-[#FF9F43] mt-0.5 shrink-0" />
-                      <p className="text-[11px] font-nunito text-[#212B36]">
+                    <div className="p-2.5 rounded-lg bg-flame-500/10 border border-flame-500/20 flex items-start gap-2">
+                      <Lock className="w-3.5 h-3.5 text-flame-500 mt-0.5 shrink-0" />
+                      <p className="text-[11px] font-ui text-ink">
                         The customer pasted a PIN/OTP into the complaint. Those digits were redacted before
                         storage and were not treated as an amount.
                       </p>
@@ -651,7 +650,7 @@ export const IncidentInvestigation: React.FC = () => {
                 </div>
               )}
 
-              <dl className="grid grid-cols-2 gap-2 text-[11px] font-nunito">
+              <dl className="grid grid-cols-2 gap-2 text-[11px] font-ui">
                 {[
                   ['Claim type', `${inv.claim.claim_type} (${formatPercentage(inv.claim.claim_type_confidence)})`],
                   ['Claimed amount', inv.claim.amount_bdt ? formatBDT(inv.claim.amount_bdt) : 'not stated'],
@@ -660,22 +659,22 @@ export const IncidentInvestigation: React.FC = () => {
                   ['Reference', inv.claim.transaction_reference || 'not supplied'],
                   ['Denies authorisation', inv.claim.denies_authorisation ? 'YES' : 'no']
                 ].map(([k, v]) => (
-                  <div key={k as string} className="p-2 rounded-[5px] bg-white border border-[#E8EBED]">
-                    <dt className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">{k}</dt>
-                    <dd className="text-[11px] font-mono text-[#1B2850] mt-0.5 break-words">{v}</dd>
+                  <div key={k as string} className="p-2 rounded-lg bg-white border border-hairsoft">
+                    <dt className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">{k}</dt>
+                    <dd className="text-[11px] font-num text-ink mt-0.5 break-words">{v}</dd>
                   </div>
                 ))}
               </dl>
 
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                <span className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
                   Verifiable discriminators:
                 </span>
                 {inv.claim.discriminators_present.length === 0 ? (
-                  <span className="text-[10px] font-mono text-[#EA5455]">none — claim is not testable</span>
+                  <span className="text-[10px] font-num text-danger">none — claim is not testable</span>
                 ) : (
                   inv.claim.discriminators_present.map(d => (
-                    <span key={d} className="px-1.5 py-0.5 rounded-[3px] bg-[#28C76F]/10 text-[#28C76F] text-[9px] font-mono font-bold">
+                    <span key={d} className="px-1.5 py-0.5 rounded-md bg-success-hi/10 text-success-hi text-[9px] font-num font-bold">
                       {d}
                     </span>
                   ))
@@ -693,7 +692,7 @@ export const IncidentInvestigation: React.FC = () => {
                 inv.transaction_match.candidates.length > 1 ? (
                   <button
                     onClick={() => setShowCandidates(!showCandidates)}
-                    className="flex items-center gap-1 text-[10px] font-nunito font-bold text-[#646B72] hover:text-[#1B2850]"
+                    className="flex items-center gap-1 text-[10px] font-ui font-bold text-ink-muted hover:text-ink"
                   >
                     {showCandidates ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                     {inv.transaction_match.candidates.length} candidates
@@ -702,39 +701,39 @@ export const IncidentInvestigation: React.FC = () => {
               }
             >
               {!inv.transaction_match.ledger_available ? (
-                <div className="p-3 rounded-[5px] bg-[#EA5455]/10 border border-[#EA5455]/20">
-                  <p className="text-[11px] font-nunito font-bold text-[#EA5455]">Transaction ledger unavailable</p>
-                  <p className="text-[10px] text-[#646B72] mt-1">
+                <div className="p-3 rounded-lg bg-danger/10 border border-danger/20">
+                  <p className="text-[11px] font-ui font-bold text-danger">Transaction ledger unavailable</p>
+                  <p className="text-[10px] text-ink-muted mt-1">
                     {inv.transaction_match.ledger_error}. No transaction evidence was inferred to fill the gap.
                   </p>
                 </div>
               ) : !matched ? (
-                <div className="p-3 rounded-[5px] bg-[#FF9F43]/10 border border-[#FF9F43]/20">
-                  <p className="text-[11px] font-nunito font-bold text-[#FF9F43]">No transaction identified</p>
-                  <p className="text-[10px] text-[#646B72] mt-1">
+                <div className="p-3 rounded-lg bg-flame-500/10 border border-flame-500/20">
+                  <p className="text-[11px] font-ui font-bold text-flame-500">No transaction identified</p>
+                  <p className="text-[10px] text-ink-muted mt-1">
                     {inv.transaction_match.candidates_considered} transaction(s) searched between{' '}
-                    <span className="font-mono">{new Date(inv.transaction_match.search_window_start).toISOString().slice(0, 16)}</span> and{' '}
-                    <span className="font-mono">{new Date(inv.transaction_match.search_window_end).toISOString().slice(0, 16)}</span>.
+                    <span className="font-num">{new Date(inv.transaction_match.search_window_start).toISOString().slice(0, 16)}</span> and{' '}
+                    <span className="font-num">{new Date(inv.transaction_match.search_window_end).toISOString().slice(0, 16)}</span>.
                   </p>
                 </div>
               ) : (
                 <>
-                  <div className="p-3 rounded-[6px] bg-white border-2 border-[#28C76F]/40">
+                  <div className="p-3 rounded-xl bg-white border-2 border-success-hi/40">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="text-base font-mono font-extrabold text-[#1B2850]">{matched.txn_id}</div>
-                        <div className="text-xl font-extrabold text-[#1B2850] font-mono mt-1">
+                        <div className="text-base font-num font-extrabold text-ink">{matched.txn_id}</div>
+                        <div className="text-xl font-extrabold text-ink font-num mt-1">
                           {formatBDT(matched.amount_bdt)}
                         </div>
-                        <div className="text-[10px] font-mono text-[#646B72] mt-1 space-y-0.5">
+                        <div className="text-[10px] font-num text-ink-muted mt-1 space-y-0.5">
                           <div>{new Date(matched.ts).toISOString().replace('T', ' ').slice(0, 19)} UTC</div>
                           <div>{matched.sender_wallet} → {matched.receiver_wallet}</div>
                           <div>{matched.type} · {matched.channel} · {matched.status}</div>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">Match</div>
-                        <div className="text-2xl font-extrabold font-mono text-[#28C76F]">
+                        <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">Match</div>
+                        <div className="text-2xl font-extrabold font-num text-success-hi">
                           {formatPercentage(matched.match_score)}
                         </div>
                       </div>
@@ -742,9 +741,9 @@ export const IncidentInvestigation: React.FC = () => {
                   </div>
 
                   {inv.transaction_match.ambiguous && (
-                    <div className="mt-2 p-2.5 rounded-[5px] bg-[#FF9F43]/10 border border-[#FF9F43]/20 flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 text-[#FF9F43] mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-nunito text-[#212B36]">
+                    <div className="mt-2 p-2.5 rounded-lg bg-flame-500/10 border border-flame-500/20 flex items-start gap-2">
+                      <AlertTriangle className="w-3.5 h-3.5 text-flame-500 mt-0.5 shrink-0" />
+                      <p className="text-[10px] font-ui text-ink">
                         More than one transaction matches this claim near-equally. The specific transaction is{' '}
                         <strong>not asserted with certainty</strong> and the case is escalated for human confirmation.
                       </p>
@@ -752,7 +751,7 @@ export const IncidentInvestigation: React.FC = () => {
                   )}
 
                   <div className="mt-3 space-y-1.5">
-                    <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">
+                    <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
                       Matching signals (weights {inv.transaction_match.weights_version})
                     </div>
                     {matched.signals.filter(s => s.evaluable).map(s => (
@@ -761,18 +760,18 @@ export const IncidentInvestigation: React.FC = () => {
                   </div>
 
                   {showCandidates && (
-                    <div className="mt-3 pt-3 border-t border-[#E8EBED] space-y-1.5">
-                      <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">
+                    <div className="mt-3 pt-3 border-t border-hairsoft space-y-1.5">
+                      <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
                         Other candidates considered
                       </div>
                       {inv.transaction_match.candidates
                         .filter(c => c.txn_id !== matched.txn_id)
                         .map(c => (
-                          <div key={c.txn_id} className="flex items-center justify-between p-2 rounded-[5px] bg-[#F7F8FA] text-[10px] font-mono">
-                            <span className="text-[#1B2850]">{c.txn_id}</span>
-                            <span className="text-[#646B72]">{formatBDT(c.amount_bdt)}</span>
-                            <span className="text-[#646B72]">{new Date(c.ts).toISOString().slice(11, 16)}</span>
-                            <span className="text-[#A0AEC0]">{formatPercentage(c.match_score)}</span>
+                          <div key={c.txn_id} className="flex items-center justify-between p-2 rounded-lg bg-elev text-[10px] font-num">
+                            <span className="text-ink">{c.txn_id}</span>
+                            <span className="text-ink-muted">{formatBDT(c.amount_bdt)}</span>
+                            <span className="text-ink-muted">{new Date(c.ts).toISOString().slice(11, 16)}</span>
+                            <span className="text-ink-dim">{formatPercentage(c.match_score)}</span>
                           </div>
                         ))}
                     </div>
@@ -791,7 +790,7 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Stored records"
             >
               {inv.evidence.supporting_evidence.length === 0 ? (
-                <p className="text-[11px] text-[#A0AEC0] font-nunito">No evidence supports the claim.</p>
+                <p className="text-[11px] text-ink-dim font-ui">No evidence supports the claim.</p>
               ) : (
                 <ul className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
                   {inv.evidence.supporting_evidence.map(e => <EvidenceRow key={e.evidence_id} item={e} />)}
@@ -806,7 +805,7 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Stored records"
             >
               {inv.evidence.conflicting_evidence.length === 0 ? (
-                <p className="text-[11px] text-[#A0AEC0] font-nunito">No evidence contradicts the claim.</p>
+                <p className="text-[11px] text-ink-dim font-ui">No evidence contradicts the claim.</p>
               ) : (
                 <ul className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
                   {inv.evidence.conflicting_evidence.map(e => <EvidenceRow key={e.evidence_id} item={e} />)}
@@ -821,7 +820,7 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Gap analysis"
             >
               {inv.evidence.missing_evidence.length === 0 ? (
-                <p className="text-[11px] text-[#A0AEC0] font-nunito">Nothing material is missing.</p>
+                <p className="text-[11px] text-ink-dim font-ui">Nothing material is missing.</p>
               ) : (
                 <ul className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
                   {inv.evidence.missing_evidence.map(e => <EvidenceRow key={e.evidence_id} item={e} />)}
@@ -840,35 +839,35 @@ export const IncidentInvestigation: React.FC = () => {
             >
               <div className="space-y-2.5">
                 {inv.evidence.conflicts.map(c => (
-                  <div key={c.conflict_id} className="p-3 rounded-[5px] bg-white border border-[#EA5455]/30">
+                  <div key={c.conflict_id} className="p-3 rounded-lg bg-white border border-danger/30">
                     <div className="flex items-center gap-2 mb-2">
                       <span
-                        className="px-1.5 py-0.5 rounded-[3px] text-[9px] font-mono font-bold text-white"
-                        style={{ background: c.severity === 'HIGH' ? '#EA5455' : c.severity === 'MEDIUM' ? '#FF9F43' : '#A0AEC0' }}
+                        className="px-1.5 py-0.5 rounded-md text-[9px] font-num font-bold text-white"
+                        style={{ background: c.severity === 'HIGH' ? '#F26164' : c.severity === 'MEDIUM' ? '#FF5A1F' : '#9A9AA5' }}
                       >
                         {c.severity}
                       </span>
-                      <span className="text-[9px] font-mono text-[#A0AEC0]">{c.conflict_id}</span>
+                      <span className="text-[9px] font-num text-ink-dim">{c.conflict_id}</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <div className="p-2 rounded-[4px] bg-[#F7F8FA]">
-                        <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">Customer claim</div>
-                        <p className="text-[11px] font-nunito text-[#212B36] mt-0.5">{c.customer_claim}</p>
+                      <div className="p-2 rounded-lg bg-elev">
+                        <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">Customer claim</div>
+                        <p className="text-[11px] font-ui text-ink mt-0.5">{c.customer_claim}</p>
                       </div>
-                      <div className="p-2 rounded-[4px] bg-[#F7F8FA]">
-                        <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">Observed evidence</div>
-                        <p className="text-[11px] font-nunito text-[#212B36] mt-0.5">{c.observed_evidence}</p>
+                      <div className="p-2 rounded-lg bg-elev">
+                        <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">Observed evidence</div>
+                        <p className="text-[11px] font-ui text-ink mt-0.5">{c.observed_evidence}</p>
                       </div>
                     </div>
                     {c.additional_context && (
-                      <p className="text-[10px] text-[#646B72] mt-2 italic">{c.additional_context}</p>
+                      <p className="text-[10px] text-ink-muted mt-2 italic">{c.additional_context}</p>
                     )}
                   </div>
                 ))}
               </div>
-              <div className="mt-3 p-2.5 rounded-[5px] bg-[#7367F0]/8 border border-[#7367F0]/20 flex items-start gap-2">
-                <Lightbulb className="w-3.5 h-3.5 text-[#7367F0] mt-0.5 shrink-0" />
-                <p className="text-[10px] font-nunito text-[#212B36]">
+              <div className="mt-3 p-2.5 rounded-lg bg-iris/8 border border-iris/20 flex items-start gap-2">
+                <Lightbulb className="w-3.5 h-3.5 text-iris mt-0.5 shrink-0" />
+                <p className="text-[10px] font-ui text-ink">
                   A conflict is not a finding that the customer is being untruthful. It records that two
                   accounts of the same event cannot both be verified from the records available now.
                 </p>
@@ -885,38 +884,38 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Existing risk engine"
             >
               {!inv.risk_context.available ? (
-                <p className="text-[11px] font-nunito text-[#646B72]">{inv.risk_context.unavailable_reason}</p>
+                <p className="text-[11px] font-ui text-ink-muted">{inv.risk_context.unavailable_reason}</p>
               ) : (
                 <>
                   <div className="flex items-center gap-3">
                     <div
-                      className="px-3 py-2 rounded-[6px] text-white text-center"
+                      className="px-3 py-2 rounded-xl text-white text-center"
                       style={{ background: RISK_COLOR[inv.risk_context.fraud_risk || 'LOW'] }}
                     >
                       <div className="text-[9px] font-bold uppercase tracking-wider opacity-90">Fraud risk</div>
-                      <div className="text-lg font-extrabold font-mono">{inv.risk_context.fraud_risk}</div>
+                      <div className="text-lg font-extrabold font-num">{inv.risk_context.fraud_risk}</div>
                     </div>
-                    <div className="text-[10px] font-mono text-[#646B72] space-y-0.5">
+                    <div className="text-[10px] font-num text-ink-muted space-y-0.5">
                       <div>score {formatPercentage(inv.risk_context.fraud_risk_score || 0)}</div>
                       <div>tier {inv.risk_context.risk_tier}</div>
                       <div>action {inv.risk_context.action_recommended}</div>
-                      <div className="text-[#A0AEC0]">{inv.risk_context.model_version}</div>
+                      <div className="text-ink-dim">{inv.risk_context.model_version}</div>
                     </div>
                   </div>
                   <div className="mt-3 space-y-1.5">
                     {inv.risk_context.reasons.map(r => (
-                      <div key={r.code} className="p-2 rounded-[5px] bg-white border border-[#E8EBED]">
+                      <div key={r.code} className="p-2 rounded-lg bg-white border border-hairsoft">
                         <div className="flex items-center gap-1.5">
-                          <span className="px-1.5 py-0.5 rounded-[3px] bg-[#1B2850]/5 text-[#1B2850] text-[9px] font-mono font-bold">
+                          <span className="px-1.5 py-0.5 rounded-md bg-inverse/5 text-ink text-[9px] font-num font-bold">
                             {r.code}
                           </span>
-                          <span className="text-[9px] font-mono text-[#A0AEC0]">w={r.weight}</span>
+                          <span className="text-[9px] font-num text-ink-dim">w={r.weight}</span>
                         </div>
-                        <p className="text-[10px] font-nunito text-[#212B36] mt-1">{r.label_en}</p>
+                        <p className="text-[10px] font-ui text-ink mt-1">{r.label_en}</p>
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-[#A0AEC0] mt-3 italic">
+                  <p className="text-[10px] text-ink-dim mt-3 italic">
                     Fraud risk and the evidence verdict answer different questions and are reported separately.
                   </p>
                 </>
@@ -930,13 +929,13 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Ring & report stores"
             >
               {!inv.graph_context.available ? (
-                <div className="p-2.5 rounded-[5px] bg-[#EA5455]/10 border border-[#EA5455]/20">
-                  <p className="text-[11px] font-nunito font-bold text-[#EA5455]">Graph evidence unavailable</p>
-                  <p className="text-[10px] text-[#646B72] mt-1">{inv.graph_context.unavailable_reason}</p>
+                <div className="p-2.5 rounded-lg bg-danger/10 border border-danger/20">
+                  <p className="text-[11px] font-ui font-bold text-danger">Graph evidence unavailable</p>
+                  <p className="text-[10px] text-ink-muted mt-1">{inv.graph_context.unavailable_reason}</p>
                 </div>
               ) : (
                 <>
-                  <p className="text-[11px] font-nunito text-[#212B36]">{inv.graph_context.summary_en}</p>
+                  <p className="text-[11px] font-ui text-ink">{inv.graph_context.summary_en}</p>
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     {[
                       ['Ring links', inv.graph_context.linked_ring_ids.length],
@@ -944,16 +943,16 @@ export const IncidentInvestigation: React.FC = () => {
                       ['Linked complaints', inv.graph_context.associated_complaint_count],
                       ['Fund-flow hops', inv.graph_context.downstream_hop_count]
                     ].map(([k, v]) => (
-                      <div key={k as string} className="p-2 rounded-[5px] bg-white border border-[#E8EBED]">
-                        <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">{k}</div>
-                        <div className="text-base font-extrabold font-mono text-[#1B2850]">{v}</div>
+                      <div key={k as string} className="p-2 rounded-lg bg-white border border-hairsoft">
+                        <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">{k}</div>
+                        <div className="text-base font-extrabold font-num text-ink">{v}</div>
                       </div>
                     ))}
                   </div>
                   {inv.graph_context.linked_ring_names.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {inv.graph_context.linked_ring_names.map(n => (
-                        <span key={n} className="px-1.5 py-0.5 rounded-[3px] bg-[#EA5455]/10 text-[#EA5455] text-[9px] font-mono font-bold">
+                        <span key={n} className="px-1.5 py-0.5 rounded-md bg-danger/10 text-danger text-[9px] font-num font-bold">
                           {n}
                         </span>
                       ))}
@@ -970,28 +969,28 @@ export const IncidentInvestigation: React.FC = () => {
               provenanceLabel="Campaign intelligence"
             >
               {!inv.campaign_context.available ? (
-                <p className="text-[11px] font-nunito text-[#646B72]">{inv.campaign_context.unavailable_reason}</p>
+                <p className="text-[11px] font-ui text-ink-muted">{inv.campaign_context.unavailable_reason}</p>
               ) : !inv.campaign_context.matched_campaign_id ? (
-                <p className="text-[11px] font-nunito text-[#646B72]">No active campaign matches this incident.</p>
+                <p className="text-[11px] font-ui text-ink-muted">No active campaign matches this incident.</p>
               ) : (
                 <>
-                  <div className="p-2.5 rounded-[5px] bg-white border border-[#FF9F43]/40">
-                    <div className="text-[11px] font-nunito font-extrabold text-[#1B2850]">
+                  <div className="p-2.5 rounded-lg bg-white border border-flame-500/40">
+                    <div className="text-[11px] font-ui font-extrabold text-ink">
                       {inv.campaign_context.matched_campaign_name}
                     </div>
-                    <div className="text-[9px] font-mono text-[#646B72] mt-1">
+                    <div className="text-[9px] font-num text-ink-muted mt-1">
                       {inv.campaign_context.matched_campaign_id} · {inv.campaign_context.matched_campaign_typology}
                       {inv.campaign_context.campaign_score !== undefined && ` · score ${inv.campaign_context.campaign_score}`}
                     </div>
                   </div>
                   <div className="mt-2.5">
-                    <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider mb-1">
+                    <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider mb-1">
                       Why it matched
                     </div>
                     <ul className="space-y-1">
                       {inv.campaign_context.match_basis.map((b, i) => (
-                        <li key={i} className="flex items-start gap-1.5 text-[10px] font-nunito text-[#212B36]">
-                          <ArrowRight className="w-3 h-3 text-[#FF9F43] mt-0.5 shrink-0" />
+                        <li key={i} className="flex items-start gap-1.5 text-[10px] font-ui text-ink">
+                          <ArrowRight className="w-3 h-3 text-flame-500 mt-0.5 shrink-0" />
                           <span>{b}</span>
                         </li>
                       ))}
@@ -1011,35 +1010,35 @@ export const IncidentInvestigation: React.FC = () => {
           >
             <ol className="space-y-2">
               {inv.timeline.map((ev: IncidentTimelineEvent) => (
-                <li key={ev.event_id} className="flex items-start gap-3 p-2.5 rounded-[5px] bg-white border border-[#E8EBED]">
+                <li key={ev.event_id} className="flex items-start gap-3 p-2.5 rounded-lg bg-white border border-hairsoft">
                   <div className="w-[108px] shrink-0 text-right">
-                    <div className="text-[11px] font-mono font-bold text-[#1B2850]">
+                    <div className="text-[11px] font-num font-bold text-ink">
                       {ev.timestamp ? new Date(ev.timestamp).toISOString().slice(11, 16) : '—:—'}
                     </div>
-                    <div className="text-[9px] font-mono text-[#A0AEC0]">
+                    <div className="text-[9px] font-num text-ink-dim">
                       {ev.timestamp ? new Date(ev.timestamp).toISOString().slice(0, 10) : 'time unknown'}
                     </div>
                   </div>
                   <div
                     className="w-1.5 shrink-0 rounded-full self-stretch"
-                    style={{ background: ev.timestamp ? '#FF9F43' : '#DADFE5' }}
+                    style={{ background: ev.timestamp ? '#FF5A1F' : '#3C3C45' }}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-nunito font-bold text-[#1B2850]">{ev.title_en}</span>
-                      <span className="px-1.5 py-0.5 rounded-[3px] bg-[#F7F8FA] text-[#646B72] text-[9px] font-mono">
+                      <span className="text-[11px] font-ui font-bold text-ink">{ev.title_en}</span>
+                      <span className="px-1.5 py-0.5 rounded-md bg-elev text-ink-muted text-[9px] font-num">
                         {ev.source}
                       </span>
-                      <span className="text-[9px] font-mono text-[#A0AEC0]">
+                      <span className="text-[9px] font-num text-ink-dim">
                         confidence {formatPercentage(ev.confidence)} · {ev.timestamp_precision}
                       </span>
                     </div>
-                    <p className="text-[10px] text-[#646B72] mt-0.5 break-words">{ev.description_en}</p>
+                    <p className="text-[10px] text-ink-muted mt-0.5 break-words">{ev.description_en}</p>
                   </div>
                 </li>
               ))}
             </ol>
-            <p className="text-[10px] text-[#A0AEC0] mt-3 italic">
+            <p className="text-[10px] text-ink-dim mt-3 italic">
               Events whose time the complaint did not state are shown without a timestamp rather than being
               given an estimated one.
             </p>
@@ -1055,7 +1054,7 @@ export const IncidentInvestigation: React.FC = () => {
               right={
                 <button
                   onClick={() => setShowChain(!showChain)}
-                  className="flex items-center gap-1 text-[10px] font-nunito font-bold text-[#646B72] hover:text-[#1B2850]"
+                  className="flex items-center gap-1 text-[10px] font-ui font-bold text-ink-muted hover:text-ink"
                 >
                   {showChain ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                   {inv.evidence.reasoning_chain.length} steps
@@ -1065,32 +1064,32 @@ export const IncidentInvestigation: React.FC = () => {
               {showChain && (
                 <ol className="space-y-2.5">
                   {inv.evidence.reasoning_chain.map(step => (
-                    <li key={step.step_id} className="p-2.5 rounded-[5px] bg-white border border-[#E8EBED]">
+                    <li key={step.step_id} className="p-2.5 rounded-lg bg-white border border-hairsoft">
                       <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[9px] font-mono text-[#A0AEC0]">{step.step_id}</span>
+                        <span className="text-[9px] font-num text-ink-dim">{step.step_id}</span>
                         <span
-                          className="px-1.5 py-0.5 rounded-[3px] text-[9px] font-mono font-bold"
+                          className="px-1.5 py-0.5 rounded-md text-[9px] font-num font-bold"
                           style={
                             step.verified
-                              ? { background: 'rgba(40,199,111,0.12)', color: '#28C76F' }
-                              : { background: 'rgba(255,159,67,0.12)', color: '#FF9F43' }
+                              ? { background: 'rgba(40,199,111,0.12)', color: '#23C17D' }
+                              : { background: 'rgba(255,159,67,0.12)', color: '#FF5A1F' }
                           }
                         >
                           {step.verified ? 'RECORD-VERIFIED' : 'HEURISTIC'}
                         </span>
                       </div>
-                      <div className="space-y-1 text-[10px] font-nunito">
-                        <div><span className="font-bold text-[#646B72]">CLAIM:</span> <span className="text-[#212B36]">{step.claim}</span></div>
+                      <div className="space-y-1 text-[10px] font-ui">
+                        <div><span className="font-bold text-ink-muted">CLAIM:</span> <span className="text-ink">{step.claim}</span></div>
                         {step.evidence_statements.map((s, i) => (
-                          <div key={i}><span className="font-bold text-[#646B72]">EVIDENCE:</span> <span className="text-[#212B36]">{s}</span></div>
+                          <div key={i}><span className="font-bold text-ink-muted">EVIDENCE:</span> <span className="text-ink">{s}</span></div>
                         ))}
-                        <div><span className="font-bold text-[#646B72]">REASON:</span> <span className="text-[#212B36]">{step.reason}</span></div>
-                        <div><span className="font-bold text-[#646B72]">CONCLUSION:</span> <span className="text-[#1B2850] font-bold">{step.conclusion}</span></div>
+                        <div><span className="font-bold text-ink-muted">REASON:</span> <span className="text-ink">{step.reason}</span></div>
+                        <div><span className="font-bold text-ink-muted">CONCLUSION:</span> <span className="text-ink font-bold">{step.conclusion}</span></div>
                       </div>
                       {step.evidence_ids.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
                           {step.evidence_ids.slice(0, 8).map(id => (
-                            <span key={id} className="text-[9px] font-mono text-[#A0AEC0]">{id}</span>
+                            <span key={id} className="text-[9px] font-num text-ink-dim">{id}</span>
                           ))}
                         </div>
                       )}
@@ -1107,13 +1106,13 @@ export const IncidentInvestigation: React.FC = () => {
                 provenance="GENERATED"
                 provenanceLabel={`${inv.explanation_engine.kind} ${inv.explanation_engine.version}`}
               >
-                <div className="p-3 rounded-[5px] bg-[#7367F0]/6 border border-[#7367F0]/20">
-                  <p className="text-[11px] font-nunito text-[#212B36] leading-relaxed">
+                <div className="p-3 rounded-lg bg-iris/6 border border-iris/20">
+                  <p className="text-[11px] font-ui text-ink leading-relaxed">
                     {briefLang === 'bn' ? inv.investigation_summary_bn : inv.investigation_summary_en}
                   </p>
                 </div>
                 <div className="mt-2.5 space-y-1">
-                  <div className="text-[9px] font-bold text-[#646B72] uppercase tracking-wider">
+                  <div className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
                     Evidence sources consulted
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -1121,7 +1120,7 @@ export const IncidentInvestigation: React.FC = () => {
                       <span
                         key={s.source}
                         title={`${s.detail} (${s.latency_ms}ms)`}
-                        className="px-1.5 py-0.5 rounded-[3px] text-[9px] font-mono font-bold"
+                        className="px-1.5 py-0.5 rounded-md text-[9px] font-num font-bold"
                         style={{ background: `${SOURCE_STATE_COLOR[s.state]}1A`, color: SOURCE_STATE_COLOR[s.state] }}
                       >
                         {s.source}={s.state}
@@ -1142,13 +1141,13 @@ export const IncidentInvestigation: React.FC = () => {
                     <span
                       key={r.code}
                       title={r.label_en}
-                      className="px-2 py-1 rounded-[4px] bg-[#1B2850]/5 text-[#1B2850] text-[10px] font-mono font-bold"
+                      className="px-2 py-1 rounded-lg bg-inverse/5 text-ink text-[10px] font-num font-bold"
                     >
                       {r.code}
                     </span>
                   ))}
                 </div>
-                <p className="text-[10px] text-[#A0AEC0] mt-2.5 italic">
+                <p className="text-[10px] text-ink-dim mt-2.5 italic">
                   Reason codes are for investigators, audit and model evaluation. They are never shown to customers.
                 </p>
               </SectionCard>
@@ -1160,49 +1159,49 @@ export const IncidentInvestigation: React.FC = () => {
             <SectionCard title="Recommended Next Actions" icon={<ArrowRight className="w-4 h-4" />} provenance="EVIDENCE" provenanceLabel="Policy + evidence">
               <ol className="space-y-2">
                 {inv.recommended_actions.map(a => (
-                  <li key={a.action_id} className="p-2.5 rounded-[5px] bg-white border border-[#E8EBED]">
+                  <li key={a.action_id} className="p-2.5 rounded-lg bg-white border border-hairsoft">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span
-                        className="px-1.5 py-0.5 rounded-[3px] text-[9px] font-mono font-bold text-white"
+                        className="px-1.5 py-0.5 rounded-md text-[9px] font-num font-bold text-white"
                         style={{
                           background:
-                            a.priority === 'URGENT' ? '#EA5455' :
-                            a.priority === 'HIGH' ? '#FF6B35' :
-                            a.priority === 'MEDIUM' ? '#FF9F43' : '#A0AEC0'
+                            a.priority === 'URGENT' ? '#F26164' :
+                            a.priority === 'HIGH' ? '#FF7A3D' :
+                            a.priority === 'MEDIUM' ? '#FF5A1F' : '#9A9AA5'
                         }}
                       >
                         {a.priority}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded-[3px] bg-[#1B2850] text-white text-[9px] font-mono font-bold">
+                      <span className="px-1.5 py-0.5 rounded-md bg-inverse text-white text-[9px] font-num font-bold">
                         {a.owner}
                       </span>
                       {a.evidence_ids.length > 0 && (
-                        <span className="text-[9px] font-mono text-[#28C76F]">
+                        <span className="text-[9px] font-num text-success-hi">
                           {a.evidence_ids.length} evidence citation(s)
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-nunito font-bold text-[#1B2850] mt-1.5">{a.action}</p>
-                    <p className="text-[10px] text-[#646B72] mt-0.5">{a.reason}</p>
+                    <p className="text-[11px] font-ui font-bold text-ink mt-1.5">{a.action}</p>
+                    <p className="text-[10px] text-ink-muted mt-0.5">{a.reason}</p>
                   </li>
                 ))}
               </ol>
 
               {inv.recovery.applicable && (
-                <div className="mt-3 p-3 rounded-[5px] bg-[#FF9F43]/8 border border-[#FF9F43]/25">
+                <div className="mt-3 p-3 rounded-lg bg-flame-500/8 border border-flame-500/25">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#FF9F43]" />
-                    <span className="text-[11px] font-nunito font-extrabold text-[#1B2850]">
+                    <Clock className="w-3.5 h-3.5 text-flame-500" />
+                    <span className="text-[11px] font-ui font-extrabold text-ink">
                       Golden Hour / Recovery
                     </span>
                     {inv.recovery.golden_hour_eligible && (
-                      <span className="px-1.5 py-0.5 rounded-[3px] bg-[#EA5455] text-white text-[9px] font-mono font-bold">
+                      <span className="px-1.5 py-0.5 rounded-md bg-danger text-white text-[9px] font-num font-bold">
                         WINDOW OPEN
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] font-nunito text-[#212B36]">{inv.recovery.reason}</p>
-                  <div className="mt-1.5 text-[9px] font-mono text-[#646B72] space-y-0.5">
+                  <p className="text-[10px] font-ui text-ink">{inv.recovery.reason}</p>
+                  <div className="mt-1.5 text-[9px] font-num text-ink-muted space-y-0.5">
                     {inv.recovery.recovery_case_id && <div>case {inv.recovery.recovery_case_id}</div>}
                     {inv.recovery.recoverability_level && <div>recoverability {inv.recovery.recoverability_level}</div>}
                     {inv.recovery.recommended_entry_point && <div>entry point {inv.recovery.recommended_entry_point}</div>}
@@ -1219,22 +1218,22 @@ export const IncidentInvestigation: React.FC = () => {
             >
               <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className="px-3 py-1.5 rounded-[5px] text-xs font-nunito font-extrabold text-white"
-                  style={{ background: inv.human_review.required ? '#EA5455' : '#28C76F' }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-ui font-extrabold text-white"
+                  style={{ background: inv.human_review.required ? '#F26164' : '#23C17D' }}
                 >
                   {inv.human_review.required ? 'REQUIRED' : 'NOT REQUIRED'}
                 </span>
                 {inv.human_review.required && (
-                  <span className="px-2 py-1 rounded-[5px] bg-[#1B2850] text-white text-[10px] font-mono font-bold">
+                  <span className="px-2 py-1 rounded-lg bg-inverse text-white text-[10px] font-num font-bold">
                     {inv.human_review.escalation_level}
                   </span>
                 )}
                 {inv.human_review.four_eyes_required && (
-                  <span className="px-2 py-1 rounded-[5px] bg-[#7367F0] text-white text-[10px] font-mono font-bold">
+                  <span className="px-2 py-1 rounded-lg bg-iris text-white text-[10px] font-num font-bold">
                     FOUR-EYES
                   </span>
                 )}
-                <span className="px-2 py-1 rounded-[5px] bg-white border border-[#E8EBED] text-[10px] font-mono font-bold text-[#1B2850]">
+                <span className="px-2 py-1 rounded-lg bg-white border border-hairsoft text-[10px] font-num font-bold text-ink">
                   {inv.review_status}
                 </span>
               </div>
@@ -1242,9 +1241,9 @@ export const IncidentInvestigation: React.FC = () => {
               {inv.human_review.triggers.length > 0 && (
                 <ul className="mt-3 space-y-1.5">
                   {inv.human_review.triggers.map(t => (
-                    <li key={t.rule} className="p-2 rounded-[5px] bg-white border border-[#E8EBED]">
-                      <div className="text-[10px] font-mono font-bold text-[#1B2850]">{t.rule}</div>
-                      <p className="text-[10px] text-[#646B72] mt-0.5">{t.detail}</p>
+                    <li key={t.rule} className="p-2 rounded-lg bg-white border border-hairsoft">
+                      <div className="text-[10px] font-num font-bold text-ink">{t.rule}</div>
+                      <p className="text-[10px] text-ink-muted mt-0.5">{t.detail}</p>
                     </li>
                   ))}
                 </ul>
@@ -1253,25 +1252,25 @@ export const IncidentInvestigation: React.FC = () => {
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   onClick={() => handleReview('START_REVIEW')}
-                  className="px-3 py-1.5 rounded-[5px] bg-white border border-[#DADFE5] text-[#092C4C] text-[11px] font-nunito font-bold hover:bg-[#F7F7F7]"
+                  className="px-3 py-1.5 rounded-lg bg-white border border-hair text-ink text-[11px] font-ui font-bold hover:bg-elev"
                 >
                   Start review
                 </button>
                 <button
                   onClick={() => handleReview('APPROVE')}
-                  className="px-3 py-1.5 rounded-[5px] bg-[#28C76F] text-white text-[11px] font-nunito font-bold hover:opacity-90"
+                  className="px-3 py-1.5 rounded-lg bg-success-hi text-white text-[11px] font-ui font-bold hover:opacity-90"
                 >
                   Approve
                 </button>
                 <button
                   onClick={() => handleReview('REJECT')}
-                  className="px-3 py-1.5 rounded-[5px] bg-[#EA5455] text-white text-[11px] font-nunito font-bold hover:opacity-90"
+                  className="px-3 py-1.5 rounded-lg bg-danger text-white text-[11px] font-ui font-bold hover:opacity-90"
                 >
                   Reject
                 </button>
               </div>
               {inv.reviewed_by && (
-                <p className="text-[10px] font-mono text-[#646B72] mt-2">
+                <p className="text-[10px] font-num text-ink-muted mt-2">
                   {inv.review_status} by {inv.reviewed_by}
                   {inv.reviewed_at ? ` at ${new Date(inv.reviewed_at).toISOString().slice(0, 19)}Z` : ''}
                 </p>
@@ -1288,17 +1287,17 @@ export const IncidentInvestigation: React.FC = () => {
             right={
               <div className="flex items-center gap-1.5">
                 <span
-                  className="px-2 py-0.5 rounded-[4px] text-[9px] font-mono font-bold"
+                  className="px-2 py-0.5 rounded-lg text-[9px] font-num font-bold"
                   style={
                     inv.customer_response.safety_report.passed
-                      ? { background: 'rgba(40,199,111,0.12)', color: '#28C76F' }
-                      : { background: 'rgba(234,84,85,0.12)', color: '#EA5455' }
+                      ? { background: 'rgba(40,199,111,0.12)', color: '#23C17D' }
+                      : { background: 'rgba(234,84,85,0.12)', color: '#F26164' }
                   }
                 >
                   {inv.customer_response.safety_report.passed ? 'SAFETY VALIDATED' : 'SAFETY FAILED'}
                 </span>
                 {inv.customer_response.fallback_used && (
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#FF9F43]/15 text-[#FF9F43] text-[9px] font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded-lg bg-flame-500/15 text-flame-500 text-[9px] font-num font-bold">
                     FALLBACK TEMPLATE
                   </span>
                 )}
@@ -1306,13 +1305,13 @@ export const IncidentInvestigation: React.FC = () => {
             }
           >
             {inv.customer_response.fallback_used && (
-              <div className="mb-3 p-2.5 rounded-[5px] bg-[#FF9F43]/10 border border-[#FF9F43]/20 flex items-start gap-2">
-                <AlertTriangle className="w-3.5 h-3.5 text-[#FF9F43] mt-0.5 shrink-0" />
+              <div className="mb-3 p-2.5 rounded-lg bg-flame-500/10 border border-flame-500/20 flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-flame-500 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-[11px] font-nunito font-bold text-[#212B36]">
+                  <p className="text-[11px] font-ui font-bold text-ink">
                     The generated draft was rejected by the safety validator and replaced with a vetted template.
                   </p>
-                  <p className="text-[10px] text-[#646B72] mt-0.5 font-mono">
+                  <p className="text-[10px] text-ink-muted mt-0.5 font-num">
                     {inv.customer_response.safety_report.violations.map(v => v.code).join(', ')}
                   </p>
                 </div>
@@ -1324,10 +1323,10 @@ export const IncidentInvestigation: React.FC = () => {
                 <button
                   key={lang}
                   onClick={() => setBriefLang(lang)}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-[5px] text-[10px] font-nunito font-bold border ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-ui font-bold border ${
                     briefLang === lang
-                      ? 'bg-[#1B2850] text-white border-[#1B2850]'
-                      : 'bg-white text-[#646B72] border-[#E2E8F0] hover:bg-[#F8F9FA]'
+                      ? 'bg-inverse text-white border-hairbold'
+                      : 'bg-white text-ink-muted border-hair hover:bg-elev'
                   }`}
                 >
                   <Languages className="w-3 h-3" />
@@ -1336,31 +1335,31 @@ export const IncidentInvestigation: React.FC = () => {
               ))}
             </div>
 
-            <div className="p-4 rounded-[6px] bg-[#7367F0]/6 border border-[#7367F0]/20">
-              <h4 className={`text-sm font-extrabold text-[#1B2850] ${briefLang === 'bn' ? 'font-bangla' : 'font-nunito'}`}>
+            <div className="p-4 rounded-xl bg-iris/6 border border-iris/20">
+              <h4 className={`text-sm font-extrabold text-ink ${briefLang === 'bn' ? 'font-bangla' : 'font-ui'}`}>
                 {briefLang === 'bn' ? inv.customer_response.headline_bn : inv.customer_response.headline_en}
               </h4>
-              <p className={`text-[11px] text-[#212B36] mt-2 leading-relaxed ${briefLang === 'bn' ? 'font-bangla' : 'font-nunito'}`}>
+              <p className={`text-[11px] text-ink mt-2 leading-relaxed ${briefLang === 'bn' ? 'font-bangla' : 'font-ui'}`}>
                 {briefLang === 'bn' ? inv.customer_response.body_bn : inv.customer_response.body_en}
               </p>
               <ul className="mt-3 space-y-1">
                 {(briefLang === 'bn' ? inv.customer_response.next_steps_bn : inv.customer_response.next_steps_en).map((s, i) => (
-                  <li key={i} className={`flex items-start gap-1.5 text-[11px] text-[#212B36] ${briefLang === 'bn' ? 'font-bangla' : 'font-nunito'}`}>
-                    <ArrowRight className="w-3 h-3 text-[#7367F0] mt-0.5 shrink-0" />
+                  <li key={i} className={`flex items-start gap-1.5 text-[11px] text-ink ${briefLang === 'bn' ? 'font-bangla' : 'font-ui'}`}>
+                    <ArrowRight className="w-3 h-3 text-iris mt-0.5 shrink-0" />
                     <span>{s}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono text-[#646B72]">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-num text-ink-muted">
               <span>validator {inv.customer_response.safety_report.validator_version}</span>
               <span>·</span>
               <span>{inv.customer_response.safety_report.checks_run.length} checks run</span>
               {inv.customer_response.requires_agent_approval && (
                 <>
                   <span>·</span>
-                  <span className="text-[#EA5455] font-bold">agent approval required before sending</span>
+                  <span className="text-danger font-bold">agent approval required before sending</span>
                 </>
               )}
             </div>
@@ -1376,13 +1375,13 @@ export const IncidentInvestigation: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => handleBrief('en')}
-                  className="px-2.5 py-1 rounded-[5px] bg-white border border-[#DADFE5] text-[#092C4C] text-[10px] font-nunito font-bold hover:bg-[#F7F7F7]"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-hair text-ink text-[10px] font-ui font-bold hover:bg-elev"
                 >
                   Generate (EN)
                 </button>
                 <button
                   onClick={() => handleBrief('bn')}
-                  className="px-2.5 py-1 rounded-[5px] bg-white border border-[#DADFE5] text-[#092C4C] text-[10px] font-nunito font-bold hover:bg-[#F7F7F7]"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-hair text-ink text-[10px] font-ui font-bold hover:bg-elev"
                 >
                   Generate (বাংলা)
                 </button>
@@ -1390,44 +1389,44 @@ export const IncidentInvestigation: React.FC = () => {
             }
           >
             {!brief ? (
-              <p className="text-[11px] text-[#A0AEC0] font-nunito">
+              <p className="text-[11px] text-ink-dim font-ui">
                 Generate a brief to see every statement paired with the evidence ids it rests on.
               </p>
             ) : (
               <>
-                <div className="flex items-center gap-2 mb-3 text-[10px] font-mono">
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#28C76F]/12 text-[#28C76F] font-bold">
+                <div className="flex items-center gap-2 mb-3 text-[10px] font-num">
+                  <span className="px-2 py-0.5 rounded-lg bg-success-hi/12 text-success-hi font-bold">
                     {brief.verified_claims}/{brief.total_claims} statements evidence-verified
                   </span>
-                  <span className="text-[#646B72]">confidence {formatPercentage(brief.confidence)}</span>
+                  <span className="text-ink-muted">confidence {formatPercentage(brief.confidence)}</span>
                 </div>
                 <div className="space-y-3">
                   {brief.sections.map((section: any, si: number) => (
-                    <div key={si} className="p-3 rounded-[5px] bg-white border border-[#E8EBED]">
-                      <div className="text-[11px] font-nunito font-extrabold text-[#1B2850] mb-1.5">
+                    <div key={si} className="p-3 rounded-lg bg-white border border-hairsoft">
+                      <div className="text-[11px] font-ui font-extrabold text-ink mb-1.5">
                         {section.title}
                       </div>
                       <ul className="space-y-1.5">
                         {section.sentences.map((s: any, i: number) => (
                           <li key={i} className="flex items-start gap-2">
                             <span
-                              className="px-1 py-0.5 rounded-[3px] text-[8px] font-mono font-bold shrink-0 mt-0.5"
+                              className="px-1 py-0.5 rounded-md text-[8px] font-num font-bold shrink-0 mt-0.5"
                               style={
                                 s.verified
-                                  ? { background: 'rgba(40,199,111,0.12)', color: '#28C76F' }
-                                  : { background: 'rgba(160,174,192,0.15)', color: '#646B72' }
+                                  ? { background: 'rgba(40,199,111,0.12)', color: '#23C17D' }
+                                  : { background: 'rgba(154,154,165,0.18)', color: '#9A9AA5' }
                               }
                             >
                               {s.verified ? 'CITED' : 'NARRATIVE'}
                             </span>
                             <div className="min-w-0">
-                              <p className={`text-[11px] text-[#212B36] ${brief.language === 'bn' ? 'font-bangla' : 'font-nunito'}`}>
+                              <p className={`text-[11px] text-ink ${brief.language === 'bn' ? 'font-bangla' : 'font-ui'}`}>
                                 {s.text}
                               </p>
                               {s.evidence_ids.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
                                   {s.evidence_ids.slice(0, 6).map((id: string) => (
-                                    <span key={id} className="text-[9px] font-mono text-[#A0AEC0]">{id}</span>
+                                    <span key={id} className="text-[9px] font-num text-ink-dim">{id}</span>
                                   ))}
                                 </div>
                               )}
@@ -1439,13 +1438,13 @@ export const IncidentInvestigation: React.FC = () => {
                   ))}
                 </div>
                 {brief.open_questions?.length > 0 && (
-                  <div className="mt-3 p-3 rounded-[5px] bg-[#FF9F43]/8 border border-[#FF9F43]/20">
-                    <div className="text-[10px] font-bold text-[#646B72] uppercase tracking-wider mb-1">
+                  <div className="mt-3 p-3 rounded-lg bg-flame-500/8 border border-flame-500/20">
+                    <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-1">
                       Open questions / evidence gaps
                     </div>
                     <ul className="space-y-1">
                       {brief.open_questions.map((q: string, i: number) => (
-                        <li key={i} className="text-[10px] font-nunito text-[#212B36]">· {q}</li>
+                        <li key={i} className="text-[10px] font-ui text-ink">· {q}</li>
                       ))}
                     </ul>
                   </div>
@@ -1458,9 +1457,9 @@ export const IncidentInvestigation: React.FC = () => {
           {investigations.length > 0 && (
             <SectionCard title="Recent Investigations" icon={<Clock className="w-4 h-4" />}>
               <div className="overflow-x-auto">
-                <table className="w-full text-[10px] font-mono">
+                <table className="w-full text-[10px] font-num">
                   <thead>
-                    <tr className="text-left text-[#646B72] border-b border-[#E8EBED]">
+                    <tr className="text-left text-ink-muted border-b border-hairsoft">
                       <th className="py-2 pr-3 font-bold uppercase tracking-wider">Investigation</th>
                       <th className="py-2 pr-3 font-bold uppercase tracking-wider">Verdict</th>
                       <th className="py-2 pr-3 font-bold uppercase tracking-wider">Txn</th>
@@ -1474,20 +1473,20 @@ export const IncidentInvestigation: React.FC = () => {
                       <tr
                         key={row.investigation_id}
                         onClick={() => { setSelected(row); setBrief(null); }}
-                        className={`border-b border-[#F2F4F6] cursor-pointer hover:bg-[#FFF9F3] ${
-                          row.investigation_id === inv.investigation_id ? 'bg-[#FFF4E8]' : ''
+                        className={`border-b border-hairsoft cursor-pointer hover:bg-flame-50 ${
+                          row.investigation_id === inv.investigation_id ? 'bg-flame-50' : ''
                         }`}
                       >
-                        <td className="py-2 pr-3 text-[#1B2850]">{row.investigation_id}</td>
+                        <td className="py-2 pr-3 text-ink">{row.investigation_id}</td>
                         <td className="py-2 pr-3 font-bold" style={{ color: VERDICT_STYLE[row.evidence.verdict].color }}>
                           {row.evidence.verdict}
                         </td>
-                        <td className="py-2 pr-3 text-[#646B72]">{row.evidence.relevant_transaction_id || '—'}</td>
-                        <td className="py-2 pr-3 font-bold" style={{ color: row.risk_context.fraud_risk ? RISK_COLOR[row.risk_context.fraud_risk] : '#A0AEC0' }}>
+                        <td className="py-2 pr-3 text-ink-muted">{row.evidence.relevant_transaction_id || '—'}</td>
+                        <td className="py-2 pr-3 font-bold" style={{ color: row.risk_context.fraud_risk ? RISK_COLOR[row.risk_context.fraud_risk] : '#9A9AA5' }}>
                           {row.risk_context.fraud_risk || 'N/A'}
                         </td>
-                        <td className="py-2 pr-3 text-[#646B72]">{row.classification.routing_department}</td>
-                        <td className="py-2 pr-3 text-[#646B72]">{row.review_status}</td>
+                        <td className="py-2 pr-3 text-ink-muted">{row.classification.routing_department}</td>
+                        <td className="py-2 pr-3 text-ink-muted">{row.review_status}</td>
                       </tr>
                     ))}
                   </tbody>

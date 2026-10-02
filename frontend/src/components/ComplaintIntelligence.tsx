@@ -236,19 +236,19 @@ export const ComplaintIntelligence: React.FC = () => {
       <div className="upay-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60">
         <div>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-[10px] bg-amber-500/10 text-amber-500">
+            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500">
               <FileText className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+                <h1 className="text-xl font-display font-extrabold text-slate-900 dark:text-slate-100">
                   Complaint-to-Action Intelligence Hub
                 </h1>
-                <span className="px-2 py-0.5 rounded-[6px] bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 text-[10px] font-mono font-bold">
+                <span className="px-2 py-0.5 rounded-xl bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 text-[10px] font-num font-bold">
                   ACTIVE AI PIPELINE
                 </span>
               </div>
-              <p className="text-xs font-nunito text-slate-600 dark:text-slate-400 mt-0.5">
+              <p className="text-xs font-ui text-slate-600 dark:text-slate-400 mt-0.5">
                 Transforms customer complaint statements into structured investigation evidence, duplicate clusters, and golden-hour recovery actions.
               </p>
             </div>
@@ -259,7 +259,7 @@ export const ComplaintIntelligence: React.FC = () => {
           {/* Unmask toggle */}
           <button
             onClick={() => setUnmaskSensitive(!unmaskSensitive)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-[8px] text-xs font-nunito font-bold border transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-ui font-bold border transition-colors ${
               unmaskSensitive
                 ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
                 : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700'
@@ -274,7 +274,7 @@ export const ComplaintIntelligence: React.FC = () => {
           <button
             onClick={handleRunDemo}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-[8px] btn-flame text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl btn-flame text-white text-xs font-ui font-bold shadow-sm hover:opacity-95 transition-all"
           >
             <Sparkles className="w-4 h-4" />
             <span>Run 5-Complaint Scam Demo</span>
@@ -283,7 +283,7 @@ export const ComplaintIntelligence: React.FC = () => {
           {/* Process New Complaint */}
           <button
             onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-[8px] bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-nunito font-bold shadow-sm hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-ui font-bold shadow-sm hover:opacity-90 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Complaint</span>
@@ -293,7 +293,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
       {/* Success Notification Banner */}
       {actionSuccess && (
-        <div className="p-4 rounded-[8px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-nunito font-bold flex items-center justify-between animate-fadeIn">
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-ui font-bold flex items-center justify-between animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>{actionSuccess}</span>
@@ -310,7 +310,7 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-rose-500 bg-white/80 dark:bg-slate-900/60">
           <div>
             <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">P1 Golden-Hour Active</div>
-            <div className="text-2xl font-extrabold text-rose-500 font-mono mt-1">
+            <div className="text-2xl font-extrabold text-rose-500 font-num mt-1">
               {stats?.p1_active_loss_count ?? complaints.filter(c => c.priority === 'P1').length} Incidents
             </div>
             <div className="text-[10px] text-rose-500 mt-0.5 font-bold flex items-center gap-1">
@@ -318,7 +318,7 @@ export const ComplaintIntelligence: React.FC = () => {
               <span>≤ 120m Recovery Window</span>
             </div>
           </div>
-          <div className="p-3 rounded-[10px] bg-rose-500/10 text-rose-500">
+          <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-500">
             <Clock className="w-6 h-6" />
           </div>
         </div>
@@ -327,12 +327,12 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-amber-500 bg-white/80 dark:bg-slate-900/60">
           <div>
             <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Potential Recoverable Loss</div>
-            <div className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono mt-1">
+            <div className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-num mt-1">
               ৳{(stats?.total_potential_exposure_bdt ?? complaints.reduce((sum, c) => sum + (c.potential_loss_bdt || 0), 0)).toLocaleString()}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Across active complaint queue</div>
           </div>
-          <div className="p-3 rounded-[10px] bg-amber-500/10 text-amber-500">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
             <Wallet className="w-6 h-6" />
           </div>
         </div>
@@ -341,14 +341,14 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-amber-500 bg-white/80 dark:bg-slate-900/60">
           <div>
             <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Duplicate Fraud Clusters</div>
-            <div className="text-2xl font-extrabold text-amber-500 dark:text-amber-400 font-mono mt-1">
+            <div className="text-2xl font-extrabold text-amber-500 dark:text-amber-400 font-num mt-1">
               {stats?.duplicate_groups_count ?? duplicateGroups.length} Groups
             </div>
             <div className="text-[10px] text-amber-500 dark:text-amber-400 mt-0.5 font-bold">
               {duplicateGroups.reduce((acc, g) => acc + (g.complaint_ids?.length || 0), 0)} Linked Coordinated Reports
             </div>
           </div>
-          <div className="p-3 rounded-[10px] bg-amber-500/10 text-amber-500">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
             <Layers className="w-6 h-6" />
           </div>
         </div>
@@ -357,7 +357,7 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-emerald-500 bg-white/80 dark:bg-slate-900/60">
           <div>
             <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enriched Rings &amp; Cases</div>
-            <div className="text-2xl font-extrabold text-emerald-500 font-mono mt-1">
+            <div className="text-2xl font-extrabold text-emerald-500 font-num mt-1">
               {complaints.filter(c => c.linked_ring_id).length} Connected
             </div>
             <div className="text-[10px] text-emerald-500 mt-0.5 font-bold">Evidence Attached in DB</div>
@@ -379,7 +379,7 @@ export const ComplaintIntelligence: React.FC = () => {
                   placeholder="Search phone, wallet, text..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-nunito text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+                  className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-ui text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export const ComplaintIntelligence: React.FC = () => {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full sm:w-auto px-2.5 py-1.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-nunito font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+                className="w-full sm:w-auto px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-ui font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
               >
                 <option value="ALL">All Priorities</option>
                 <option value="P1">P1 — Golden Hour</option>
@@ -429,7 +429,7 @@ export const ComplaintIntelligence: React.FC = () => {
                     <div
                       key={c.complaint_id}
                       onClick={() => setSelectedComplaint(c)}
-                      className={`p-3.5 rounded-[10px] border transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500 shadow-sm ring-1 ring-amber-500/40'
                           : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-white/10 hover:border-amber-500/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
@@ -438,16 +438,16 @@ export const ComplaintIntelligence: React.FC = () => {
                       {/* Card Header Row */}
                       <div className="flex items-center justify-between gap-2 mb-1.5">
                         <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-bold border ${pBg}`}>
+                          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-num font-bold border ${pBg}`}>
                             {c.priority}
                           </span>
-                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">
+                          <span className="font-num text-xs font-bold text-slate-900 dark:text-slate-100">
                             {c.complaint_id}
                           </span>
                         </div>
 
                         {c.is_golden_hour ? (
-                          <span className="px-1.5 py-0.5 rounded-[4px] bg-rose-500/10 text-rose-500 text-[10px] font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-lg bg-rose-500/10 text-rose-500 text-[10px] font-bold flex items-center gap-1">
                             <Clock className="w-3 h-3 animate-spin" />
                             <span>{c.golden_hour_remaining_mins}m left</span>
                           </span>
@@ -467,17 +467,17 @@ export const ComplaintIntelligence: React.FC = () => {
                       <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] pt-2 border-t border-slate-200 dark:border-white/10">
                         <div className="flex items-center gap-2">
                           {c.potential_loss_bdt > 0 && (
-                            <span className="font-mono font-bold text-rose-500">
+                            <span className="font-num font-bold text-rose-500">
                               ৳{c.potential_loss_bdt.toLocaleString()}
                             </span>
                           )}
-                          <span className="text-[10px] text-slate-600 dark:text-slate-400 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-[4px] border border-slate-200 dark:border-white/10">
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-white/10">
                             {c.category_label_bn.split(' ')[0]}
                           </span>
                         </div>
 
                         {c.duplicate_group_id && (
-                          <span className="px-1.5 py-0.5 rounded-[4px] bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 text-[9px] font-num font-bold flex items-center gap-1">
                             <Layers className="w-2.5 h-2.5" />
                             <span>{c.duplicate_count} Grouped</span>
                           </span>
@@ -501,10 +501,10 @@ export const ComplaintIntelligence: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-white/10">
                   <div>
                     <div className="flex items-center gap-2.5">
-                      <h2 className="text-lg font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+                      <h2 className="text-lg font-display font-extrabold text-slate-900 dark:text-slate-100">
                         {selectedComplaint.complaint_id}
                       </h2>
-                      <span className={`px-2 py-0.5 rounded-[4px] text-xs font-mono font-bold ${
+                      <span className={`px-2 py-0.5 rounded-lg text-xs font-num font-bold ${
                         selectedComplaint.priority === 'P1'
                           ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
                           : selectedComplaint.priority === 'P2'
@@ -513,21 +513,21 @@ export const ComplaintIntelligence: React.FC = () => {
                       }`}>
                         Priority {selectedComplaint.priority}
                       </span>
-                      <span className="px-2 py-0.5 rounded-[4px] bg-emerald-500/15 text-emerald-500 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-500 text-[10px] font-bold">
                         {selectedComplaint.status}
                       </span>
                     </div>
 
                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-3">
                       <span>Reporter: <strong className="text-slate-800 dark:text-slate-200">{selectedComplaint.reporter_name}</strong></span>
-                      <span>Phone: <strong className="font-mono text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_phone || '')}</strong></span>
-                      <span>Wallet: <strong className="font-mono text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_wallet || '')}</strong></span>
+                      <span>Phone: <strong className="font-num text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_phone || '')}</strong></span>
+                      <span>Wallet: <strong className="font-num text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_wallet || '')}</strong></span>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Potential Loss</div>
-                    <div className="text-xl font-mono font-extrabold text-rose-500">
+                    <div className="text-xl font-num font-extrabold text-rose-500">
                       ৳{selectedComplaint.potential_loss_bdt.toLocaleString()}
                     </div>
                   </div>
@@ -535,11 +535,11 @@ export const ComplaintIntelligence: React.FC = () => {
 
                 {/* Golden-Hour Window Countdown Alert */}
                 {selectedComplaint.is_golden_hour && (
-                  <div className="p-3.5 rounded-[8px] bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
                       <Clock className="w-5 h-5 text-rose-500 animate-spin" />
                       <div>
-                        <div className="text-xs font-nunito font-bold text-rose-500">
+                        <div className="text-xs font-ui font-bold text-rose-500">
                           Golden-Hour Recovery Protocol Active ({selectedComplaint.golden_hour_remaining_mins} minutes remaining)
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -550,7 +550,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                     <button
                       onClick={handleEmergencyHold}
-                      className="px-3.5 py-1.5 rounded-[8px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-nunito font-bold shadow-sm transition-colors whitespace-nowrap flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-ui font-bold shadow-sm transition-colors whitespace-nowrap flex items-center gap-1.5"
                     >
                       <Zap className="w-3.5 h-3.5" />
                       <span>Emergency Freeze</span>
@@ -559,7 +559,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 )}
 
                 {/* Priority Reason Explanation */}
-                <div className="p-3 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 text-xs">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Priority Policy Decision</div>
                   <p className="text-slate-800 dark:text-slate-200 font-medium">{selectedComplaint.priority_reason}</p>
                 </div>
@@ -569,7 +569,7 @@ export const ComplaintIntelligence: React.FC = () => {
                   <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Customer Complaint Statement (Bangla / English)
                   </div>
-                  <div className="p-4 rounded-[8px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 text-xs font-bangla text-slate-900 dark:text-slate-100 leading-relaxed shadow-inner">
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 text-xs font-bangla text-slate-900 dark:text-slate-100 leading-relaxed shadow-inner">
                     {selectedComplaint.raw_text}
                   </div>
                 </div>
@@ -581,12 +581,12 @@ export const ComplaintIntelligence: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {/* Phone */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
                         <Phone className="w-3 h-3 text-amber-500" />
                         <span>Scammer Phone</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         <span>{maskSensitive(selectedComplaint.extracted_entities.phone_numbers[0] || 'N/A')}</span>
                         {selectedComplaint.extracted_entities.phone_numbers[0] && (
                           <button onClick={() => copyToClipboard(selectedComplaint.extracted_entities.phone_numbers[0], 'phone')} className="text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
@@ -597,12 +597,12 @@ export const ComplaintIntelligence: React.FC = () => {
                     </div>
 
                     {/* Destination Wallet */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
                         <Wallet className="w-3 h-3 text-amber-500" />
                         <span>Target Wallet</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         <span>{maskSensitive(selectedComplaint.extracted_entities.wallets[0] || selectedComplaint.linked_recipient_wallet || 'N/A')}</span>
                         {selectedComplaint.linked_recipient_wallet && (
                           <button onClick={() => copyToClipboard(selectedComplaint.linked_recipient_wallet!, 'wallet')} className="text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
@@ -613,18 +613,18 @@ export const ComplaintIntelligence: React.FC = () => {
                     </div>
 
                     {/* Agent Outlet */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
                         <Building2 className="w-3 h-3 text-emerald-500" />
                         <span>Cash-Out Agent</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.extracted_entities.agent_ids[0] || selectedComplaint.linked_agent_id || 'None identified'}
                       </div>
                     </div>
 
                     {/* Classification */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Classification</div>
                       <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.category_label_en}
@@ -632,7 +632,7 @@ export const ComplaintIntelligence: React.FC = () => {
                     </div>
 
                     {/* Typology */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Scam Typology</div>
                       <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.typology_label_bn}
@@ -640,9 +640,9 @@ export const ComplaintIntelligence: React.FC = () => {
                     </div>
 
                     {/* Duplicate Cluster */}
-                    <div className="p-2.5 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Duplicate Nexus</div>
-                      <div className="font-mono text-xs font-bold text-amber-500 dark:text-amber-400 truncate">
+                      <div className="font-num text-xs font-bold text-amber-500 dark:text-amber-400 truncate">
                         {selectedComplaint.duplicate_group_id || 'Unique Incident'}
                       </div>
                     </div>
@@ -650,18 +650,18 @@ export const ComplaintIntelligence: React.FC = () => {
                 </div>
 
                 {/* Evidence & Case Auto-Enrichment Card */}
-                <div className="p-4 rounded-[8px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Link2 className="w-4 h-4 text-amber-500" />
-                      <span className="text-xs font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+                      <span className="text-xs font-display font-extrabold text-slate-900 dark:text-slate-100">
                         Auto-Enriched Case Evidence & Network Graph Links
                       </span>
                     </div>
 
                     <button
                       onClick={() => setShowOverrideModal(true)}
-                      className="text-[11px] font-nunito font-bold text-amber-500 hover:underline flex items-center gap-1"
+                      className="text-[11px] font-ui font-bold text-amber-500 hover:underline flex items-center gap-1"
                     >
                       <span>Override Links</span>
                     </button>
@@ -673,20 +673,20 @@ export const ComplaintIntelligence: React.FC = () => {
                       <div className="text-xs text-slate-500 dark:text-slate-400">No graph links discovered yet.</div>
                     ) : (
                       selectedComplaint.evidence_links.map((link, idx) => (
-                        <div key={idx} className="p-2.5 rounded-[6px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-xs space-y-1">
+                        <div key={idx} className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-xs space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="px-1.5 py-0.5 rounded-[4px] bg-amber-500/10 text-amber-500 font-mono text-[9px] font-bold">
+                              <span className="px-1.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 font-num text-[9px] font-bold">
                                 {link.target_type}
                               </span>
                               <strong className="text-slate-900 dark:text-slate-100">{link.target_label}</strong>
                               {link.is_analyst_override && (
-                                <span className="px-1.5 py-0.5 rounded-[4px] bg-blue-500/15 text-blue-400 text-[9px] font-bold">
+                                <span className="px-1.5 py-0.5 rounded-lg bg-blue-500/15 text-blue-400 text-[9px] font-bold">
                                   Analyst Overridden
                                 </span>
                               )}
                             </div>
-                            <span className="font-mono text-[10px] font-bold text-emerald-500">
+                            <span className="font-num text-[10px] font-bold text-emerald-500">
                               {Math.round(link.confidence * 100)}% Match
                             </span>
                           </div>
@@ -703,7 +703,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-white/10">
                   <button
                     onClick={handleEmergencyHold}
-                    className="px-3.5 py-1.5 rounded-[8px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-nunito font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-ui font-bold shadow-sm transition-colors flex items-center gap-1.5"
                   >
                     <Zap className="w-3.5 h-3.5" />
                     <span>Freeze Destination Wallet</span>
@@ -711,7 +711,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                   <button
                     onClick={handleDispatchAdvisory}
-                    className="px-3.5 py-1.5 rounded-[8px] btn-flame text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl btn-flame text-white text-xs font-ui font-bold shadow-sm hover:opacity-95 transition-all flex items-center gap-1.5"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>Dispatch SMS Advisory</span>
@@ -719,7 +719,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                   <button
                     onClick={() => setShowOverrideModal(true)}
-                    className="px-3.5 py-1.5 rounded-[8px] bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-nunito font-bold shadow-sm hover:opacity-90 transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-ui font-bold shadow-sm hover:opacity-90 transition-all flex items-center gap-1.5"
                   >
                     <Link2 className="w-3.5 h-3.5" />
                     <span>Re-assign / Override Case</span>
@@ -740,7 +740,7 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="upay-card w-full max-w-lg p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-white/10">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
-              <h3 className="text-base font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+              <h3 className="text-base font-display font-extrabold text-slate-900 dark:text-slate-100">
                 Process New Customer Complaint
               </h3>
               <button onClick={() => setShowNewModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
@@ -759,7 +759,7 @@ export const ComplaintIntelligence: React.FC = () => {
                   placeholder="যেমন: আমাকে ০১৭১১-৯৯৮৮২২ থেকে কল করে বললো উপায় হেড অফিস থেকে। ভেরিফিকেশনের জন্য ৳২৫,০০০ W-SYN-৮৮১৯২০ তে পাঠাতে বলে..."
                   value={customText}
                   onChange={(e) => setCustomText(e.target.value)}
-                  className="w-full p-2.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bangla text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bangla text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
@@ -771,7 +771,7 @@ export const ComplaintIntelligence: React.FC = () => {
                     placeholder="আব্দুল করিম"
                     value={customReporterName}
                     onChange={(e) => setCustomReporterName(e.target.value)}
-                    className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
                   />
                 </div>
                 <div>
@@ -781,7 +781,7 @@ export const ComplaintIntelligence: React.FC = () => {
                     placeholder="01812-445566"
                     value={customPhone}
                     onChange={(e) => setCustomPhone(e.target.value)}
-                    className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100"
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100"
                   />
                 </div>
               </div>
@@ -791,7 +791,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 <select
                   value={customElapsed}
                   onChange={(e) => setCustomElapsed(e.target.value)}
-                  className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
                 >
                   <option value="10">10 mins ago (P1 Golden-Hour)</option>
                   <option value="35">35 mins ago (P1 Golden-Hour)</option>
@@ -805,13 +805,13 @@ export const ComplaintIntelligence: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-4 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[8px] btn-flame text-white text-xs font-bold shadow-sm flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl btn-flame text-white text-xs font-bold shadow-sm flex items-center gap-1.5"
                 >
                   <Zap className="w-3.5 h-3.5" />
                   <span>Execute AI Pipeline</span>
@@ -827,7 +827,7 @@ export const ComplaintIntelligence: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="upay-card w-full max-w-md p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-white/10">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
-              <h3 className="text-base font-outfit font-extrabold text-slate-900 dark:text-slate-100">
+              <h3 className="text-base font-display font-extrabold text-slate-900 dark:text-slate-100">
                 Analyst Override Case Link
               </h3>
               <button onClick={() => setShowOverrideModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
@@ -841,7 +841,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 <select
                   value={overrideType}
                   onChange={(e: any) => setOverrideType(e.target.value)}
-                  className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
                 >
                   <option value="RING">Mule Ring (e.g. RING-003, RING-012)</option>
                   <option value="CAMPAIGN">Scam Campaign (e.g. CAMP-FAKE-CARE)</option>
@@ -858,7 +858,7 @@ export const ComplaintIntelligence: React.FC = () => {
                   placeholder="e.g. RING-012 or W-SYN-881920"
                   value={overrideTargetId}
                   onChange={(e) => setOverrideTargetId(e.target.value)}
-                  className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100"
                 />
               </div>
 
@@ -869,7 +869,7 @@ export const ComplaintIntelligence: React.FC = () => {
                   placeholder="Reason for manual override..."
                   value={overrideNotes}
                   onChange={(e) => setOverrideNotes(e.target.value)}
-                  className="w-full p-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
                 />
               </div>
 
@@ -877,13 +877,13 @@ export const ComplaintIntelligence: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowOverrideModal(false)}
-                  className="px-4 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[8px] btn-flame text-white text-xs font-bold shadow-sm hover:opacity-95"
+                  className="px-4 py-2 rounded-xl btn-flame text-white text-xs font-bold shadow-sm hover:opacity-95"
                 >
                   Confirm Override & Audit
                 </button>

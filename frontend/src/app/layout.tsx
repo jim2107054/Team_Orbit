@@ -16,22 +16,30 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Merriweather (English) + Noto Sans Bengali (Bengali) — no generic fallbacks */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 const stored = localStorage.getItem('upay-theme');
-                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('dark');
-                } else {
+                if (stored === 'light') {
                   document.documentElement.classList.remove('dark');
+                } else {
+                  document.documentElement.classList.add('dark');
                 }
-              } catch (_) {}
+              } catch (_) {
+                document.documentElement.classList.add('dark');
+              }
             `,
           }}
         />
       </head>
-      <body suppressHydrationWarning className="antialiased min-h-screen bg-slate-50 dark:bg-[#070E18] text-slate-900 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-900 dark:selection:text-amber-200">
+      <body
+        suppressHydrationWarning
+        className="antialiased min-h-screen bg-canvas text-ink-body font-ui"
+      >
         <ThemeProvider>
           <DashboardShell>
             {children}

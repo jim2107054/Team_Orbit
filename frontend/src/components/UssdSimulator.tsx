@@ -342,39 +342,39 @@ export const UssdSimulator: React.FC = () => {
       <div className="dream-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-[#FF9F43]" />
-            <h2 className="text-lg font-poppins font-bold text-[#000000]">
+            <Radio className="w-5 h-5 text-flame-500" />
+            <h2 className="text-lg font-display font-bold text-ink">
               USSD / Feature-Phone Protection Layer
             </h2>
-            <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-nunito font-bold bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30">
+            <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-ui font-bold bg-flame-500/15 text-flame-500 border border-flame-500/30">
               Low-Bandwidth &amp; 160-Char GSM Compliant
             </span>
           </div>
-          <p className="text-xs font-nunito text-[#646B72] mt-1">
+          <p className="text-xs font-ui text-ink-muted mt-1">
             Zero telecom gateway dependency · Real-time multi-channel risk inference · Concise Bangla scam warnings · Accessibility first.
           </p>
         </div>
 
         {/* Preset Selector */}
-        <div className="flex flex-wrap items-center gap-2 text-xs font-nunito">
-          <span className="text-[#646B72] font-semibold">Test Presets:</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-ui">
+          <span className="text-ink-muted font-semibold">Test Presets:</span>
           <button
             onClick={() => loadScenario('HIJACK')}
-            className="px-3 py-1.5 rounded-[4px] bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] border border-[#FF0000]/30 font-bold flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-danger/10 hover:bg-danger/20 text-danger border border-danger/30 font-bold flex items-center gap-1.5 transition-colors"
           >
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Scenario 1: Cross-Channel Hijack (Mule Trap)</span>
           </button>
           <button
             onClick={() => loadScenario('LEGIT_RURAL')}
-            className="px-3 py-1.5 rounded-[4px] bg-[#198754]/10 hover:bg-[#198754]/20 text-[#198754] border border-[#198754]/30 font-bold flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-success/10 hover:bg-success/20 text-success border border-success/30 font-bold flex items-center gap-1.5 transition-colors"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Scenario 2: Legitimate Rural USSD (৳1,200)</span>
           </button>
           <button
             onClick={() => loadScenario('CASH_OUT')}
-            className="px-3 py-1.5 rounded-[4px] bg-[#212B36]/10 hover:bg-[#212B36]/20 text-[#212B36] border border-[#212B36]/30 font-bold flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-inverse/10 hover:bg-inverse/20 text-ink border border-hairbold/30 font-bold flex items-center gap-1.5 transition-colors"
           >
             <span>Scenario 3: USSD Cash Out</span>
           </button>
@@ -382,7 +382,7 @@ export const UssdSimulator: React.FC = () => {
       </div>
 
       {lastActionStatus && (
-        <div className="p-3.5 bg-[#198754]/10 border border-[#198754]/30 rounded-none text-[#198754] text-xs font-nunito font-semibold flex items-center gap-2 animate-fadeIn">
+        <div className="p-3.5 bg-success/10 border border-success/30 rounded-none text-success text-xs font-ui font-semibold flex items-center gap-2 animate-fadeIn">
           <CheckCircle className="w-4 h-4" />
           <span>{lastActionStatus}</span>
         </div>
@@ -395,16 +395,16 @@ export const UssdSimulator: React.FC = () => {
         <div className="lg:col-span-5 flex flex-col items-center">
           
           {/* Feature Phone Body (Nokia/Bar Phone Aesthetic) */}
-          <div className="w-[330px] bg-[#1E2530] p-5 rounded-[24px] border-4 border-[#2D3748] shadow-2xl flex flex-col items-center text-white select-none">
+          <div className="w-[330px] bg-slate-900 p-5 rounded-[24px] border-4 border-slate-800 shadow-2xl flex flex-col items-center text-white select-none">
             
             {/* Top Earpiece & Branding */}
-            <div className="w-16 h-1.5 bg-[#4A5568] rounded-full mb-3"></div>
-            <div className="text-[11px] tracking-widest font-bold text-[#A0AEC0] mb-2 font-mono">
-              upay <span className="text-[#FF9F43]">SHIELD 268</span>
+            <div className="w-16 h-1.5 bg-slate-700 rounded-full mb-3"></div>
+            <div className="text-[11px] tracking-widest font-bold text-ink-dim mb-2 font-num">
+              upay <span className="text-flame-500">SHIELD 268</span>
             </div>
 
             {/* Retro LCD Screen */}
-            <div className="w-full bg-[#8FA782] text-[#1A2518] p-3 rounded-[6px] border-2 border-[#55694D] shadow-inner font-mono min-h-[175px] flex flex-col justify-between">
+            <div className="w-full bg-[#8FA782] text-[#1A2518] p-3 rounded-xl border-2 border-[#55694D] shadow-inner font-num min-h-[175px] flex flex-col justify-between">
               
               {/* LCD Status Header */}
               <div className="flex items-center justify-between text-[10px] pb-1 border-b border-[#7B936E]">
@@ -439,7 +439,7 @@ export const UssdSimulator: React.FC = () => {
                   value={ussd.inputValue}
                   onChange={(e) => setUssd(prev => ({ ...prev, inputValue: e.target.value }))}
                   placeholder={ussd.step === 'IDLE' ? '*268#' : 'টাইপ করুন'}
-                  className="bg-transparent border-none text-right font-mono font-bold text-[#1A2518] focus:outline-none w-32 placeholder-[#5E7354]"
+                  className="bg-transparent border-none text-right font-num font-bold text-[#1A2518] focus:outline-none w-32 placeholder-[#5E7354]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSubmitInput();
                   }}
@@ -451,7 +451,7 @@ export const UssdSimulator: React.FC = () => {
             <div className="grid grid-cols-3 gap-2 w-full mt-4">
               <button
                 onClick={() => handleKeypadPress('CALL')}
-                className="py-2 rounded-[6px] bg-[#2E7D32] hover:bg-[#1B5E20] text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
+                className="py-2 rounded-xl bg-success-lo hover:bg-success-lo text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
                 title="Dial / Send / Select"
               >
                 <PhoneCall className="w-4 h-4 mb-0.5" />
@@ -460,7 +460,7 @@ export const UssdSimulator: React.FC = () => {
 
               <button
                 onClick={() => handleKeypadPress('CLR')}
-                className="py-2 rounded-[6px] bg-[#4A5568] hover:bg-[#2D3748] text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
+                className="py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
                 title="Clear"
               >
                 <RotateCcw className="w-3.5 h-3.5 mb-0.5" />
@@ -469,7 +469,7 @@ export const UssdSimulator: React.FC = () => {
 
               <button
                 onClick={() => handleKeypadPress('END')}
-                className="py-2 rounded-[6px] bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
+                className="py-2 rounded-xl bg-danger-lo hover:bg-danger-lo text-white font-bold text-xs flex flex-col items-center justify-center active:scale-95 transition-transform shadow-md"
                 title="End Call / Exit"
               >
                 <XCircle className="w-4 h-4 mb-0.5" />
@@ -496,16 +496,16 @@ export const UssdSimulator: React.FC = () => {
                 <button
                   key={k.num}
                   onClick={() => handleKeypadPress(k.num)}
-                  className="py-2.5 rounded-[8px] bg-[#2D3748] hover:bg-[#3A475C] text-white font-bold flex flex-col items-center justify-center active:scale-95 transition-transform shadow"
+                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex flex-col items-center justify-center active:scale-95 transition-transform shadow"
                 >
-                  <span className="text-sm leading-none font-mono">{k.num}</span>
-                  <span className="text-[8px] text-[#A0AEC0] leading-none mt-0.5">{k.sub}</span>
+                  <span className="text-sm leading-none font-num">{k.num}</span>
+                  <span className="text-[8px] text-ink-dim leading-none mt-0.5">{k.sub}</span>
                 </button>
               ))}
             </div>
 
             {/* Bottom Sub-text */}
-            <div className="text-[10px] text-[#718096] mt-3 font-mono">
+            <div className="text-[10px] text-slate-400 mt-3 font-num">
               upay GSM Micro-Intervention Engine
             </div>
           </div>
@@ -515,87 +515,87 @@ export const UssdSimulator: React.FC = () => {
         <div className="lg:col-span-7 space-y-4">
           
           {/* Channel & Device Context Inspection Card */}
-          <div className="dream-card p-5 space-y-3 shadow-sm border-t-2 border-t-[#FF9F43]">
-            <div className="flex items-center justify-between pb-2 border-b border-[#DADFE5]">
+          <div className="dream-card p-5 space-y-3 shadow-sm border-t-2 border-t-flame-500">
+            <div className="flex items-center justify-between pb-2 border-b border-hair">
               <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-[#FF9F43]" />
-                <h3 className="font-poppins font-bold text-sm text-[#000000]">
+                <Smartphone className="w-4 h-4 text-flame-500" />
+                <h3 className="font-display font-bold text-sm text-ink">
                   Channel &amp; Device Context Telemetry
                 </h3>
               </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#212B36] text-white font-bold">
+              <span className="text-[11px] font-num px-2 py-0.5 rounded-lg bg-inverse text-white font-bold">
                 M3 Point-in-Time Features
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-nunito">
-              <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                <span className="text-[10px] text-[#646B72] block">Channel Type</span>
-                <strong className="text-[#FF9F43] font-mono text-sm">USSD (*268#)</strong>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-ui">
+              <div className="p-2.5 bg-elev border border-hair">
+                <span className="text-[10px] text-ink-muted block">Channel Type</span>
+                <strong className="text-flame-500 font-num text-sm">USSD (*268#)</strong>
               </div>
-              <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                <span className="text-[10px] text-[#646B72] block">Device Capability</span>
-                <strong className="text-[#212B36] font-mono text-sm">FEATURE_PHONE</strong>
+              <div className="p-2.5 bg-elev border border-hair">
+                <span className="text-[10px] text-ink-muted block">Device Capability</span>
+                <strong className="text-ink font-num text-sm">FEATURE_PHONE</strong>
               </div>
-              <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                <span className="text-[10px] text-[#646B72] block">Network Context</span>
-                <strong className="text-[#092C4C] font-mono text-sm">USSD / GSM</strong>
+              <div className="p-2.5 bg-elev border border-hair">
+                <span className="text-[10px] text-ink-muted block">Network Context</span>
+                <strong className="text-ink font-num text-sm">USSD / GSM</strong>
               </div>
-              <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                <span className="text-[10px] text-[#646B72] block">30-Day Channel Baseline</span>
-                <strong className="text-[#198754] font-mono text-sm">95% SMARTPHONE APP</strong>
+              <div className="p-2.5 bg-elev border border-hair">
+                <span className="text-[10px] text-ink-muted block">30-Day Channel Baseline</span>
+                <strong className="text-success font-num text-sm">95% SMARTPHONE APP</strong>
               </div>
             </div>
 
             {/* Channel Features Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-nunito pt-1">
-              <div className="p-2.5 bg-[#FFFFFF] border border-[#DADFE5] space-y-1">
-                <span className="text-[10px] text-[#646B72] block">First-Time Channel Flag</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-ui pt-1">
+              <div className="p-2.5 bg-card border border-hair space-y-1">
+                <span className="text-[10px] text-ink-muted block">First-Time Channel Flag</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF0000] animate-pulse"></span>
-                  <strong className="text-[#FF0000] font-mono">TRUE (First USSD Usage)</strong>
+                  <span className="w-2 h-2 rounded-full bg-danger animate-pulse"></span>
+                  <strong className="text-danger font-num">TRUE (First USSD Usage)</strong>
                 </div>
-                <span className="text-[10px] text-[#646B72]">Account never dialed *268# in 30d</span>
+                <span className="text-[10px] text-ink-muted">Account never dialed *268# in 30d</span>
               </div>
 
-              <div className="p-2.5 bg-[#FFFFFF] border border-[#DADFE5] space-y-1">
-                <span className="text-[10px] text-[#646B72] block">Cross-Channel Anomaly</span>
+              <div className="p-2.5 bg-card border border-hair space-y-1">
+                <span className="text-[10px] text-ink-muted block">Cross-Channel Anomaly</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF9F43]"></span>
-                  <strong className="text-[#FF9F43] font-mono">Score: 0.70 (Elevated)</strong>
+                  <span className="w-2 h-2 rounded-full bg-flame-500"></span>
+                  <strong className="text-flame-500 font-num">Score: 0.70 (Elevated)</strong>
                 </div>
-                <span className="text-[10px] text-[#646B72]">Sudden USSD large transfer switch</span>
+                <span className="text-[10px] text-ink-muted">Sudden USSD large transfer switch</span>
               </div>
 
-              <div className="p-2.5 bg-[#FFFFFF] border border-[#DADFE5] space-y-1">
-                <span className="text-[10px] text-[#646B72] block">Channel Switch Frequency</span>
-                <strong className="text-[#212B36] font-mono">2 Distinct Channels (7d)</strong>
-                <span className="text-[10px] text-[#646B72]">APP ➔ USSD transition</span>
+              <div className="p-2.5 bg-card border border-hair space-y-1">
+                <span className="text-[10px] text-ink-muted block">Channel Switch Frequency</span>
+                <strong className="text-ink font-num">2 Distinct Channels (7d)</strong>
+                <span className="text-[10px] text-ink-muted">APP ➔ USSD transition</span>
               </div>
             </div>
           </div>
 
           {/* Cross-Channel Fairness Matrix (Proof that USSD != Fraud) */}
           <div className="dream-card p-5 space-y-3 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-[#DADFE5]">
+            <div className="flex items-center justify-between pb-2 border-b border-hair">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-[#198754]" />
-                <h3 className="font-poppins font-bold text-sm text-[#000000]">
+                <Activity className="w-4 h-4 text-success" />
+                <h3 className="font-display font-bold text-sm text-ink">
                   Channel Parity &amp; Anti-Bias Fairness Matrix
                 </h3>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[#198754]/10 text-[#198754] font-nunito font-bold border border-[#198754]/30">
+              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-success/10 text-success font-ui font-bold border border-success/30">
                 Demographic Parity Enforced
               </span>
             </div>
 
-            <div className="text-xs font-nunito text-[#646B72]">
+            <div className="text-xs font-ui text-ink-muted">
               The model evaluates contextual evidence (recipient graph ring + sudden first-time switch) rather than penalizing USSD channel itself:
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs font-nunito border border-[#DADFE5]">
-                <thead className="bg-[#F7F7F7] text-[#212B36] font-bold border-b border-[#DADFE5]">
+              <table className="w-full text-xs font-ui border border-hair">
+                <thead className="bg-elev text-ink font-bold border-b border-hair">
                   <tr>
                     <th className="p-2 text-left">Channel</th>
                     <th className="p-2 text-left">Customer Profile</th>
@@ -604,32 +604,32 @@ export const UssdSimulator: React.FC = () => {
                     <th className="p-2 text-left">Outcome</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#DADFE5]">
-                  <tr className="bg-[#FFFFFF]">
-                    <td className="p-2 font-mono font-bold text-[#FF9F43]">USSD (*268#)</td>
+                <tbody className="divide-y divide-hair">
+                  <tr className="bg-card">
+                    <td className="p-2 font-num font-bold text-flame-500">USSD (*268#)</td>
                     <td className="p-2">APP Regular User (Sudden Switch)</td>
-                    <td className="p-2 font-mono text-[#FF0000]">W-SYN-091177 (Ring-12)</td>
-                    <td className="p-2 font-mono font-bold text-[#FF0000]">0.88 (T3)</td>
+                    <td className="p-2 font-num text-danger">W-SYN-091177 (Ring-12)</td>
+                    <td className="p-2 font-num font-bold text-danger">0.88 (T3)</td>
                     <td className="p-2">
-                      <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] font-bold">Bangla Intercept</span>
+                      <span className="px-2 py-0.5 bg-danger/10 text-danger font-bold">Bangla Intercept</span>
                     </td>
                   </tr>
-                  <tr className="bg-[#F7F7F7]">
-                    <td className="p-2 font-mono font-bold text-[#198754]">USSD (*268#)</td>
+                  <tr className="bg-elev">
+                    <td className="p-2 font-num font-bold text-success">USSD (*268#)</td>
                     <td className="p-2">Rural Feature-Phone (Abdur Rahman)</td>
-                    <td className="p-2 font-mono text-[#198754]">W-SYN-001099 (Known Grocery)</td>
-                    <td className="p-2 font-mono font-bold text-[#198754]">0.04 (T0)</td>
+                    <td className="p-2 font-num text-success">W-SYN-001099 (Known Grocery)</td>
+                    <td className="p-2 font-num font-bold text-success">0.04 (T0)</td>
                     <td className="p-2">
-                      <span className="px-2 py-0.5 bg-[#198754]/10 text-[#198754] font-bold">ALLOWED (No Bias)</span>
+                      <span className="px-2 py-0.5 bg-success/10 text-success font-bold">ALLOWED (No Bias)</span>
                     </td>
                   </tr>
-                  <tr className="bg-[#FFFFFF]">
-                    <td className="p-2 font-mono font-bold text-[#092C4C]">APP (Smartphone)</td>
+                  <tr className="bg-card">
+                    <td className="p-2 font-num font-bold text-ink">APP (Smartphone)</td>
                     <td className="p-2">APP Regular User</td>
-                    <td className="p-2 font-mono text-[#FF0000]">W-SYN-091177 (Ring-12)</td>
-                    <td className="p-2 font-mono font-bold text-[#FF0000]">0.85 (T3)</td>
+                    <td className="p-2 font-num text-danger">W-SYN-091177 (Ring-12)</td>
+                    <td className="p-2 font-num font-bold text-danger">0.85 (T3)</td>
                     <td className="p-2">
-                      <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] font-bold">App Intercept</span>
+                      <span className="px-2 py-0.5 bg-danger/10 text-danger font-bold">App Intercept</span>
                     </td>
                   </tr>
                 </tbody>
@@ -639,14 +639,14 @@ export const UssdSimulator: React.FC = () => {
 
           {/* Persisted Customer Interventions Ledger */}
           <div className="dream-card p-5 space-y-3 shadow-sm">
-            <div className="flex items-center justify-between pb-2 border-b border-[#DADFE5]">
+            <div className="flex items-center justify-between pb-2 border-b border-hair">
               <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-[#FF9F43]" />
-                <h3 className="font-poppins font-bold text-sm text-[#000000]">
+                <History className="w-4 h-4 text-flame-500" />
+                <h3 className="font-display font-bold text-sm text-ink">
                   Persisted Customer Interventions Ledger
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-[#646B72]">
+              <span className="text-[11px] font-num text-ink-muted">
                 Audit-Ready PostgreSQL + Hash Chain
               </span>
             </div>
@@ -655,26 +655,26 @@ export const UssdSimulator: React.FC = () => {
               {interventionLogs.map((log) => (
                 <div
                   key={log.id}
-                  className="p-3 bg-[#F7F7F7] border border-[#DADFE5] flex items-center justify-between text-xs font-nunito"
+                  className="p-3 bg-elev border border-hair flex items-center justify-between text-xs font-ui"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-[#000000]">{log.id}</span>
-                      <span className="text-[10px] font-mono text-[#646B72]">[{log.timestamp}]</span>
-                      <span className="px-2 py-0.5 rounded-[4px] bg-[#198754]/10 text-[#198754] font-bold text-[10px] border border-[#198754]/30">
+                      <span className="font-num font-bold text-ink">{log.id}</span>
+                      <span className="text-[10px] font-num text-ink-muted">[{log.timestamp}]</span>
+                      <span className="px-2 py-0.5 rounded-lg bg-success/10 text-success font-bold text-[10px] border border-success/30">
                         {log.action}
                       </span>
                     </div>
-                    <div className="text-[11px] text-[#646B72]">
-                      Channel: <strong className="text-[#212529]">{log.channel}</strong> | Amount: <strong className="text-[#FF9F43]">৳{log.amount.toLocaleString()}</strong> ➔ {log.recipient}
+                    <div className="text-[11px] text-ink-muted">
+                      Channel: <strong className="text-ink">{log.channel}</strong> | Amount: <strong className="text-flame-500">৳{log.amount.toLocaleString()}</strong> ➔ {log.recipient}
                     </div>
-                    <div className="text-[10px] text-[#FF0000] font-mono">
+                    <div className="text-[10px] text-danger font-num">
                       {log.reason}
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] px-2 py-1 bg-[#212B36] text-white font-mono font-bold rounded-[3px]">
+                    <span className="text-[10px] px-2 py-1 bg-inverse text-white font-num font-bold rounded-md">
                       VERIFIED
                     </span>
                   </div>

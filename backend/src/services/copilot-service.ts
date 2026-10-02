@@ -1,4 +1,5 @@
 import { AlertCase, CopilotBrief } from '../core/types.js';
+import { scamKnowledgeGraph } from './scam-knowledge-graph.js';
 
 export interface EvidencePack {
   case_id: string;
@@ -180,6 +181,23 @@ export class CopilotService {
     brief.verified_claims = passedCount;
     return brief;
   }
+
+  // Graph-Derived Copilot Query Resolver
+  queryKnowledgeCopilot(question: string, lang: 'bn' | 'en' = 'en') {
+    const graphResult = scamKnowledgeGraph.queryGraph(question, lang);
+    return {
+      question,
+      language: lang,
+      answer: lang === 'bn' ? graphResult.answer_text_bn : graphResult.answer_text,
+      evidence_ids: graphResult.evidence_citations.map((e: any) => e.source_event_id),
+      matched_nodes: graphResult.matched_nodes.map((n: any) => ({ id: n.id, type: n.type, label: n.label })),
+      confidence: graphResult.confidence,
+      uncertainty_notes: graphResult.uncertainty_notes || 'All citations grounded in immutable graph ledger.',
+      graph_result: graphResult
+    };
+  }
 }
 
 export const copilotService = new CopilotService();
+
+

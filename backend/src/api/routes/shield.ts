@@ -16,6 +16,7 @@ import { merchantScamShield } from '../../services/merchant-scam-shield.js';
 import { communityPropagationService } from '../../services/community-propagation.js';
 import { customerSafetyModeService } from '../../services/safety-mode-service.js';
 import { complaintActionIntelligenceService } from '../../services/complaint-action-intelligence.js';
+import { scamKnowledgeGraph } from '../../services/scam-knowledge-graph.js';
 import { BANGLA_TEMPLATES } from '../../core/constants.js';
 
 import { AlertCase } from '../../core/types.js';
@@ -966,6 +967,103 @@ shieldRouter.post('/complaints/:id/dispatch-advisory', (req: Request, res: Respo
     return res.status(500).json({ error: { code: 'ADVISORY_ERROR', message: err.message } });
   }
 });
+
+// ================= BANGLADESH SCAM KNOWLEDGE GRAPH ROUTES =================
+shieldRouter.get('/knowledge-graph/subgraph', (req: Request, res: Response) => {
+  try {
+    const { center_node_id, depth, entity_types, start_time, end_time, suspicious_only, min_confidence, limit } = req.query;
+    
+    let parsedTypes: any = undefined;
+    if (entity_types) {
+      if (Array.isArray(entity_types)) {
+        parsedTypes = entity_types;
+      } else if (typeof entity_types === 'string') {
+        parsedTypes = (entity_types as string).split(',').map(t => t.trim()).filter(Boolean);
+      }
+    }
+
+    const sub = scamKnowledgeGraph.getSubGraph({
+      center_node_id: center_node_id ? String(center_node_id) : undefined,
+      depth: depth ? parseInt(String(depth), 10) : 1,
+      entity_types: parsedTypes,
+      start_time: start_time ? String(start_time) : undefined,
+      end_time: end_time ? String(end_time) : undefined,
+      suspicious_only: suspicious_only === 'true',
+      min_confidence: min_confidence ? parseFloat(String(min_confidence)) : 0.0,
+      limit: limit ? parseInt(String(limit), 10) : 60
+    });
+
+    return res.json({ success: true, subgraph: sub });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'SUBGRAPH_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.get('/knowledge-graph/nodes', (req: Request, res: Response) => {
+  try {
+    const { q, type } = req.query;
+    let nodes = scamKnowledgeGraph.getAllNodes();
+
+    if (type) {
+      nodes = nodes.filter(n => n.type === String(type));
+    }
+    if (q) {
+      const qStr = String(q).toLowerCase();
+      nodes = nodes.filter(n => n.id.toLowerCase().includes(qStr) || n.label.toLowerCase().includes(qStr) || (n.label_bn && n.label_bn.includes(qStr)));
+    }
+
+    return res.json({ success: true, count: nodes.length, nodes });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'NODES_FETCH_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.get('/knowledge-graph/nodes/:id', (req: Request, res: Response) => {
+  const node = scamKnowledgeGraph.getNode(req.params.id);
+  if (!node) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Knowledge node not found' } });
+  }
+  const sub = scamKnowledgeGraph.getSubGraph({ center_node_id: req.params.id, depth: 1 });
+  return res.json({ success: true, node, connections: sub });
+});
+
+shieldRouter.post('/knowledge-graph/query', (req: Request, res: Response) => {
+  try {
+    const { query, language } = req.body;
+    if (!query) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'query is required' } });
+    }
+
+    const result = scamKnowledgeGraph.queryGraph(query, language || 'en');
+    return res.json({ success: true, result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'QUERY_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.get('/knowledge-graph/evidence-pack/:id', (req: Request, res: Response) => {
+  try {
+    const pack = scamKnowledgeGraph.generateCopilotEvidencePack(req.params.id);
+    return res.json({ success: true, evidence_pack: pack });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'PACK_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/copilot/knowledge-query', (req: Request, res: Response) => {
+  try {
+    const { question, language } = req.body;
+    if (!question) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'question is required' } });
+    }
+
+    const result = copilotService.queryKnowledgeCopilot(question, language || 'en');
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COPILOT_ERROR', message: err.message } });
+  }
+});
+
 
 
 

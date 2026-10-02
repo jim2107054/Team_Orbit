@@ -13,7 +13,7 @@ Caller: জরুরি সিকিউরিটি আপডেট প্রয়
     body: JSON.stringify({ conversation: demoTranscript })
   });
 
-  const scamData = await scamRes.json();
+  const scamData = await scamRes.json() as any;
   console.log('Scam Check Result:');
   console.log('  Verdict :', scamData.verdict);
   console.log('  Typology:', scamData.typology_matched);
@@ -41,7 +41,7 @@ Caller: জরুরি সিকিউরিটি আপডেট প্রয়
     })
   });
 
-  const txnData = await txnRes.json();
+  const txnData = await txnRes.json() as any;
   console.log('Transaction Risk Decision:');
   console.log('  Risk Score :', txnData.risk_score);
   console.log('  Risk Tier  :', txnData.risk_tier);

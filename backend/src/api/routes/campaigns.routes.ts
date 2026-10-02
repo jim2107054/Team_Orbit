@@ -26,18 +26,19 @@ campaignsRouter.get('/campaigns', async (req: Request, res: Response) => {
 // 2. Get specific scam campaign with graph and complaints
 campaignsRouter.get('/campaigns/:id', async (req: Request, res: Response) => {
   try {
-    const campaign = scamCampaignService.getCampaignById(req.params.id);
+    const id = req.params.id as string;
+    const campaign = scamCampaignService.getCampaignById(id);
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: `Campaign ${req.params.id} not found`,
+        message: `Campaign ${id} not found`,
         error: { code: 'CAMPAIGN_NOT_FOUND' }
       });
     }
-    const complaints = scamCampaignService.getCampaignComplaints(req.params.id);
+    const complaints = scamCampaignService.getCampaignComplaints(id);
     return res.status(200).json({
       success: true,
-      message: `Campaign ${req.params.id} retrieved successfully`,
+      message: `Campaign ${id} retrieved successfully`,
       campaign,
       complaints
     });
@@ -92,6 +93,7 @@ campaignsRouter.post('/campaigns/demo/generate-50', async (req: Request, res: Re
 // 5. Execute analyst actions on campaign (Add note, link ring, update lifecycle, mark related/unrelated)
 campaignsRouter.post('/campaigns/:id/actions', async (req: Request, res: Response) => {
   try {
+    const id = req.params.id as string;
     const { action_type, analyst_id, details } = req.body;
     if (!action_type) {
       return res.status(400).json({
@@ -102,7 +104,7 @@ campaignsRouter.post('/campaigns/:id/actions', async (req: Request, res: Respons
     }
 
     const updated = await scamCampaignService.recordAnalystAction(
-      req.params.id,
+      id,
       action_type,
       analyst_id || 'ANALYST-101',
       details || {}
@@ -111,7 +113,7 @@ campaignsRouter.post('/campaigns/:id/actions', async (req: Request, res: Respons
     if (!updated) {
       return res.status(404).json({
         success: false,
-        message: `Campaign ${req.params.id} not found`,
+        message: `Campaign ${id} not found`,
         error: { code: 'CAMPAIGN_NOT_FOUND' }
       });
     }

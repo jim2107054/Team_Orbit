@@ -64,7 +64,7 @@ coachRouter.post('/coach/answer', (req: Request, res: Response) => {
     const result = humanScamCoach.recordAnswer(session_id, question_id, answer);
     return res.status(200).json({
       success: true,
-      message: result.completed ? 'Coach session completed' : 'Next coaching question ready',
+      message: result.is_completed ? 'Coach session completed' : 'Next coaching question ready',
       ...result
     });
   } catch (err: any) {
@@ -91,9 +91,9 @@ coachRouter.post('/coach/choice', (req: Request, res: Response) => {
 
     const result = humanScamCoach.recordCustomerChoice(session_id, choice);
     return res.status(200).json({
-      success: true,
-      message: `Customer safety decision recorded: ${choice}`,
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: (result as any).message || `Customer safety decision recorded: ${choice}`
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -107,7 +107,8 @@ coachRouter.post('/coach/choice', (req: Request, res: Response) => {
 // 4. Get Human Scam Coach session for investigator case review
 coachRouter.get('/coach/session/:id', (req: Request, res: Response) => {
   try {
-    const session = humanScamCoach.getSession(req.params.id);
+    const id = req.params.id as string;
+    const session = humanScamCoach.getSession(id);
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -117,7 +118,7 @@ coachRouter.get('/coach/session/:id', (req: Request, res: Response) => {
     }
     return res.status(200).json({
       success: true,
-      message: `Coach session ${req.params.id} retrieved`,
+      message: `Coach session ${id} retrieved`,
       session
     });
   } catch (err: any) {

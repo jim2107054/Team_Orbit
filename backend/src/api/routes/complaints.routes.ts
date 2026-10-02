@@ -76,7 +76,8 @@ complaintsRouter.get('/complaints/duplicate-groups', (req: Request, res: Respons
 
 complaintsRouter.get('/complaints/:id', (req: Request, res: Response) => {
   try {
-    const cmp = complaintActionIntelligenceService.getComplaintById(req.params.id);
+    const id = req.params.id as string;
+    const cmp = complaintActionIntelligenceService.getComplaintById(id);
     if (!cmp) {
       return res.status(404).json({
         success: false,
@@ -86,7 +87,7 @@ complaintsRouter.get('/complaints/:id', (req: Request, res: Response) => {
     }
     return res.status(200).json({
       success: true,
-      message: `Complaint ${req.params.id} details retrieved`,
+      message: `Complaint ${id} details retrieved`,
       complaint: cmp
     });
   } catch (err: any) {
@@ -150,6 +151,7 @@ complaintsRouter.post('/complaints/demo-5-scams', (req: Request, res: Response) 
 
 complaintsRouter.post('/complaints/:id/override-link', (req: Request, res: Response) => {
   try {
+    const id = req.params.id as string;
     const { target_type, target_id, analyst_id, notes } = req.body;
     if (!target_type || !target_id) {
       return res.status(400).json({
@@ -160,7 +162,7 @@ complaintsRouter.post('/complaints/:id/override-link', (req: Request, res: Respo
     }
 
     const updated = complaintActionIntelligenceService.overrideLink(
-      req.params.id,
+      id,
       target_type,
       target_id,
       analyst_id || 'ANALYST-101',
@@ -201,7 +203,7 @@ complaintsRouter.post('/complaints/:id/priority', (req: Request, res: Response) 
     }
 
     const updated = complaintActionIntelligenceService.changePriority(
-      req.params.id,
+      req.params.id as string,
       priority,
       analyst_id || 'ANALYST-101',
       reason || 'Analyst triage review'
@@ -233,14 +235,14 @@ complaintsRouter.post('/complaints/:id/emergency-hold', (req: Request, res: Resp
   try {
     const { wallet_id, analyst_id } = req.body;
     const result = complaintActionIntelligenceService.triggerEmergencyHold(
-      req.params.id,
+      req.params.id as string,
       wallet_id || 'W-SYN-881920',
       analyst_id || 'ANALYST-101'
     );
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Emergency hold triggered successfully on target wallet',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Emergency hold triggered successfully on target wallet'
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -255,15 +257,15 @@ complaintsRouter.post('/complaints/:id/dispatch-advisory', (req: Request, res: R
   try {
     const { phone, advisory_text, analyst_id } = req.body;
     const result = complaintActionIntelligenceService.dispatchCustomerAdvisory(
-      req.params.id,
+      req.params.id as string,
       phone || '01711-998822',
       advisory_text || 'উপায় নিরাপত্তা সতর্কতা: কারো প্ররোচনায় ওটিপি বা পিন শেয়ার করবেন না।',
       analyst_id || 'ANALYST-101'
     );
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Customer safety advisory SMS dispatched',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Customer safety advisory SMS dispatched'
     });
   } catch (err: any) {
     return res.status(500).json({

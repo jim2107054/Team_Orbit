@@ -73,7 +73,8 @@ knowledgeGraphRouter.get('/knowledge-graph/nodes', (req: Request, res: Response)
 
 knowledgeGraphRouter.get('/knowledge-graph/nodes/:id', (req: Request, res: Response) => {
   try {
-    const node = scamKnowledgeGraph.getNode(req.params.id);
+    const id = req.params.id as string;
+    const node = scamKnowledgeGraph.getNode(id);
     if (!node) {
       return res.status(404).json({
         success: false,
@@ -81,10 +82,10 @@ knowledgeGraphRouter.get('/knowledge-graph/nodes/:id', (req: Request, res: Respo
         error: { code: 'NOT_FOUND' }
       });
     }
-    const sub = scamKnowledgeGraph.getSubGraph({ center_node_id: req.params.id, depth: 1 });
+    const sub = scamKnowledgeGraph.getSubGraph({ center_node_id: id, depth: 1 });
     return res.status(200).json({
       success: true,
-      message: `Knowledge entity ${req.params.id} details and 1-hop neighborhood retrieved`,
+      message: `Knowledge entity ${id} details and 1-hop neighborhood retrieved`,
       node,
       connections: sub
     });
@@ -125,10 +126,11 @@ knowledgeGraphRouter.post('/knowledge-graph/query', (req: Request, res: Response
 
 knowledgeGraphRouter.get('/knowledge-graph/evidence-pack/:id', (req: Request, res: Response) => {
   try {
-    const pack = scamKnowledgeGraph.generateCopilotEvidencePack(req.params.id);
+    const id = req.params.id as string;
+    const pack = scamKnowledgeGraph.generateCopilotEvidencePack(id);
     return res.status(200).json({
       success: true,
-      message: `Evidence pack generated for entity ${req.params.id}`,
+      message: `Evidence pack generated for entity ${id}`,
       evidence_pack: pack
     });
   } catch (err: any) {

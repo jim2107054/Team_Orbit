@@ -26,17 +26,18 @@ merchantsRouter.get('/merchants', async (req: Request, res: Response) => {
 // 2. Get merchant profile details
 merchantsRouter.get('/merchants/:id', async (req: Request, res: Response) => {
   try {
-    const merchant = merchantScamShield.resolveMerchant(req.params.id);
+    const id = req.params.id as string;
+    const merchant = merchantScamShield.resolveMerchant(id);
     if (!merchant) {
       return res.status(404).json({
         success: false,
-        message: `Merchant ${req.params.id} not found`,
+        message: `Merchant ${id} not found`,
         error: { code: 'MERCHANT_NOT_FOUND' }
       });
     }
     return res.status(200).json({
       success: true,
-      message: `Merchant ${req.params.id} profile retrieved`,
+      message: `Merchant ${id} profile retrieved`,
       merchant
     });
   } catch (err: any) {
@@ -51,10 +52,11 @@ merchantsRouter.get('/merchants/:id', async (req: Request, res: Response) => {
 // 3. Get merchant graph connections (Customer -> Merchant -> Mules -> Ring -> Agent)
 merchantsRouter.get('/merchants/:id/graph', async (req: Request, res: Response) => {
   try {
-    const graph = merchantScamShield.getMerchantGraph(req.params.id);
+    const id = req.params.id as string;
+    const graph = merchantScamShield.getMerchantGraph(id);
     return res.status(200).json({
       success: true,
-      message: `Merchant ${req.params.id} graph topology retrieved`,
+      message: `Merchant ${id} graph topology retrieved`,
       ...graph
     });
   } catch (err: any) {
@@ -75,10 +77,11 @@ merchantsRouter.post('/merchants/evaluate', async (req: Request, res: Response) 
     const sender = sender_wallet || 'W-SYN-004512';
 
     const evaluation = merchantScamShield.evaluateMerchantPayment(sender, target, amount);
+    const isFlagged = evaluation.action_recommended !== 'ALLOW';
     return res.status(200).json({
       success: true,
-      message: evaluation.decision === 'HOLD' || evaluation.decision === 'WARN'
-        ? `Merchant transaction flagged (${evaluation.decision}): ${evaluation.risk_tier}`
+      message: isFlagged
+        ? `Merchant transaction flagged (${evaluation.action_recommended}): Risk score ${Math.round(evaluation.risk_score * 100)}%`
         : 'Merchant transaction approved',
       ...evaluation
     });

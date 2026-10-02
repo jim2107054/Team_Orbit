@@ -62,7 +62,8 @@ propagationRouter.get('/propagation/alerts', (req: Request, res: Response) => {
 
 propagationRouter.get('/propagation/alerts/:id', (req: Request, res: Response) => {
   try {
-    const alert = communityPropagationService.getAlertById(req.params.id);
+    const id = req.params.id as string;
+    const alert = communityPropagationService.getAlertById(id);
     if (!alert) {
       return res.status(404).json({
         success: false,
@@ -72,7 +73,7 @@ propagationRouter.get('/propagation/alerts/:id', (req: Request, res: Response) =
     }
     return res.status(200).json({
       success: true,
-      message: `Spread alert ${req.params.id} details retrieved`,
+      message: `Spread alert ${id} details retrieved`,
       alert
     });
   } catch (err: any) {
@@ -86,6 +87,7 @@ propagationRouter.get('/propagation/alerts/:id', (req: Request, res: Response) =
 
 propagationRouter.post('/propagation/alerts/:id/action', async (req: Request, res: Response) => {
   try {
+    const id = req.params.id as string;
     const { action_type, analyst_id, notes, warning_payload } = req.body;
     if (!action_type) {
       return res.status(400).json({
@@ -96,7 +98,7 @@ propagationRouter.post('/propagation/alerts/:id/action', async (req: Request, re
     }
 
     const result = await communityPropagationService.recordAnalystAction(
-      req.params.id,
+      id,
       action_type,
       analyst_id || 'ANALYST-OPS-01',
       notes,
@@ -112,9 +114,9 @@ propagationRouter.post('/propagation/alerts/:id/action', async (req: Request, re
     }
 
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Analyst action executed on spread alert',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Analyst action executed on spread alert'
     });
   } catch (err: any) {
     return res.status(500).json({

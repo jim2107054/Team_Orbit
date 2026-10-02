@@ -28,17 +28,18 @@ casesRouter.get('/alerts', async (req: Request, res: Response) => {
 
 casesRouter.get('/cases/:id', async (req: Request, res: Response) => {
   try {
-    const c = await repository.getCaseById(req.params.id);
+    const id = req.params.id as string;
+    const c = await repository.getCaseById(id);
     if (!c) {
       return res.status(404).json({
         success: false,
-        message: `Case ${req.params.id} not found`,
+        message: `Case ${id} not found`,
         error: { code: 'NOT_FOUND' }
       });
     }
     return res.status(200).json({
       success: true,
-      message: `Case ${req.params.id} details retrieved`,
+      message: `Case ${id} details retrieved`,
       case: c
     });
   } catch (err: any) {
@@ -53,7 +54,7 @@ casesRouter.get('/cases/:id', async (req: Request, res: Response) => {
 casesRouter.post('/cases/:id/actions', async (req: Request, res: Response) => {
   try {
     const { action, analyst_id, notes, second_analyst_id } = req.body;
-    const caseId = req.params.id;
+    const caseId = req.params.id as string;
     const c = await repository.getCaseById(caseId);
     if (!c) {
       return res.status(404).json({
@@ -98,11 +99,12 @@ casesRouter.post('/cases/:id/actions', async (req: Request, res: Response) => {
 // ================= API-09: COPILOT CASE NARRATIVE =================
 casesRouter.post('/cases/:id/copilot', async (req: Request, res: Response) => {
   try {
-    const c = await repository.getCaseById(req.params.id);
+    const id = req.params.id as string;
+    const c = await repository.getCaseById(id);
     if (!c) {
       return res.status(404).json({
         success: false,
-        message: `Case ${req.params.id} not found`,
+        message: `Case ${id} not found`,
         error: { code: 'NOT_FOUND' }
       });
     }
@@ -128,7 +130,8 @@ casesRouter.post('/cases/:id/copilot', async (req: Request, res: Response) => {
 // ================= API-10: GOLDEN-HOUR RECOVERY TRACE =================
 casesRouter.post('/cases/:id/trace', async (req: Request, res: Response) => {
   try {
-    const c = await repository.getCaseById(req.params.id);
+    const id = req.params.id as string;
+    const c = await repository.getCaseById(id);
     const amount = c ? c.amount_bdt : 18500;
     const victimWallet = c ? c.sender_wallet : 'W-SYN-004512';
 

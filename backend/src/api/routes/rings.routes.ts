@@ -24,17 +24,18 @@ ringsRouter.get('/rings', async (req: Request, res: Response) => {
 
 ringsRouter.get('/rings/:id', async (req: Request, res: Response) => {
   try {
-    const ring = await repository.getRingById(req.params.id);
+    const id = req.params.id as string;
+    const ring = await repository.getRingById(id);
     if (!ring) {
       return res.status(404).json({
         success: false,
-        message: `Ring ${req.params.id} not found`,
+        message: `Ring ${id} not found`,
         error: { code: 'NOT_FOUND' }
       });
     }
     return res.status(200).json({
       success: true,
-      message: `Ring ${req.params.id} details retrieved`,
+      message: `Ring ${id} details retrieved`,
       ring
     });
   } catch (err: any) {

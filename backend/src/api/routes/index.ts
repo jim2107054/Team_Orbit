@@ -17,10 +17,12 @@ import { recoveryRouteRouter } from './recovery-route.routes.js';
 import { coachRouter } from './coach.routes.js';
 import { metricsRouter } from './metrics.routes.js';
 import { demoRouter } from './demo.routes.js';
+import { healthRouter } from './health.routes.js';
 
 export const shieldRouter = Router();
 
 // Register all modular feature routers
+shieldRouter.use(healthRouter);
 shieldRouter.use(transactionRouter);
 shieldRouter.use(scamcheckRouter);
 shieldRouter.use(ussdRouter);
@@ -40,4 +42,5 @@ shieldRouter.use(coachRouter);
 shieldRouter.use(metricsRouter);
 shieldRouter.use(demoRouter);
 
+export { healthRouter };
 export default shieldRouter;

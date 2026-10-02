@@ -47,17 +47,18 @@ reportsRouter.post('/reports/number', async (req: Request, res: Response) => {
 // ================= API-05: COARSE TRUST BADGE =================
 reportsRouter.get('/recipients/:id/trust', async (req: Request, res: Response) => {
   try {
-    const reports = await repository.getReportsForNumber(req.params.id);
+    const id = req.params.id as string;
+    const reports = await repository.getReportsForNumber(id);
     const isReported = reports.length > 0;
-    const isKnownMule = req.params.id.includes('091177');
+    const isKnownMule = id.includes('091177');
 
     let badge: 'SAFE' | 'NEW_RECIPIENT' | 'REPORTED' = 'SAFE';
     if (isReported || isKnownMule) badge = 'REPORTED';
 
     return res.status(200).json({
       success: true,
-      message: `Trust status evaluated for recipient ${req.params.id}`,
-      recipient_id: req.params.id,
+      message: `Trust status evaluated for recipient ${id}`,
+      recipient_id: id,
       trust_badge: badge,
       total_reports: reports.length
     });

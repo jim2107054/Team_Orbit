@@ -2,3 +2,11 @@
 .env*
 .env**
 .env.example
+node_modules
+*/node_modules
+.next
+*/.next
+dist
+*/dist
+.turbo
+*.log

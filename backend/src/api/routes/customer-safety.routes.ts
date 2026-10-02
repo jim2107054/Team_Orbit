@@ -6,11 +6,12 @@ export const customerSafetyRouter = Router();
 // ================= CUSTOMER SAFETY MODE ENDPOINTS =================
 customerSafetyRouter.get('/customer/safety-mode/:walletId', (req: Request, res: Response) => {
   try {
-    const record = customerSafetyModeService.getSafetyMode(req.params.walletId);
-    const thresholds = customerSafetyModeService.getPolicyThresholds(req.params.walletId);
+    const walletId = req.params.walletId as string;
+    const record = customerSafetyModeService.getSafetyMode(walletId);
+    const thresholds = customerSafetyModeService.getPolicyThresholds(walletId);
     return res.status(200).json({
       success: true,
-      message: `Safety mode status retrieved for wallet ${req.params.walletId}`,
+      message: `Safety mode status retrieved for wallet ${walletId}`,
       safety_mode: record,
       thresholds
     });
@@ -42,9 +43,9 @@ customerSafetyRouter.post('/customer/safety-mode/activate', async (req: Request,
     );
 
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Safety Mode activated successfully for your protection',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Safety Mode activated successfully for your protection'
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -72,9 +73,9 @@ customerSafetyRouter.post('/customer/safety-mode/extend', async (req: Request, r
     );
 
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Safety Mode extended successfully',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Safety Mode extended successfully'
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -110,9 +111,9 @@ customerSafetyRouter.post('/customer/safety-mode/disable', async (req: Request, 
     }
 
     return res.status(200).json({
-      success: true,
-      message: result.message || 'Safety Mode has been successfully disabled',
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || 'Safety Mode has been successfully disabled'
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -142,7 +143,7 @@ customerSafetyRouter.get('/customer/safety-mode-config', (req: Request, res: Res
 
 customerSafetyRouter.get('/customer/safety-mode-audits/:walletId?', (req: Request, res: Response) => {
   try {
-    const audits = customerSafetyModeService.getAuditHistory(req.params.walletId);
+    const audits = customerSafetyModeService.getAuditHistory(req.params.walletId as string | undefined);
     return res.status(200).json({
       success: true,
       message: `Retrieved ${audits.length} safety mode audit events`,

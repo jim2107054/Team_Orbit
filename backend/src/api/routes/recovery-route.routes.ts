@@ -10,7 +10,7 @@ export const recoveryRouteRouter = Router();
 // 1. Get current Recovery Route Plan for a case
 recoveryRouteRouter.get('/cases/:id/recovery-route', (req: Request, res: Response) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id as string;
     const scenario = (req.query.scenario as any) || undefined;
     const remainingMin = req.query.golden_hour_remaining ? Number(req.query.golden_hour_remaining) : undefined;
     const amount = req.query.amount ? Number(req.query.amount) : undefined;
@@ -38,7 +38,7 @@ recoveryRouteRouter.get('/cases/:id/recovery-route', (req: Request, res: Respons
 // 2. Generate / Re-optimize Recovery Route with custom parameters
 recoveryRouteRouter.post('/cases/:id/recovery-route/optimize', (req: Request, res: Response) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id as string;
     const { scenario_id, golden_hour_remaining_min, disputed_amount_bdt, transaction_id } = req.body;
 
     const plan = recoveryRouteOptimizer.generateRecoveryRoute(caseId, transaction_id, {
@@ -47,9 +47,10 @@ recoveryRouteRouter.post('/cases/:id/recovery-route/optimize', (req: Request, re
       disputedAmountBdt: disputed_amount_bdt
     });
 
+    const pct = Math.round((plan.estimated_recoverability?.confidence_score || 0) * 100);
     return res.status(200).json({
       success: true,
-      message: `Recovery route re-optimized with expected recovery rate of ${plan.overall_recovery_probability_pct}%`,
+      message: `Recovery route re-optimized (${plan.estimated_recoverability?.level || 'EVALUATED'} - ${pct}% confidence)`,
       plan
     });
   } catch (err: any) {
@@ -64,8 +65,8 @@ recoveryRouteRouter.post('/cases/:id/recovery-route/optimize', (req: Request, re
 // 3. Update recovery action status (Mark Reviewed, Skip, Escalate) & prevent duplicates
 recoveryRouteRouter.post('/cases/:id/recovery-route/actions/:actionId', async (req: Request, res: Response) => {
   try {
-    const caseId = req.params.id;
-    const actionId = req.params.actionId;
+    const caseId = req.params.id as string;
+    const actionId = req.params.actionId as string;
     const { status, notes, analyst_id } = req.body;
 
     if (!status) {
@@ -92,9 +93,9 @@ recoveryRouteRouter.post('/cases/:id/recovery-route/actions/:actionId', async (r
     );
 
     return res.status(200).json({
-      success: true,
-      message: result.message || `Recovery action marked as ${status}`,
-      ...result
+      ...result,
+      success: result.success,
+      message: (result as any).message || `Recovery action marked as ${status}`
     });
   } catch (err: any) {
     return res.status(500).json({
@@ -108,7 +109,7 @@ recoveryRouteRouter.post('/cases/:id/recovery-route/actions/:actionId', async (r
 // 4. Get chronological recovery timeline events
 recoveryRouteRouter.get('/cases/:id/recovery-timeline', (req: Request, res: Response) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id as string;
     const events = recoveryRouteOptimizer.getRecoveryTimeline(caseId);
     return res.status(200).json({
       success: true,

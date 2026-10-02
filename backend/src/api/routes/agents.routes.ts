@@ -24,10 +24,11 @@ agentsRouter.get('/agents', (req: Request, res: Response) => {
 
 agentsRouter.get('/agents/:id/dual-profile', (req: Request, res: Response) => {
   try {
-    const profile = agentGuard.getAgentProfile(req.params.id) || agentGuard.evaluateDualProfile(req.params.id);
+    const id = req.params.id as string;
+    const profile = agentGuard.getAgentProfile(id) || agentGuard.evaluateDualProfile(id);
     return res.status(200).json({
       success: true,
-      message: `Dual risk profile retrieved for agent ${req.params.id}`,
+      message: `Dual risk profile retrieved for agent ${id}`,
       profile
     });
   } catch (err: any) {
@@ -41,7 +42,8 @@ agentsRouter.get('/agents/:id/dual-profile', (req: Request, res: Response) => {
 
 agentsRouter.get('/agents/:id/risk', async (req: Request, res: Response) => {
   try {
-    const profile = agentGuard.getAgentProfile(req.params.id) || agentGuard.evaluateDualProfile(req.params.id);
+    const id = req.params.id as string;
+    const profile = agentGuard.getAgentProfile(id) || agentGuard.evaluateDualProfile(id);
     const legacy = {
       agent_id: profile.agent_id,
       name: profile.name,
@@ -58,7 +60,7 @@ agentsRouter.get('/agents/:id/risk', async (req: Request, res: Response) => {
     };
     return res.status(200).json({
       success: true,
-      message: `Risk evaluation for agent ${req.params.id} completed`,
+      message: `Risk evaluation for agent ${id} completed`,
       ...legacy
     });
   } catch (err: any) {
@@ -72,6 +74,7 @@ agentsRouter.get('/agents/:id/risk', async (req: Request, res: Response) => {
 
 agentsRouter.post('/agents/:id/actions', (req: Request, res: Response) => {
   try {
+    const id = req.params.id as string;
     const { action, analyst_id, notes } = req.body;
     if (!action) {
       return res.status(400).json({
@@ -82,16 +85,16 @@ agentsRouter.post('/agents/:id/actions', (req: Request, res: Response) => {
     }
 
     const result = agentGuard.executeAnalystAction(
-      req.params.id,
+      id,
       action,
       analyst_id || 'ANALYST-101',
       notes
     );
 
     return res.status(200).json({
-      success: true,
-      message: `Action ${action} executed successfully on agent ${req.params.id}`,
-      ...result
+      ...result,
+      success: result.success ?? true,
+      message: result.message || `Action ${action} executed successfully on agent ${id}`
     });
   } catch (err: any) {
     return res.status(500).json({

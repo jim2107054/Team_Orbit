@@ -35,7 +35,7 @@ describe('Customer Safety Mode Service & Policy Engine Suite', () => {
     expect(thresholdsProtected.holdAssistThreshold).toBe(0.70);
 
     // Test transaction evaluation with moderate risk (e.g. 0.48 score)
-    const mockFeatures: CalculatedFeatures = {
+    const mockFeatures: any = {
       user_segment: 'salaried',
       amount_zscore_user: 1.2,
       velocity_1h_user: 1,

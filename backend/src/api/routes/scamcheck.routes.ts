@@ -26,7 +26,7 @@ scamcheckRouter.post('/scamcheck', async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: result.verdict === 'SCAM' 
+      message: result.verdict === 'LIKELY_SCAM' 
         ? `High scam likelihood detected (${result.typology_matched})` 
         : 'Scam check analysis completed successfully',
       ...result

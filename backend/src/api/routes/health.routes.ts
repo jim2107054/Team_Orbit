@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { getDbPool, getPoolStats } from '../../db/client.js';
 import { envConfig } from '../../core/env.js';
 import { getCacheStats } from '../middleware/index.js';
+import { persistence } from '../../db/persistence.js';
 
 export const healthRouter = Router();
 
@@ -49,6 +50,60 @@ healthRouter.get('/health/db', async (_req: Request, res: Response) => {
     });
   }
 });
+
+/**
+ * Durable-write health. Shows whether write-through persistence is on, how many
+ * writes have committed, and any recent failures — so a silently failing write
+ * path is visible instead of looking like "my change did not save".
+ */
+healthRouter.get('/health/persistence', async (_req: Request, res: Response) => {
+  const stats = persistence.getStats();
+  try {
+    const counts = await getDurableRowCounts();
+    return res.status(stats.failed_total > 0 ? 207 : 200).json({
+      success: true,
+      message: stats.enabled
+        ? 'Write-through persistence is active'
+        : 'Write-through persistence is disabled (in-memory only)',
+      persistence: stats,
+      durable_row_counts: counts,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    return res.status(503).json({
+      success: false,
+      message: `Unable to read durable row counts: ${err.message}`,
+      persistence: stats,
+      error: { code: 'PERSISTENCE_COUNT_FAILED', details: err.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+async function getDurableRowCounts(): Promise<Record<string, number>> {
+  const tables = [
+    'complaints',
+    'complaint_duplicate_groups',
+    'complaint_analyst_actions',
+    'scam_campaigns',
+    'campaign_complaints',
+    'agent_dual_profiles',
+    'merchant_risk_profiles',
+    'customer_safety_modes',
+    'coach_sessions',
+    'propagation_alerts',
+    'recovery_plans',
+    'knowledge_graph_nodes',
+    'knowledge_graph_edges',
+    'rag_documents',
+    'rag_chunks',
+    'llm_invocations'
+  ];
+
+  const selects = tables.map(t => `(SELECT COUNT(*)::int FROM ${t}) AS ${t}`).join(', ');
+  const result = await getDbPool().query(`SELECT ${selects}`);
+  return result.rows[0] ?? {};
+}
 
 // Readiness check
 healthRouter.get('/readyz', (_req: Request, res: Response) => {

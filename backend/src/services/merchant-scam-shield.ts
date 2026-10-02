@@ -3,14 +3,49 @@ import {
   MerchantTrustBadge, ReasonCodeDetail 
 } from '../core/types.js';
 import { auditService } from './audit-service.js';
+import { merchantProfileStore } from '../db/stores.js';
 
 export class MerchantScamShieldService {
   private merchants: Map<string, MerchantProfile> = new Map();
   private qrCodeMap: Map<string, string> = new Map(); // qr_code_id -> merchant_id
   private merchantTxnHistory: Map<string, Array<{ sender: string; amount: number; ts: string }>> = new Map();
 
+  private seeding = false;
+
   constructor() {
-    this.seedSyntheticMerchants();
+    this.seeding = true;
+    try {
+      this.seedSyntheticMerchants();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * First boot publishes the seeded merchant profiles; afterwards the stored
+   * profiles win, so a changed trust badge or risk score is not reset on boot.
+   */
+  async hydrate(): Promise<void> {
+    if (await merchantProfileStore.isEmpty()) {
+      await merchantProfileStore.upsertMany(Array.from(this.merchants.values()));
+      return;
+    }
+
+    const merchants = await merchantProfileStore.loadAll();
+    this.merchants.clear();
+    this.qrCodeMap.clear();
+    for (const m of merchants) {
+      this.merchants.set(m.merchant_id, m);
+      if (m.qr_code_id) this.qrCodeMap.set(m.qr_code_id, m.merchant_id);
+    }
+  }
+
+  /** Persist a merchant profile and keep the QR lookup index in step. */
+  private saveMerchant(merchant: MerchantProfile): MerchantProfile {
+    this.merchants.set(merchant.merchant_id, merchant);
+    if (merchant.qr_code_id) this.qrCodeMap.set(merchant.qr_code_id, merchant.merchant_id);
+    if (!this.seeding) merchantProfileStore.enqueueUpsert(merchant);
+    return merchant;
   }
 
   /**
@@ -43,8 +78,7 @@ export class MerchantScamShieldService {
       linked_mule_rings: ['RING-2026-0012'],
       created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString()
     };
-    this.merchants.set(m1.merchant_id, m1);
-    this.qrCodeMap.set(m1.qr_code_id, m1.merchant_id);
+    this.saveMerchant(m1);
 
     // 2. Legitimate Established Merchant: Shwapno Daily Dhanmondi (M-SYN-1002)
     const m2: MerchantProfile = {
@@ -72,8 +106,7 @@ export class MerchantScamShieldService {
       linked_mule_rings: [],
       created_at: new Date(Date.now() - 480 * 24 * 3600 * 1000).toISOString()
     };
-    this.merchants.set(m2.merchant_id, m2);
-    this.qrCodeMap.set(m2.qr_code_id, m2.merchant_id);
+    this.saveMerchant(m2);
 
     // 3. New Legitimate Merchant: Lazz Pharma Uttara (M-SYN-3003)
     const m3: MerchantProfile = {
@@ -101,8 +134,7 @@ export class MerchantScamShieldService {
       linked_mule_rings: [],
       created_at: new Date(Date.now() - 12 * 24 * 3600 * 1000).toISOString()
     };
-    this.merchants.set(m3.merchant_id, m3);
-    this.qrCodeMap.set(m3.qr_code_id, m3.merchant_id);
+    this.saveMerchant(m3);
 
     // 4. Watchlist Merchant: Global Gadgets Surge (M-SYN-5004)
     const m4: MerchantProfile = {
@@ -130,8 +162,7 @@ export class MerchantScamShieldService {
       linked_mule_rings: ['RING-2026-0008'],
       created_at: new Date(Date.now() - 18 * 24 * 3600 * 1000).toISOString()
     };
-    this.merchants.set(m4.merchant_id, m4);
-    this.qrCodeMap.set(m4.qr_code_id, m4.merchant_id);
+    this.saveMerchant(m4);
   }
 
   /**

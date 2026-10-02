@@ -3,18 +3,59 @@ import {
   KnowledgeEdgeEvidence, KnowledgeGraphSubGraph, KnowledgeGraphQueryFilter,
   KnowledgeGraphQueryResult, KnowledgeGraphEvidencePack, VerificationSource
 } from '../core/types.js';
+import { knowledgeNodeStore, knowledgeEdgeStore } from '../db/stores.js';
 
 export class ScamKnowledgeGraphService {
   private nodes: Map<string, KnowledgeNode> = new Map();
   private edges: Map<string, KnowledgeEdge> = new Map();
-  
+
   // Adjacency indices for fast sub-graph traversal
   private outEdges: Map<string, Set<string>> = new Map(); // node_id -> Set<edge_id>
   private inEdges: Map<string, Set<string>> = new Map();  // node_id -> Set<edge_id>
   private typeIndex: Map<KnowledgeNodeType, Set<string>> = new Map();
 
+  private seeding = false;
+
   constructor() {
-    this.seedComprehensiveKnowledgeGraph();
+    this.seeding = true;
+    try {
+      this.seedComprehensiveKnowledgeGraph();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * First boot publishes the seeded graph; afterwards the stored graph wins, so
+   * nodes and edges added at runtime are not dropped on restart. The adjacency
+   * and type indices are rebuilt from the loaded nodes and edges.
+   */
+  async hydrate(): Promise<void> {
+    if (await knowledgeNodeStore.isEmpty()) {
+      await knowledgeNodeStore.upsertMany(Array.from(this.nodes.values()));
+      await knowledgeEdgeStore.upsertMany(Array.from(this.edges.values()));
+      return;
+    }
+
+    const [nodes, edges] = await Promise.all([
+      knowledgeNodeStore.loadAll(),
+      knowledgeEdgeStore.loadAll()
+    ]);
+
+    this.nodes.clear();
+    this.edges.clear();
+    this.outEdges.clear();
+    this.inEdges.clear();
+    this.typeIndex.clear();
+
+    const wasSeeding = this.seeding;
+    this.seeding = true;
+    try {
+      for (const node of nodes) this.addNode(node);
+      for (const edge of edges) this.addEdge(edge);
+    } finally {
+      this.seeding = wasSeeding;
+    }
   }
 
   // ================= 1. GRAPH MUTATION & INDEXING =================
@@ -26,6 +67,7 @@ export class ScamKnowledgeGraphService {
     this.typeIndex.get(node.type)!.add(node.id);
     if (!this.outEdges.has(node.id)) this.outEdges.set(node.id, new Set());
     if (!this.inEdges.has(node.id)) this.inEdges.set(node.id, new Set());
+    if (!this.seeding) knowledgeNodeStore.enqueueUpsert(node);
   }
 
   addEdge(edge: KnowledgeEdge): void {
@@ -34,6 +76,7 @@ export class ScamKnowledgeGraphService {
     if (!this.inEdges.has(edge.target)) this.inEdges.set(edge.target, new Set());
     this.outEdges.get(edge.source)!.add(edge.id);
     this.inEdges.get(edge.target)!.add(edge.id);
+    if (!this.seeding) knowledgeEdgeStore.enqueueUpsert(edge);
   }
 
   getNode(id: string): KnowledgeNode | undefined {

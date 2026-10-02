@@ -9,20 +9,31 @@ export interface EvidencePack {
 }
 
 export class CopilotService {
+  /**
+   * The case's evidence items, keyed by the ids the brief cites.
+   *
+   * Exposed so the model-written narrative can be constrained to the same id
+   * set and its citations checked against it, rather than being free to invent
+   * references an analyst cannot follow.
+   */
+  buildEvidenceIndex(c: AlertCase): EvidencePack['evidence_items'] {
+    return {
+      'EVD-01': { type: 'TXN_AMOUNT', value: c.amount_bdt, formatted: `৳${c.amount_bdt.toLocaleString()}` },
+      'EVD-02': { type: 'SENDER_WALLET', value: c.sender_wallet },
+      'EVD-03': { type: 'RECEIVER_WALLET', value: c.receiver_wallet },
+      'EVD-04': { type: 'RISK_SCORE', value: c.risk_score, formatted: `${(c.risk_score * 100).toFixed(0)}%` },
+      'EVD-05': { type: 'PRIMARY_REASON', code: c.reasons[0]?.code || 'RC01' },
+      'EVD-06': { type: 'TIMELINE', hour: '23:41', event: 'Initiated send money' },
+      'EVD-07': { type: 'DOWNSTREAM_HOPS', hops: 3, recoverable_bdt: 11200 },
+      'EVD-08': { type: 'RING_PROXIMITY', ring_id: 'Ring-12', hops: 2 }
+    };
+  }
+
   generateCaseBrief(c: AlertCase, lang: 'en' | 'bn' = 'en'): CopilotBrief {
     // 1. Construct Structured Evidence Pack (JSON)
     const evidencePack: EvidencePack = {
       case_id: c.case_id,
-      evidence_items: {
-        'EVD-01': { type: 'TXN_AMOUNT', value: c.amount_bdt, formatted: `৳${c.amount_bdt.toLocaleString()}` },
-        'EVD-02': { type: 'SENDER_WALLET', value: c.sender_wallet },
-        'EVD-03': { type: 'RECEIVER_WALLET', value: c.receiver_wallet },
-        'EVD-04': { type: 'RISK_SCORE', value: c.risk_score, formatted: `${(c.risk_score * 100).toFixed(0)}%` },
-        'EVD-05': { type: 'PRIMARY_REASON', code: c.reasons[0]?.code || 'RC01' },
-        'EVD-06': { type: 'TIMELINE', hour: '23:41', event: 'Initiated send money' },
-        'EVD-07': { type: 'DOWNSTREAM_HOPS', hops: 3, recoverable_bdt: 11200 },
-        'EVD-08': { type: 'RING_PROXIMITY', ring_id: 'Ring-12', hops: 2 }
-      }
+      evidence_items: this.buildEvidenceIndex(c)
     };
 
     // 2. Bilingual Grounded Narrative Generation

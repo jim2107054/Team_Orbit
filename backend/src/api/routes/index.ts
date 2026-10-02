@@ -19,6 +19,7 @@ import { coachRouter } from './coach.routes.js';
 import { metricsRouter } from './metrics.routes.js';
 import { demoRouter } from './demo.routes.js';
 import { healthRouter } from './health.routes.js';
+import { intelligenceRouter } from './intelligence.routes.js';
 
 export const shieldRouter = Router();
 
@@ -43,6 +44,7 @@ shieldRouter.use(recoveryRouteRouter);
 shieldRouter.use(coachRouter);
 shieldRouter.use(metricsRouter);
 shieldRouter.use(demoRouter);
+shieldRouter.use(intelligenceRouter);
 
 export { healthRouter };
 export default shieldRouter;

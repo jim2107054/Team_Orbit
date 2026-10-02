@@ -3,10 +3,40 @@ import {
   SafetyModePolicyConfig, SafetyModeAuditEvent 
 } from '../core/types.js';
 import { auditService } from './audit-service.js';
+import { safetyModeStore, safetyAuditStore } from '../db/stores.js';
 
 export class CustomerSafetyModeService {
   private safetyModes: Map<string, CustomerSafetyModeRecord> = new Map();
   private auditEvents: SafetyModeAuditEvent[] = [];
+
+  private seeding = false;
+
+  /**
+   * First boot publishes the seeded wallet state; afterwards the database wins,
+   * so an activated Safety Mode is still active after a restart instead of
+   * silently reverting to NORMAL.
+   */
+  async hydrate(): Promise<void> {
+    if (await safetyModeStore.isEmpty()) {
+      await safetyModeStore.upsertMany(Array.from(this.safetyModes.values()));
+      return;
+    }
+
+    const [records, events] = await Promise.all([
+      safetyModeStore.loadAll(),
+      safetyAuditStore.loadAll()
+    ]);
+
+    this.safetyModes.clear();
+    for (const r of records) this.safetyModes.set(r.wallet_id, r);
+    this.auditEvents = events;
+  }
+
+  private saveSafetyMode(record: CustomerSafetyModeRecord): CustomerSafetyModeRecord {
+    this.safetyModes.set(record.wallet_id, record);
+    if (!this.seeding) safetyModeStore.enqueueUpsert(record);
+    return record;
+  }
 
   private config: SafetyModePolicyConfig = {
     normal_pause_verify_threshold: 0.60,
@@ -48,12 +78,17 @@ export class CustomerSafetyModeService {
   };
 
   constructor() {
-    this.seedDefaultCustomerState();
+    this.seeding = true;
+    try {
+      this.seedDefaultCustomerState();
+    } finally {
+      this.seeding = false;
+    }
   }
 
   private seedDefaultCustomerState() {
     // Seed default demo wallet W-SYN-004512 in NORMAL state
-    this.safetyModes.set('W-SYN-004512', {
+    this.saveSafetyMode({
       wallet_id: 'W-SYN-004512',
       state: 'NORMAL',
       active_since: new Date().toISOString(),
@@ -102,7 +137,7 @@ export class CustomerSafetyModeService {
         step_up_method_required: 'PIN',
         is_expired: true
       };
-      this.safetyModes.set(walletId, record);
+      this.saveSafetyMode(record);
     }
 
     // Auto-Expiry check
@@ -118,6 +153,10 @@ export class CustomerSafetyModeService {
         record.is_expired = true;
         this.logAuditEvent(walletId, 'EXPIRY', 'PROTECTED', 'NORMAL', 'Auto-expired after configured duration', 'SYSTEM_TIMER');
       }
+
+      // Expiry is recomputed on every read, so this write is only to keep the
+      // stored row in step. It commits with the next mutating request.
+      this.saveSafetyMode(record);
     }
 
     return record;
@@ -159,7 +198,7 @@ export class CustomerSafetyModeService {
       is_expired: false
     };
 
-    this.safetyModes.set(walletId, record);
+    this.saveSafetyMode(record);
 
     await this.logAuditEvent(
       walletId,
@@ -195,6 +234,7 @@ export class CustomerSafetyModeService {
     record.duration_minutes += additionalMinutes;
     record.remaining_seconds = Math.max(0, Math.floor((newExpiry.getTime() - Date.now()) / 1000));
     record.is_expired = false;
+    this.saveSafetyMode(record);
 
     await this.logAuditEvent(
       walletId,
@@ -235,6 +275,7 @@ export class CustomerSafetyModeService {
     record.state = 'NORMAL';
     record.is_expired = true;
     record.remaining_seconds = 0;
+    this.saveSafetyMode(record);
 
     await this.logAuditEvent(
       walletId,
@@ -322,6 +363,7 @@ export class CustomerSafetyModeService {
     };
 
     this.auditEvents.push(event);
+    if (!this.seeding) safetyAuditStore.enqueueUpsert(event);
 
     await auditService.logAction(
       actor,
@@ -344,10 +386,22 @@ export class CustomerSafetyModeService {
   /**
    * Reset all safety modes to baseline (Demo Control)
    */
+  /**
+   * Demo reset. Clears durable state too, otherwise hydrate() would restore the
+   * records this is meant to discard on the next boot.
+   */
   resetAll() {
+    const walletIds = Array.from(this.safetyModes.keys());
     this.safetyModes.clear();
     this.auditEvents = [];
-    this.seedDefaultCustomerState();
+    for (const walletId of walletIds) safetyModeStore.enqueueDelete(walletId);
+    this.seeding = true;
+    try {
+      this.seedDefaultCustomerState();
+    } finally {
+      this.seeding = false;
+    }
+    for (const record of this.safetyModes.values()) safetyModeStore.enqueueUpsert(record);
   }
 }
 

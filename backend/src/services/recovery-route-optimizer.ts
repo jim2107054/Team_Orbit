@@ -12,13 +12,99 @@ import {
 import { recoveryTracer } from './recovery-tracer.js';
 import { scamKnowledgeGraph } from './scam-knowledge-graph.js';
 import { scamCampaignService } from './scam-campaign-service.js';
+import { recoveryPlanStore } from '../db/stores.js';
+import { persistence } from '../db/persistence.js';
+import { getDbPool } from '../db/client.js';
 
 export class RecoveryRouteOptimizerService {
   private activePlans: Map<string, RecoveryRoutePlan> = new Map();
   private caseTimelines: Map<string, RecoveryTimelineEvent[]> = new Map();
 
+  private seeding = false;
+
   constructor() {
-    this.seedDefaultScenarios();
+    this.seeding = true;
+    try {
+      this.seedDefaultScenarios();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * First boot publishes the seeded demo scenarios; afterwards stored plans win,
+   * so a recovery route an analyst has already worked through is not rebuilt
+   * from scratch with its completed actions discarded.
+   */
+  async hydrate(): Promise<void> {
+    if (await recoveryPlanStore.isEmpty()) {
+      await recoveryPlanStore.upsertMany(Array.from(this.activePlans.values()));
+      await this.persistAllTimelinesNow();
+      return;
+    }
+
+    const plans = await recoveryPlanStore.loadAll();
+    this.activePlans.clear();
+    for (const plan of plans) this.activePlans.set(plan.case_id, plan);
+
+    const res = await getDbPool().query(
+      'SELECT case_id, payload_json FROM recovery_timeline_events ORDER BY case_id, seq ASC'
+    );
+    this.caseTimelines.clear();
+    for (const row of res.rows) {
+      const caseId = String(row.case_id);
+      const event = (typeof row.payload_json === 'string'
+        ? JSON.parse(row.payload_json)
+        : row.payload_json) as RecoveryTimelineEvent;
+      const list = this.caseTimelines.get(caseId) ?? [];
+      list.push(event);
+      this.caseTimelines.set(caseId, list);
+    }
+  }
+
+  private savePlan(caseId: string, plan: RecoveryRoutePlan): RecoveryRoutePlan {
+    this.activePlans.set(caseId, plan);
+    if (!this.seeding) recoveryPlanStore.enqueueUpsert(plan);
+    return plan;
+  }
+
+  /**
+   * Timelines are replaced wholesale per case, so the durable write deletes the
+   * case's rows and reinserts them in order rather than trying to diff.
+   */
+  private saveTimeline(caseId: string, events: RecoveryTimelineEvent[]): void {
+    this.caseTimelines.set(caseId, events);
+    if (this.seeding) return;
+    persistence.enqueue(`recovery_timeline_events:replace:${caseId}`, () =>
+      this.writeTimeline(caseId, events)
+    );
+  }
+
+  private async writeTimeline(caseId: string, events: RecoveryTimelineEvent[]): Promise<void> {
+    const client = await getDbPool().connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM recovery_timeline_events WHERE case_id = $1', [caseId]);
+      for (const [index, event] of events.entries()) {
+        await client.query(
+          'INSERT INTO recovery_timeline_events (event_id, case_id, seq, payload_json) VALUES ($1, $2, $3, $4) ' +
+          'ON CONFLICT (event_id) DO UPDATE SET case_id = EXCLUDED.case_id, seq = EXCLUDED.seq, payload_json = EXCLUDED.payload_json',
+          [`${caseId}::${event.event_id}`, caseId, index, JSON.stringify(event)]
+        );
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  private async persistAllTimelinesNow(): Promise<void> {
+    for (const [caseId, events] of this.caseTimelines) {
+      await this.writeTimeline(caseId, events);
+    }
   }
 
   /**
@@ -239,7 +325,7 @@ export class RecoveryRouteOptimizerService {
       version: 1
     };
 
-    this.activePlans.set(caseId, plan);
+    this.savePlan(caseId, plan);
     this.buildTimelineForScenario(caseId, 'SCENARIO_A', amountBdt, recipientWallet);
     return plan;
   }
@@ -483,7 +569,7 @@ export class RecoveryRouteOptimizerService {
       version: 1
     };
 
-    this.activePlans.set(caseId, plan);
+    this.savePlan(caseId, plan);
     this.buildTimelineForScenario(caseId, 'SCENARIO_B', amountBdt, 'W-SYN-091177');
     return plan;
   }
@@ -677,7 +763,7 @@ export class RecoveryRouteOptimizerService {
       version: 1
     };
 
-    this.activePlans.set(caseId, plan);
+    this.savePlan(caseId, plan);
     this.buildTimelineForScenario(caseId, 'SCENARIO_C', amountBdt, 'W-SYN-091177');
     return plan;
   }
@@ -793,7 +879,7 @@ export class RecoveryRouteOptimizerService {
       version: 1
     };
 
-    this.activePlans.set(caseId, plan);
+    this.savePlan(caseId, plan);
     this.buildTimelineForScenario(caseId, 'SCENARIO_D', amountBdt, 'W-SYN-UNKNOWN');
     return plan;
   }
@@ -845,7 +931,7 @@ export class RecoveryRouteOptimizerService {
     this.recalculateStepPriorities(plan);
 
     plan.version += 1;
-    this.activePlans.set(caseId, plan);
+    this.savePlan(caseId, plan);
 
     // Add timeline event for investigator action
     const timeline = this.caseTimelines.get(caseId) || [];
@@ -862,7 +948,7 @@ export class RecoveryRouteOptimizerService {
       entity_type: actionStep.target_entity_type,
       evidence_id: actionStep.evidence_items[0]?.evidence_id || 'EVD-MANUAL'
     });
-    this.caseTimelines.set(caseId, timeline);
+    this.saveTimeline(caseId, timeline);
 
     return { success: true, plan };
   }
@@ -1184,7 +1270,7 @@ export class RecoveryRouteOptimizerService {
       });
     }
 
-    this.caseTimelines.set(caseId, events);
+    this.saveTimeline(caseId, events);
   }
 }
 

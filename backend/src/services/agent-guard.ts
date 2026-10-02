@@ -3,12 +3,44 @@ import {
   AgentLiquiditySignals, AgentFraudSignals, AgentPeerBenchmark 
 } from '../core/types.js';
 import { auditService } from './audit-service.js';
+import { agentProfileStore, agentActionStore } from '../db/stores.js';
 
 export class AgentGuardService {
   private agentProfiles: Map<string, AgentDualRiskProfile> = new Map();
 
+  private seeding = false;
+  private actionSeq = 0;
+
   constructor() {
-    this.seedDefaultAgentProfiles();
+    this.seeding = true;
+    try {
+      this.seedDefaultAgentProfiles();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /** First boot publishes the seeded profiles; afterwards the database wins. */
+  async hydrate(): Promise<void> {
+    if (await agentProfileStore.isEmpty()) {
+      await agentProfileStore.upsertMany(Array.from(this.agentProfiles.values()));
+      return;
+    }
+
+    const profiles = await agentProfileStore.loadAll();
+    this.agentProfiles.clear();
+    for (const p of profiles) this.agentProfiles.set(p.agent_id, p);
+  }
+
+  private saveProfile(profile: AgentDualRiskProfile): AgentDualRiskProfile {
+    this.agentProfiles.set(profile.agent_id, profile);
+    if (!this.seeding) agentProfileStore.enqueueUpsert(profile);
+    return profile;
+  }
+
+  private newActionId(): string {
+    this.actionSeq++;
+    return `ACT-AGT-${Date.now()}-${this.actionSeq}`;
   }
 
   // ================= 1. OPERATIONAL LIQUIDITY SCORE =================
@@ -173,12 +205,12 @@ export class AgentGuardService {
         recommended_actions: ['Maintain standard transaction logging'],
         last_evaluated_at: new Date().toISOString()
       };
-      this.agentProfiles.set(agentId, profile);
+      this.saveProfile(profile);
     }
 
     if (overrides) {
       profile = { ...profile, ...overrides, last_evaluated_at: new Date().toISOString() };
-      this.agentProfiles.set(agentId, profile);
+      this.saveProfile(profile);
     }
 
     return profile;
@@ -256,7 +288,18 @@ export class AgentGuardService {
     }
 
     profile.last_evaluated_at = new Date().toISOString();
-    this.agentProfiles.set(agentId, profile);
+    this.saveProfile(profile);
+
+    if (!this.seeding) {
+      agentActionStore.enqueueUpsert({
+        action_id: this.newActionId(),
+        agent_id: agentId,
+        action_type: actionType,
+        analyst_id: analystId,
+        details: { notes, classification: profile.classification },
+        timestamp: new Date().toISOString()
+      });
+    }
 
     auditService.logAction(analystId, `AGENT_ACTION_${actionType}`, agentId, { notes, classification: profile.classification }).catch(() => {});
 
@@ -331,7 +374,7 @@ export class AgentGuardService {
       ],
       last_evaluated_at: new Date().toISOString()
     };
-    this.agentProfiles.set(agentA.agent_id, agentA);
+    this.saveProfile(agentA);
 
     // -------------------------------------------------------------
     // Scenario 2: AGENT B — Complicit Mule Cash-Out Outlet
@@ -400,7 +443,7 @@ export class AgentGuardService {
       ],
       last_evaluated_at: new Date().toISOString()
     };
-    this.agentProfiles.set(agentB.agent_id, agentB);
+    this.saveProfile(agentB);
 
     // -------------------------------------------------------------
     // Scenario 3: AGENT C — Salary Day Liquidity Pressure
@@ -465,7 +508,7 @@ export class AgentGuardService {
       ],
       last_evaluated_at: new Date().toISOString()
     };
-    this.agentProfiles.set(agentC.agent_id, agentC);
+    this.saveProfile(agentC);
 
     // -------------------------------------------------------------
     // Scenario 4: AGENT D — Normal Neighborhood Retail Point
@@ -524,7 +567,7 @@ export class AgentGuardService {
       recommended_actions: ['Standard periodic audit'],
       last_evaluated_at: new Date().toISOString()
     };
-    this.agentProfiles.set(agentD.agent_id, agentD);
+    this.saveProfile(agentD);
   }
 }
 

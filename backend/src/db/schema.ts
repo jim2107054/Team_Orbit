@@ -244,4 +244,354 @@ CREATE INDEX IF NOT EXISTS idx_investigations_complaint ON incident_investigatio
 CREATE INDEX IF NOT EXISTS idx_investigations_reporter ON incident_investigations(reporter_wallet, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_investigations_matched_txn ON incident_investigations(matched_txn_id) WHERE matched_txn_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_txns_amount_ts ON transactions(amount_bdt, ts DESC);
+
+--------------------------------------------------------------------------------
+-- DURABLE DOMAIN STATE
+--
+-- These tables back the services that previously held all state in process
+-- memory. Each row keeps the full domain object in payload_json (JSONB) plus
+-- the scalar columns the API actually filters and sorts on. Services hydrate
+-- from these tables at boot and write through on every mutation, so a restart
+-- no longer reverts to the hardcoded seed objects.
+--------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS complaints (
+  complaint_id VARCHAR(64) PRIMARY KEY,
+  reporter_wallet VARCHAR(64),
+  reporter_phone VARCHAR(32),
+  classification VARCHAR(64) NOT NULL,
+  typology VARCHAR(64),
+  priority VARCHAR(8) NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  detected_language VARCHAR(16),
+  is_golden_hour BOOLEAN NOT NULL DEFAULT FALSE,
+  potential_loss_bdt DOUBLE PRECISION NOT NULL DEFAULT 0,
+  duplicate_group_id VARCHAR(64),
+  linked_txn_id VARCHAR(64),
+  linked_case_id VARCHAR(64),
+  linked_campaign_id VARCHAR(64),
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS complaint_duplicate_groups (
+  group_id VARCHAR(64) PRIMARY KEY,
+  primary_complaint_id VARCHAR(64) NOT NULL,
+  linked_campaign_id VARCHAR(64),
+  linked_ring_id VARCHAR(64),
+  total_exposure_bdt DOUBLE PRECISION NOT NULL DEFAULT 0,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS complaint_analyst_actions (
+  action_id VARCHAR(64) PRIMARY KEY,
+  complaint_id VARCHAR(64) NOT NULL,
+  action_type VARCHAR(48) NOT NULL,
+  analyst_id VARCHAR(64) NOT NULL,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS scam_campaigns (
+  campaign_id VARCHAR(64) PRIMARY KEY,
+  campaign_name VARCHAR(255) NOT NULL,
+  typology VARCHAR(64) NOT NULL,
+  lifecycle_status VARCHAR(32) NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  campaign_score DOUBLE PRECISION NOT NULL DEFAULT 0,
+  complaint_count INTEGER NOT NULL DEFAULT 0,
+  estimated_exposure_bdt DOUBLE PRECISION NOT NULL DEFAULT 0,
+  first_seen_ts TIMESTAMP WITH TIME ZONE,
+  latest_seen_ts TIMESTAMP WITH TIME ZONE,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS campaign_complaints (
+  complaint_id VARCHAR(64) PRIMARY KEY,
+  assigned_campaign_id VARCHAR(64),
+  sender_number VARCHAR(64),
+  target_wallet VARCHAR(64),
+  target_amount DOUBLE PRECISION,
+  source_channel VARCHAR(48),
+  is_manually_linked BOOLEAN NOT NULL DEFAULT FALSE,
+  is_unrelated BOOLEAN NOT NULL DEFAULT FALSE,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS campaign_analyst_actions (
+  action_id VARCHAR(64) PRIMARY KEY,
+  campaign_id VARCHAR(64) NOT NULL,
+  action_type VARCHAR(48) NOT NULL,
+  analyst_id VARCHAR(64) NOT NULL,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS agent_dual_profiles (
+  agent_id VARCHAR(64) PRIMARY KEY,
+  name VARCHAR(255),
+  division VARCHAR(64),
+  district_type VARCHAR(32),
+  size_tier VARCHAR(16),
+  classification VARCHAR(48) NOT NULL,
+  operational_pressure_score DOUBLE PRECISION NOT NULL DEFAULT 0,
+  fraud_risk_score DOUBLE PRECISION NOT NULL DEFAULT 0,
+  payload_json JSONB NOT NULL,
+  last_evaluated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS agent_analyst_actions (
+  action_id VARCHAR(64) PRIMARY KEY,
+  agent_id VARCHAR(64) NOT NULL,
+  action_type VARCHAR(48) NOT NULL,
+  analyst_id VARCHAR(64) NOT NULL,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS merchant_risk_profiles (
+  merchant_id VARCHAR(64) PRIMARY KEY,
+  qr_code_id VARCHAR(64),
+  name VARCHAR(255),
+  category VARCHAR(64),
+  division VARCHAR(64),
+  trust_badge VARCHAR(16) NOT NULL,
+  risk_score DOUBLE PRECISION NOT NULL DEFAULT 0,
+  is_suspicious_drain BOOLEAN NOT NULL DEFAULT FALSE,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS merchant_txn_history (
+  entry_id VARCHAR(80) PRIMARY KEY,
+  merchant_id VARCHAR(64) NOT NULL,
+  sender_wallet VARCHAR(64) NOT NULL,
+  amount_bdt DOUBLE PRECISION NOT NULL,
+  ts TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS customer_safety_modes (
+  wallet_id VARCHAR(64) PRIMARY KEY,
+  state VARCHAR(16) NOT NULL,
+  reason VARCHAR(48),
+  activation_source VARCHAR(48),
+  active_since TIMESTAMP WITH TIME ZONE,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  duration_minutes INTEGER NOT NULL DEFAULT 0,
+  payload_json JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS safety_mode_audit_events (
+  event_id VARCHAR(64) PRIMARY KEY,
+  wallet_id VARCHAR(64) NOT NULL,
+  event_type VARCHAR(32) NOT NULL,
+  previous_state VARCHAR(16),
+  new_state VARCHAR(16),
+  actor VARCHAR(64),
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS coach_sessions (
+  session_id VARCHAR(64) PRIMARY KEY,
+  txn_id VARCHAR(64),
+  wallet_id VARCHAR(64),
+  outcome VARCHAR(48),
+  risk_tier VARCHAR(16),
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS propagation_alerts (
+  alert_id VARCHAR(64) PRIMARY KEY,
+  campaign_id VARCHAR(64),
+  campaign_name VARCHAR(255),
+  cluster_status VARCHAR(32),
+  status VARCHAR(40) NOT NULL,
+  growth_rate DOUBLE PRECISION NOT NULL DEFAULT 0,
+  top_typology VARCHAR(64),
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS propagation_analyst_actions (
+  action_id VARCHAR(64) PRIMARY KEY,
+  alert_id VARCHAR(64) NOT NULL,
+  action_type VARCHAR(48) NOT NULL,
+  analyst_id VARCHAR(64) NOT NULL,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS propagation_false_clusters (
+  campaign_id VARCHAR(64) PRIMARY KEY,
+  marked_by VARCHAR(64),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS recovery_plans (
+  plan_id VARCHAR(80) PRIMARY KEY,
+  case_id VARCHAR(64),
+  victim_wallet VARCHAR(64),
+  status VARCHAR(40),
+  recoverable_bdt DOUBLE PRECISION NOT NULL DEFAULT 0,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS recovery_timeline_events (
+  event_id VARCHAR(80) PRIMARY KEY,
+  case_id VARCHAR(64) NOT NULL,
+  seq INTEGER NOT NULL DEFAULT 0,
+  payload_json JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS knowledge_graph_nodes (
+  node_id VARCHAR(80) PRIMARY KEY,
+  node_type VARCHAR(48) NOT NULL,
+  label VARCHAR(255),
+  payload_json JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS knowledge_graph_edges (
+  edge_id VARCHAR(120) PRIMARY KEY,
+  from_node_id VARCHAR(80) NOT NULL,
+  to_node_id VARCHAR(80) NOT NULL,
+  relation VARCHAR(64) NOT NULL,
+  payload_json JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+--------------------------------------------------------------------------------
+-- RETRIEVAL-AUGMENTED GENERATION (RAG) CORPUS
+--
+-- Embeddings are stored as a JSONB float array plus their dimension and source
+-- model, which keeps the store independent of any single embedding provider.
+-- Cosine similarity is computed in the retrieval service. For corpora of this
+-- size (hundreds to low thousands of chunks) that is sub-millisecond; pgvector
+-- with an HNSW index is the scale-up path if the corpus grows by orders of
+-- magnitude.
+--------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS rag_documents (
+  doc_id VARCHAR(96) PRIMARY KEY,
+  collection VARCHAR(48) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  source VARCHAR(255),
+  language VARCHAR(16) NOT NULL DEFAULT 'en',
+  typology VARCHAR(64),
+  content TEXT NOT NULL,
+  metadata_json JSONB NOT NULL DEFAULT '{}',
+  content_hash VARCHAR(64) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS rag_chunks (
+  chunk_id VARCHAR(128) PRIMARY KEY,
+  doc_id VARCHAR(96) NOT NULL,
+  collection VARCHAR(48) NOT NULL,
+  chunk_index INTEGER NOT NULL DEFAULT 0,
+  content TEXT NOT NULL,
+  token_estimate INTEGER NOT NULL DEFAULT 0,
+  embedding_json JSONB,
+  embedding_dim INTEGER,
+  embedding_model VARCHAR(96),
+  embedding_provider VARCHAR(32),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  FOREIGN KEY (doc_id) REFERENCES rag_documents(doc_id) ON DELETE CASCADE
+);
+
+--------------------------------------------------------------------------------
+-- LLM CALL OBSERVABILITY
+-- One row per model invocation: which provider actually served it, latency,
+-- token usage, whether the deterministic rule engine had to take over, and
+-- whether retrieved context was attached. This is what makes the hybrid
+-- LLM/rules behaviour auditable instead of invisible.
+--------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS llm_invocations (
+  invocation_id VARCHAR(80) PRIMARY KEY,
+  task VARCHAR(64) NOT NULL,
+  provider VARCHAR(32) NOT NULL,
+  model VARCHAR(96) NOT NULL,
+  status VARCHAR(24) NOT NULL,
+  fallback_used BOOLEAN NOT NULL DEFAULT FALSE,
+  fallback_reason VARCHAR(255),
+  rag_used BOOLEAN NOT NULL DEFAULT FALSE,
+  rag_chunk_count INTEGER NOT NULL DEFAULT 0,
+  latency_ms DOUBLE PRECISION NOT NULL DEFAULT 0,
+  input_tokens INTEGER NOT NULL DEFAULT 0,
+  output_tokens INTEGER NOT NULL DEFAULT 0,
+  target_id VARCHAR(80),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+--------------------------------------------------------------------------------
+-- INDEXES FOR THE DURABLE DOMAIN STATE, RAG CORPUS AND LLM OBSERVABILITY
+--------------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_complaints_created ON complaints(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_complaints_priority_status ON complaints(priority, status);
+CREATE INDEX IF NOT EXISTS idx_complaints_classification ON complaints(classification);
+CREATE INDEX IF NOT EXISTS idx_complaints_group ON complaints(duplicate_group_id) WHERE duplicate_group_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_complaints_reporter ON complaints(reporter_wallet, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_complaint_actions_complaint ON complaint_analyst_actions(complaint_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_campaigns_score ON scam_campaigns(campaign_score DESC);
+CREATE INDEX IF NOT EXISTS idx_campaigns_lifecycle ON scam_campaigns(lifecycle_status, latest_seen_ts DESC);
+CREATE INDEX IF NOT EXISTS idx_campaign_complaints_campaign ON campaign_complaints(assigned_campaign_id);
+CREATE INDEX IF NOT EXISTS idx_campaign_complaints_number ON campaign_complaints(sender_number);
+CREATE INDEX IF NOT EXISTS idx_campaign_actions_campaign ON campaign_analyst_actions(campaign_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_agent_profiles_class ON agent_dual_profiles(classification, fraud_risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_agent_profiles_division ON agent_dual_profiles(division, district_type);
+CREATE INDEX IF NOT EXISTS idx_agent_actions_agent ON agent_analyst_actions(agent_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_merchant_profiles_badge ON merchant_risk_profiles(trust_badge, risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_merchant_profiles_qr ON merchant_risk_profiles(qr_code_id);
+CREATE INDEX IF NOT EXISTS idx_merchant_history_merchant ON merchant_txn_history(merchant_id, ts DESC);
+
+CREATE INDEX IF NOT EXISTS idx_safety_modes_state ON customer_safety_modes(state, expires_at DESC);
+CREATE INDEX IF NOT EXISTS idx_safety_audit_wallet ON safety_mode_audit_events(wallet_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_coach_sessions_wallet ON coach_sessions(wallet_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_coach_sessions_txn ON coach_sessions(txn_id);
+
+CREATE INDEX IF NOT EXISTS idx_propagation_alerts_status ON propagation_alerts(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_propagation_alerts_campaign ON propagation_alerts(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_propagation_actions_alert ON propagation_analyst_actions(alert_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_recovery_plans_case ON recovery_plans(case_id);
+CREATE INDEX IF NOT EXISTS idx_recovery_timeline_case ON recovery_timeline_events(case_id, seq ASC);
+
+CREATE INDEX IF NOT EXISTS idx_kg_nodes_type ON knowledge_graph_nodes(node_type);
+CREATE INDEX IF NOT EXISTS idx_kg_edges_from ON knowledge_graph_edges(from_node_id);
+CREATE INDEX IF NOT EXISTS idx_kg_edges_to ON knowledge_graph_edges(to_node_id);
+CREATE INDEX IF NOT EXISTS idx_kg_edges_relation ON knowledge_graph_edges(relation);
+
+CREATE INDEX IF NOT EXISTS idx_rag_docs_collection ON rag_documents(collection, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_rag_docs_hash ON rag_documents(content_hash);
+CREATE INDEX IF NOT EXISTS idx_rag_docs_typology ON rag_documents(typology) WHERE typology IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_doc ON rag_chunks(doc_id, chunk_index ASC);
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_collection ON rag_chunks(collection);
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_model ON rag_chunks(embedding_model, embedding_dim);
+
+CREATE INDEX IF NOT EXISTS idx_llm_invocations_task ON llm_invocations(task, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_llm_invocations_created ON llm_invocations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_llm_invocations_provider ON llm_invocations(provider, status);
 `;

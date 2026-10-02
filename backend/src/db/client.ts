@@ -72,10 +72,34 @@ export async function initDatabase(): Promise<void> {
   const client = await db.connect();
   try {
     for (const statement of statements) {
-      await client.query(statement);
+      try {
+        await client.query(statement);
+      } catch (err: any) {
+        if (isConcurrentCreateRace(err)) {
+          // Two instances booting at once can both pass the IF NOT EXISTS check
+          // and race on the catalog insert. The object exists either way.
+          continue;
+        }
+        throw err;
+      }
     }
     console.log('Neon PostgreSQL tables and composite indexes initialized successfully.');
   } finally {
     client.release();
   }
+}
+
+/**
+ * CREATE TABLE/INDEX IF NOT EXISTS is not atomic: concurrent boots can both see
+ * the object missing and then collide on the system catalog. These codes mean
+ * "someone else just created it", which is the outcome we wanted anyway.
+ */
+function isConcurrentCreateRace(err: any): boolean {
+  const code = err?.code;
+  if (code === '42P07' || code === '42710') return true; // duplicate_table / duplicate_object
+  if (code === '23505') {
+    const detail = String(err?.detail || err?.message || '');
+    return detail.includes('pg_type') || detail.includes('pg_class') || detail.includes('pg_namespace');
+  }
+  return false;
 }

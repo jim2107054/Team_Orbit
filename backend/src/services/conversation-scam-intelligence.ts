@@ -5,6 +5,8 @@ import {
 } from '../core/types.js';
 import { TYPOLOGY_META, BANGLISH_NORMALIZATION_MAP } from '../core/constants.js';
 import { repository } from '../db/repository.js';
+import { analyzeConversationWithLlm, mergeWithRules } from './llm/scam-analysis.js';
+import { retrievalService } from './rag/retrieval-service.js';
 
 interface SignalDefinition {
   code: SignalCode;
@@ -791,11 +793,61 @@ export class ConversationScamIntelligenceService {
     // 6. Campaign & Graph Linking
     const campaignLinks = await this.linkEntitiesToGraph(entities);
 
-    // 7. Typology Classification & Escalation Profiling
-    const { typology, typology_name, escalation_level, scam_probability } = this.classifyTypology(signals, rawConversation);
+    // 7. Typology Classification & Escalation Profiling (deterministic rules)
+    const rulesVerdict = this.classifyTypology(signals, rawConversation);
+
+    // 7b. Model-based analysis, grounded in the retrieved typology corpus.
+    //
+    // The rules above remain the floor. This step catches paraphrased and
+    // code-switched scripts that no fixed pattern matches, and `mergeWithRules`
+    // only ever raises risk — a model (or text that manipulated it) cannot talk
+    // the verdict down below what the rules established.
+    const retrieved = await retrievalService.retrieve(rawConversation, {
+      collections: ['scam_typology', 'customer_advisory'],
+      topK: 4
+    });
+
+    const llmOutcome = await analyzeConversationWithLlm(rawConversation, retrieved);
+
+    const merged = mergeWithRules(
+      {
+        scam_probability: rulesVerdict.scam_probability,
+        escalation_level: rulesVerdict.escalation_level,
+        typology: rulesVerdict.typology,
+        hasSignals: signals.length > 0
+      },
+      llmOutcome.analysis
+    );
+
+    const typology = merged.typology;
+    const escalation_level = merged.escalation_level;
+    const scam_probability = merged.scam_probability;
+    const typology_name =
+      typology === rulesVerdict.typology
+        ? rulesVerdict.typology_name
+        : this.getTypologyName(typology);
 
     // 8. Build Customer Recommendations
     const recommended_action = this.buildCustomerRecommendations(signals, typology, escalation_level, false);
+
+    // Model-authored reasoning and advice are added alongside the template
+    // output and labelled, never silently substituted for it.
+    if (merged.llm_used) {
+      if (merged.llm_advice_en?.length) {
+        recommended_action.what_to_do_en = Array.from(
+          new Set([...recommended_action.what_to_do_en, ...merged.llm_advice_en])
+        );
+      }
+      if (merged.llm_advice_bn?.length) {
+        recommended_action.what_to_do_bn = Array.from(
+          new Set([...recommended_action.what_to_do_bn, ...merged.llm_advice_bn])
+        );
+      }
+      if (merged.llm_reasoning_en) {
+        recommended_action.analyst_brief =
+          `${recommended_action.analyst_brief}\n\n[Model assessment] ${merged.llm_reasoning_en}`;
+      }
+    }
 
     const evidenceSpans = signals.map(s => s.evidence_span).filter(Boolean);
 
@@ -829,8 +881,46 @@ export class ConversationScamIntelligenceService {
       recommended_action,
       detected_language: detectedLang,
       is_injection_attempt: false,
-      normalized_turns: turns
+      normalized_turns: turns,
+      analysis_provenance: {
+        rules_scam_probability: Number(rulesVerdict.scam_probability.toFixed(4)),
+        rules_typology: rulesVerdict.typology,
+        rules_escalation_level: rulesVerdict.escalation_level,
+        rules_signal_count: signals.length,
+        llm_used: merged.llm_used,
+        llm_unavailable_reason: merged.llm_used ? undefined : llmOutcome.reason,
+        llm_provider: llmOutcome.meta?.provider,
+        llm_model: llmOutcome.meta?.model,
+        llm_latency_ms: llmOutcome.meta?.latencyMs,
+        llm_failover: llmOutcome.meta?.failover,
+        llm_manipulation_tactics: merged.llm_manipulation_tactics,
+        llm_reasoning_en: merged.llm_reasoning_en,
+        llm_reasoning_bn: merged.llm_reasoning_bn,
+        llm_flagged_credential_request: merged.llm_flagged_credential_request,
+        retrieved_context: retrieved.map(c => ({
+          doc_id: c.doc_id,
+          title: c.title,
+          collection: c.collection,
+          score: c.score
+        }))
+      }
     };
+  }
+
+  /** Human-readable name for a typology the model selected. */
+  private getTypologyName(typology: string): string {
+    const names: Record<string, string> = {
+      SCAM_CALL_CUSTOMER_CARE: 'Fake Customer Care Impersonation',
+      SCAM_CALL_SIM_BLOCK: 'SIM Block / Replacement Threat',
+      SCAM_CALL_ACCOUNT_VERIFY: 'Account Verification Deposit Scam',
+      SCAM_CALL_RELATIVE_EMERGENCY: 'Relative Emergency Impersonation',
+      SCAM_CALL_REFUND: 'Wrong-Number Refund Trick',
+      SCAM_CALL_PRIZE: 'Prize / Lottery Advance Fee',
+      SCAM_CALL_INVESTMENT: 'Fake Investment Scheme',
+      SCAM_CALL_TASK: 'Online Task Commission Scam',
+      SCAM_CALL_LEGAL_THREAT: 'Police / Legal Coercion'
+    };
+    return names[typology] ?? typology;
   }
 
   /**

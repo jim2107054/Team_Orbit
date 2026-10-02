@@ -99,7 +99,7 @@ complaintsRouter.get('/complaints/:id', (req: Request, res: Response) => {
   }
 });
 
-complaintsRouter.post('/complaints/process', (req: Request, res: Response) => {
+complaintsRouter.post('/complaints/process', async (req: Request, res: Response) => {
   try {
     const { raw_text, reporter_wallet, reporter_phone, reporter_name, elapsed_minutes } = req.body;
     if (!raw_text || typeof raw_text !== 'string') {
@@ -118,10 +118,32 @@ complaintsRouter.post('/complaints/process', (req: Request, res: Response) => {
       elapsed_minutes: elapsed_minutes !== undefined ? Number(elapsed_minutes) : 15
     });
 
+    // Second pass: model triage grounded in the typology corpus, plus semantic
+    // near-duplicate search against previously indexed complaints.
+    const enrichment = await complaintActionIntelligenceService.enrichComplaint(complaint);
+
     return res.status(200).json({
       success: true,
-      message: `Complaint analyzed and classified as ${complaint.classification} (${complaint.priority} priority)`,
-      complaint
+      message: `Complaint analyzed and classified as ${enrichment.complaint.classification} (${enrichment.complaint.priority} priority)`,
+      complaint: enrichment.complaint,
+      intelligence: {
+        llm_used: enrichment.llm_used,
+        llm_unavailable_reason: enrichment.llm_unavailable_reason,
+        escalated_by_model: enrichment.escalated_by_model,
+        model_summary_en: enrichment.model_summary_en,
+        model_summary_bn: enrichment.model_summary_bn,
+        model_next_steps: enrichment.model_next_steps,
+        rules_classification: enrichment.rules_classification,
+        model_classification: enrichment.model_classification,
+        model_classification_confidence: enrichment.model_classification_confidence,
+        semantic_duplicates: enrichment.semantic_duplicates,
+        duplicate_threshold: enrichment.duplicate_threshold,
+        // False means the active embedder is lexical, so a complaint written in
+        // Bangla will not match the same scam reported in English.
+        cross_language_matching: enrichment.cross_language_matching,
+        indexed_for_retrieval: enrichment.indexed_for_retrieval,
+        retrieved_context: enrichment.retrieved_context
+      }
     });
   } catch (err: any) {
     return res.status(500).json({

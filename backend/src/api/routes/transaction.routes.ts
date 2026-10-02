@@ -98,9 +98,17 @@ transactionRouter.post('/score/transaction', async (req: Request, res: Response)
     }
 
     const generatedTxnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const txnStatus = evaluation.action_recommended === 'BLOCK' ? 'BLOCKED'
-      : evaluation.action_recommended === 'AUTO_HOLD' || evaluation.action_recommended === 'STEP_UP_CHALLENGE' ? 'HOLD_PENDING'
-      : 'SUCCESS';
+    // Map the policy decision onto the persisted transaction state. The previous
+    // mapping compared against 'BLOCK'/'AUTO_HOLD'/'STEP_UP_CHALLENGE', none of
+    // which exist in PolicyAction, so every transaction was stored as SUCCESS
+    // regardless of whether the engine had held or escalated it.
+    const txnStatus = evaluation.action_recommended === 'ESCALATE_RING'
+      ? 'BLOCKED'
+      : evaluation.action_recommended === 'HOLD_ASSIST'
+        || evaluation.action_recommended === 'QUEUE_ANALYST'
+        || evaluation.action_recommended === 'PAUSE_VERIFY'
+        ? 'PENDING'
+        : 'SUCCESS';
 
     await repository.insertTransaction({
       txn_id: generatedTxnId,
@@ -115,7 +123,10 @@ transactionRouter.post('/score/transaction', async (req: Request, res: Response)
       fee_bdt: txn.amount_bdt > 1000 ? 5 : 0,
       status: txnStatus,
       label_fraud: evaluation.risk_tier === 'T3',
-      typology_id: evaluation.reasons[0]?.code,
+      // The risk engine returns reason codes (RC01, …), not a scam typology, and
+      // the reason codes are already persisted on the alert case. Leave the
+      // typology unset rather than storing a reason code in a TypologyId field.
+      typology_id: undefined,
       created_at: txnTs
     });
 

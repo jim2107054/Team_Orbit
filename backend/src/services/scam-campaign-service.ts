@@ -5,14 +5,76 @@ import {
 } from '../core/types.js';
 import { auditService } from './audit-service.js';
 import { BANGLISH_NORMALIZATION_MAP } from '../core/constants.js';
+import { campaignStore, campaignComplaintStore, campaignActionStore } from '../db/stores.js';
+import { retrievalService, cosineSimilarity } from './rag/retrieval-service.js';
+import { llmService } from './llm/llm-service.js';
+import { envConfig } from '../core/env.js';
 
 export class ScamCampaignService {
   private campaigns: Map<string, ScamCampaign> = new Map();
   private complaints: Map<string, ScamComplaintRecord> = new Map();
   private analystActions: CampaignAnalystActionRecord[] = [];
 
+  /** See the note in ComplaintActionIntelligenceService: seeding is not a write. */
+  private seeding = false;
+  private actionSeq = 0;
+
   constructor() {
-    this.seedDefaultCampaigns();
+    this.seeding = true;
+    try {
+      this.seedDefaultCampaigns();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * First boot publishes the seeded baseline; afterwards the database wins so
+   * analyst lifecycle changes and note history survive a restart.
+   */
+  async hydrate(): Promise<void> {
+    if (await campaignStore.isEmpty()) {
+      await campaignStore.upsertMany(Array.from(this.campaigns.values()));
+      await campaignComplaintStore.upsertMany(Array.from(this.complaints.values()));
+      return;
+    }
+
+    const [campaigns, complaints, actions] = await Promise.all([
+      campaignStore.loadAll(),
+      campaignComplaintStore.loadAll(),
+      campaignActionStore.loadAll()
+    ]);
+
+    this.campaigns.clear();
+    for (const c of campaigns) this.campaigns.set(c.campaign_id, c);
+
+    this.complaints.clear();
+    for (const c of complaints) this.complaints.set(c.complaint_id, c);
+
+    this.analystActions = actions;
+  }
+
+  private saveCampaign(campaign: ScamCampaign): ScamCampaign {
+    this.campaigns.set(campaign.campaign_id, campaign);
+    if (!this.seeding) campaignStore.enqueueUpsert(campaign);
+    return campaign;
+  }
+
+  private saveCampaignComplaint(record: ScamComplaintRecord): ScamComplaintRecord {
+    this.complaints.set(record.complaint_id, record);
+    if (!this.seeding) campaignComplaintStore.enqueueUpsert(record);
+    return record;
+  }
+
+  private saveAnalystAction(action: CampaignAnalystActionRecord): void {
+    this.analystActions.push(action);
+    if (!this.seeding) campaignActionStore.enqueueUpsert(action);
+  }
+
+  /** Unique even within the same millisecond, since action_id is a primary key. */
+  private newActionId(): string {
+    this.actionSeq++;
+    return `ACT-CAMP-${Date.now()}-${this.actionSeq}`;
   }
 
   /**
@@ -153,6 +215,93 @@ export class ScamCampaignService {
   }
 
   /**
+   * Embedding-based similarity between two complaint texts.
+   *
+   * The token-overlap measure above cannot see that "bikash theke call",
+   * "উপায় হেড অফিস থেকে ফোন" and "someone called pretending to be customer
+   * care" describe one campaign, because they share almost no tokens across the
+   * three scripts. Embeddings compare meaning instead, which is the difference
+   * between correlating a coordinated wave and missing it.
+   *
+   * Falls back to the deterministic measure when embeddings are unavailable, so
+   * clustering degrades in quality rather than failing.
+   */
+  async computeSemanticSimilarityEmbedded(
+    textA: string,
+    textB: string
+  ): Promise<{ score: number; method: 'embedding' | 'token-overlap' }> {
+    if (!envConfig.RAG_ENABLED) {
+      return { score: this.computeSemanticSimilarity(textA, textB), method: 'token-overlap' };
+    }
+
+    const score = await retrievalService.similarity(textA, textB);
+    if (score > 0) {
+      return { score, method: 'embedding' };
+    }
+
+    return { score: this.computeSemanticSimilarity(textA, textB), method: 'token-overlap' };
+  }
+
+  /**
+   * Campaign score using embedding-based linguistic similarity. Used by the
+   * live discovery path; `calculateCampaignScore` remains the synchronous,
+   * deterministic version.
+   */
+  async calculateCampaignScoreSemantic(
+    complaints: ScamComplaintRecord[],
+    sharedWallets: string[],
+    sharedDevices: string[],
+    linkedRings: string[]
+  ): Promise<{ breakdown: CampaignScoreBreakdown; similarity_method: 'embedding' | 'token-overlap' }> {
+    if (complaints.length < 2) {
+      return {
+        breakdown: this.calculateCampaignScore(complaints, sharedWallets, sharedDevices, linkedRings),
+        similarity_method: 'token-overlap'
+      };
+    }
+
+    const sampleSize = Math.min(complaints.length, 10);
+    const texts = complaints.slice(0, sampleSize).map(c => c.complaint_text);
+
+    let method: 'embedding' | 'token-overlap' = 'token-overlap';
+    let average: number | undefined;
+
+    if (envConfig.RAG_ENABLED) {
+      try {
+        // One batched embedding call for the sample, then all pairwise cosines.
+        const { vectors } = await llmService.embed(texts);
+        if (vectors.length === texts.length && vectors[0]?.length) {
+          let total = 0;
+          let pairs = 0;
+          for (let i = 0; i < vectors.length; i++) {
+            for (let j = i + 1; j < vectors.length; j++) {
+              total += cosineSimilarity(vectors[i], vectors[j]);
+              pairs++;
+            }
+          }
+          if (pairs > 0) {
+            average = Number((total / pairs).toFixed(4));
+            method = 'embedding';
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[Campaigns] embedding similarity unavailable, using token overlap: ${err?.message || err}`);
+      }
+    }
+
+    return {
+      breakdown: this.calculateCampaignScore(
+        complaints,
+        sharedWallets,
+        sharedDevices,
+        linkedRings,
+        average
+      ),
+      similarity_method: method
+    };
+  }
+
+  /**
    * Calculate Multi-Factor Campaign Score (SRS §14.2)
    * Guaranteed: No single feature is proof.
    */
@@ -160,7 +309,14 @@ export class ScamCampaignService {
     complaints: ScamComplaintRecord[],
     sharedWallets: string[],
     sharedDevices: string[],
-    linkedRings: string[]
+    linkedRings: string[],
+    /**
+     * Pre-computed linguistic similarity. When omitted the token-overlap
+     * measure below is used. `calculateCampaignScoreSemantic` supplies an
+     * embedding-based value instead, which matches paraphrases and
+     * Bangla/Banglish/English retellings of one script that share no tokens.
+     */
+    precomputedLinguisticSimilarity?: number
   ): CampaignScoreBreakdown {
     if (complaints.length === 0) {
       return {
@@ -174,16 +330,21 @@ export class ScamCampaignService {
     }
 
     // 1. Linguistic similarity
-    let totalLingSim = 0;
-    let pairs = 0;
-    const sampleSize = Math.min(complaints.length, 10);
-    for (let i = 0; i < sampleSize; i++) {
-      for (let j = i + 1; j < sampleSize; j++) {
-        totalLingSim += this.computeSemanticSimilarity(complaints[i].complaint_text, complaints[j].complaint_text);
-        pairs++;
+    let avgLingSim: number;
+    if (precomputedLinguisticSimilarity !== undefined) {
+      avgLingSim = precomputedLinguisticSimilarity;
+    } else {
+      let totalLingSim = 0;
+      let pairs = 0;
+      const sampleSize = Math.min(complaints.length, 10);
+      for (let i = 0; i < sampleSize; i++) {
+        for (let j = i + 1; j < sampleSize; j++) {
+          totalLingSim += this.computeSemanticSimilarity(complaints[i].complaint_text, complaints[j].complaint_text);
+          pairs++;
+        }
       }
+      avgLingSim = pairs > 0 ? totalLingSim / pairs : 0.85;
     }
-    const avgLingSim = pairs > 0 ? totalLingSim / pairs : 0.85;
 
     // 2. Temporal synchrony (complaint timestamps within rolling 48h wave)
     const timestamps = complaints.map(c => new Date(c.timestamp).getTime()).sort((a, b) => a - b);
@@ -401,7 +562,7 @@ export class ScamCampaignService {
     );
 
     for (const c of camp1Complaints) {
-      this.complaints.set(c.complaint_id, c);
+      this.saveCampaignComplaint(c);
     }
 
     const wallets1 = ['W-SYN-091177', 'W-SYN-091178', 'W-SYN-091179', 'W-SYN-091180', 'W-SYN-091181', 'W-SYN-091182', 'W-SYN-091183', 'W-SYN-091184'];
@@ -459,7 +620,7 @@ export class ScamCampaignService {
       status: 'INVESTIGATING'
     };
 
-    this.campaigns.set(camp1.campaign_id, camp1);
+    this.saveCampaign(camp1);
 
     // Campaign 2: Emergency Relative Hospital Scam (CAMP-2026-002)
     const camp2: ScamCampaign = {
@@ -509,7 +670,7 @@ export class ScamCampaignService {
       status: 'INVESTIGATING'
     };
 
-    this.campaigns.set(camp2.campaign_id, camp2);
+    this.saveCampaign(camp2);
   }
 
   /**
@@ -600,9 +761,8 @@ export class ScamCampaignService {
     const campaign = this.campaigns.get(campaignId);
     if (!campaign) return undefined;
 
-    const actionId = `ACT-${Date.now().toString().slice(-6)}`;
     const actionRecord: CampaignAnalystActionRecord = {
-      action_id: actionId,
+      action_id: this.newActionId(),
       campaign_id: campaignId,
       action_type: actionType,
       analyst_id: analystId,
@@ -610,7 +770,7 @@ export class ScamCampaignService {
       timestamp: new Date().toISOString()
     };
 
-    this.analystActions.push(actionRecord);
+    this.saveAnalystAction(actionRecord);
 
     if (actionType === 'ADD_NOTE' && details.note) {
       campaign.analyst_notes.unshift({
@@ -631,8 +791,12 @@ export class ScamCampaignService {
         cmp.is_unrelated = true;
         cmp.assigned_campaign_id = undefined;
         campaign.complaint_count = Math.max(0, campaign.complaint_count - 1);
+        this.saveCampaignComplaint(cmp);
       }
     }
+
+    // The campaign object was mutated in place above; persist the new state.
+    this.saveCampaign(campaign);
 
     // Log to Cryptographic Hash Chain Audit Ledger
     await auditService.logAction(

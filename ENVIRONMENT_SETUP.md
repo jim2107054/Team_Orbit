@@ -28,6 +28,68 @@ All backend variables remain strictly on the server and are NEVER exposed to cli
 | `NODE_ENV` | Optional | Public | `development` | `backend/src/core/env.ts` | `development`, `production`, or `test` |
 | `FRONTEND_URL` | Optional | Public | `http://localhost:3000` | `backend/src/server.ts` (CORS) | Client origin allowed for cross-origin requests |
 | `INVESTIGATION_MATCHING_WEIGHTS` | Optional | Public | `{"AMOUNT_MATCH":0.30,"TIME_MATCH":0.12}` | `backend/src/core/constants/investigation-policy.ts` | JSON override for complaint-to-transaction matching weights. Unknown keys and non-numeric values are ignored; invalid JSON falls back to the documented defaults without failing boot. Lets calibrated weights replace the heuristic priors without a code change. |
+| `PERSISTENCE_ENABLED` | Optional | Public | `true` | `backend/src/db/persistence.ts` | Write-through persistence for the domain services. Defaults to on everywhere except `NODE_ENV=test`, where it is off so the suites stay in-memory and never write fixtures into the shared database. |
+
+---
+
+## 2a. Language Model Variables (`backend/.env`)
+
+The platform runs **without any of these**. With no key the deterministic rule
+engines serve every endpoint on their own, and each response reports which path
+produced it. Setting a key turns on the model layer.
+
+**Provider chain.** Every provider that has a key joins a chain: `LLM_PROVIDER`
+is tried first, the others follow in order. A call that errors, hits quota (429),
+is overloaded (503), times out, or returns unusable JSON moves to the next
+provider *before* the request falls back to rules. A provider that just returned
+429/503 is skipped for a short cooldown (60s / 15s) so it does not cost every
+request a doomed attempt. All of it is bounded by `LLM_TOTAL_BUDGET_MS`.
+
+| Variable | Required / Optional | Public / Secret | Default | Description |
+|---|---|---|---|---|
+| `LLM_PROVIDER` | Optional | Public | *(first key found)* | The **primary** provider: `anthropic`, `gemini` or `openai`. Other providers with keys become failovers. If the named provider has no key, the loader warns and uses one that does. |
+| `ANTHROPIC_API_KEY` | Optional | **SECRET** | — | Enables Claude. Anthropic has no embeddings endpoint. |
+| `GEMINI_API_KEY` | Optional | **SECRET** | — | Enables Gemini for chat and embeddings. |
+| `OPENAI_API_KEY` | Optional | **SECRET** | — | Enables OpenAI for chat (and embeddings, though see the note below). |
+| `GEMINI_MODEL` | Optional | Public | `gemini-3.5-flash` | Newest Flash model that answered reliably on a free-tier key when probed; `gemini-3.7/3.8-flash` returned 503 or hung, and the Pro models are not free-tier. |
+| `OPENAI_MODEL` | Optional | Public | `gpt-4o-mini` | Set to `gpt-5.6-luna` in the sample `.env`. GPT-5/6 and o-series are reasoning models; the adapter sends `max_completion_tokens` and `reasoning_effort: low` and omits `temperature`, which they reject. |
+| `ANTHROPIC_MODEL` | Optional | Public | `claude-sonnet-5` | |
+| `LLM_MODEL` | Optional | Public | — | Overrides the model of the **primary** provider only. Per-provider variables above win. |
+| `LLM_TIMEOUT_MS` | Optional | Public | `9000` | Per-attempt deadline. |
+| `LLM_TOTAL_BUDGET_MS` | Optional | Public | `11000` | Ceiling on the whole chain for one call. The web client gives up at 15s; embedding and database writes share that window. |
+| `LLM_MAX_RETRIES` | Optional | Public | `1` | Retries on timeout / 429 / 5xx, applied to the last provider in the chain only (earlier providers fail over instead). A malformed or schema-violating reply is never retried. |
+| `LLM_MAX_OUTPUT_TOKENS` | Optional | Public | `1600` | Output cap per call. Gemini and OpenAI reasoning models get extra headroom on top, because hidden "thinking" tokens are billed against the same cap. |
+| `LLM_ENABLED` | Optional | Public | `true` (`false` under `NODE_ENV=test`) | Master switch. Under Vitest it defaults off so the suites never make paid, networked calls even though `.env` keys are visible. |
+
+### Retrieval / RAG variables
+
+| Variable | Required / Optional | Public / Secret | Default | Description |
+|---|---|---|---|---|
+| `EMBEDDING_PROVIDER` | Optional | Public | *(auto)* | `gemini`, `openai` or `local`. **Use `gemini` for Bangla** — see the measurements below. A hosted provider named without a key downgrades to `local` with a warning. Changing it re-embeds the corpus and indexed complaints automatically at the next boot. |
+| `EMBEDDING_MODEL` | Optional | Public | per provider | Defaults: `gemini-embedding-001`, `text-embedding-3-small`, `local-hashing-v1`. |
+| `RAG_ENABLED` | Optional | Public | `true` (`false` under `NODE_ENV=test`) | Off means no retrieved context is attached to any prompt. |
+| `RAG_TOP_K` | Optional | Public | `5` | Chunks returned per query. |
+| `RAG_MIN_SCORE` | Optional | Public | `0.69` gemini / `0.25` others | Cosine floor below which a chunk is discarded. Per-provider because score distributions differ. |
+| `RAG_DUPLICATE_THRESHOLD` | Optional | Public | `0.82` gemini / `0.65` openai / `0.40` local | Near-duplicate cutoff for complaint clustering. |
+
+> **Which embedder, and why it matters.** Measured on the same incident reported
+> in Bangla, Banglish and English versus different incidents:
+>
+> | Embedder | Same incident (lowest) | Different incident (highest) | Cross-language duplicates |
+> |---|---|---|---|
+> | `gemini-embedding-001` | 0.894 | 0.738 | **Separable** (cutoff 0.82) |
+> | OpenAI `text-embedding-3-small` | 0.295 | 0.534 | Not separable |
+> | OpenAI `text-embedding-3-large` | 0.469 | 0.584 | Not separable |
+> | built-in `local` | ~0.19 | — | Not separable (lexical, one script only) |
+>
+> OpenAI's embedders place a Bangla report *below* an unrelated English complaint
+> that merely shares words like "sent taka", so no threshold recovers
+> cross-language matching. Chat and embeddings are configured independently:
+> OpenAI can serve chat while Gemini serves embeddings.
+> `cross_language_matching` in the complaint response reports which mode is live.
+>
+> The 0.69 retrieval floor was calibrated on a small sample (8 clear scam
+> queries, 1 subtle scam, 4 negatives). Re-measure if the corpus grows.
 
 ---
 

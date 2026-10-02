@@ -33,7 +33,9 @@ export interface AlertCase {
   action_recommended: PolicyAction;
   reasons: ReasonCodeDetail[];
   rule_trace: Array<{ rule: string; fired: boolean }>;
-  status: 'NEW' | 'UNDER_REVIEW' | 'CONFIRMED_FRAUD' | 'FALSE_POSITIVE' | 'RECOVERED' | 'CLOSED';
+  // 'OPEN' is what a reopened case becomes; both the reopen route and the
+  // analyst console already use it, it was just missing from this union.
+  status: 'NEW' | 'OPEN' | 'UNDER_REVIEW' | 'CONFIRMED_FRAUD' | 'FALSE_POSITIVE' | 'RECOVERED' | 'CLOSED';
   analyst_id?: string;
   analyst_notes?: string;
   copilot_brief?: CopilotBrief;

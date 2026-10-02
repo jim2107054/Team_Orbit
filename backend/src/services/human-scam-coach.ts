@@ -8,6 +8,7 @@ import {
   HumanCoachSafetyExplanation,
   HumanCoachCustomerChoice
 } from '../core/types.js';
+import { coachSessionStore } from '../db/stores.js';
 import { auditService } from './audit-service.js';
 
 export const CONTROLLED_QUESTION_LIBRARY: Record<HumanCoachQuestionId, HumanCoachQuestion> = {
@@ -137,6 +138,26 @@ export class HumanScamCoachService {
   private activeSessions: Map<string, HumanCoachSession> = new Map();
 
   /**
+   * Coaching sessions are created live, so there is no seed baseline to publish.
+   * Hydrating them back means an in-flight intervention survives a restart
+   * instead of the customer losing their place mid-dialog.
+   */
+  async hydrate(): Promise<void> {
+    const sessions = await coachSessionStore.loadAll(500);
+    for (const session of sessions) {
+      if (!this.activeSessions.has(session.session_id)) {
+        this.activeSessions.set(session.session_id, session);
+      }
+    }
+  }
+
+  private saveSession(session: HumanCoachSession): HumanCoachSession {
+    this.activeSessions.set(session.session_id, session);
+    coachSessionStore.enqueueUpsert(session);
+    return session;
+  }
+
+  /**
    * Evaluate whether to trigger Human Scam Coach and select 1–4 contextual questions
    */
   public evaluateIntervention(context: {
@@ -233,7 +254,7 @@ export class HumanScamCoachService {
       created_at: new Date().toISOString()
     };
 
-    this.activeSessions.set(sessionId, session);
+    this.saveSession(session);
 
     return {
       should_intervene: true,
@@ -292,7 +313,7 @@ export class HumanScamCoachService {
         },
         created_at: new Date().toISOString()
       };
-      this.activeSessions.set(sessionId, session);
+      this.saveSession(session);
     }
 
     // Record the answer
@@ -347,7 +368,7 @@ export class HumanScamCoachService {
       nextQuestion = session.selected_questions[session.current_question_index];
     }
 
-    this.activeSessions.set(sessionId, session);
+    this.saveSession(session);
 
     return {
       session,
@@ -377,7 +398,7 @@ export class HumanScamCoachService {
       session.status = 'COMPLETED';
     }
 
-    this.activeSessions.set(sessionId, session);
+    this.saveSession(session);
 
     // Audit log
     auditService.logAction(

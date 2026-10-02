@@ -55,10 +55,34 @@ campaignsRouter.get('/campaigns/:id', async (req: Request, res: Response) => {
 campaignsRouter.post('/campaigns/discover', async (req: Request, res: Response) => {
   try {
     const result = scamCampaignService.discoverCampaigns();
+
+    // Re-score each campaign's cohesion with embedding similarity, which sees
+    // paraphrased and code-switched retellings of one script that token overlap
+    // misses. The method actually used is reported per campaign.
+    const rescored = await Promise.all(
+      result.campaigns.map(async campaign => {
+        const complaints = scamCampaignService.getCampaignComplaints(campaign.campaign_id);
+        const { breakdown, similarity_method } = await scamCampaignService.calculateCampaignScoreSemantic(
+          complaints,
+          campaign.affected_wallets,
+          campaign.shared_devices,
+          campaign.linked_rings
+        );
+        return {
+          campaign_id: campaign.campaign_id,
+          campaign_name: campaign.campaign_name,
+          previous_score: campaign.campaign_score,
+          rescored_breakdown: breakdown,
+          similarity_method
+        };
+      })
+    );
+
     return res.status(200).json({
       success: true,
       message: 'Coordinated scam campaign discovery completed successfully',
-      ...result
+      ...result,
+      semantic_rescoring: rescored
     });
   } catch (err: any) {
     return res.status(500).json({

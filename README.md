@@ -77,9 +77,24 @@ graph TD
 - **Action Policies**: `ALLOW`, `WARN`, `PAUSE_VERIFY` (with cooling-off window), `HOLD_ASSIST`, and `BLOCK`.
 - Native **Bangla & English explanation generation** for both customer-facing banners and analyst consoles.
 
-### 2. Bangla Conversational Scam Intelligence (NLP)
+### 2. Bangla Conversational Scam Intelligence (hybrid rules + language model)
 - Real-time linguistic analysis detecting **authority impersonation, fake customer care, lottery/prize scams, emergency distress calls, and legal coercion**.
 - Named Entity Recognition (NER) for extracting suspicious mobile numbers, transaction references, and OTP requests.
+- **Two layers, not one.** A deterministic signal engine runs first and is the floor: it is offline, auditable and test-covered. A language model then re-reads the transcript to catch paraphrased and code-switched scripts that no fixed pattern matches.
+- **The merge is one-directional on risk.** The model can raise a score or escalation level but never lower it. A rule that fired on a literal OTP request is hard evidence, and a model that disagrees may be wrong or may have been steered by hostile text in the transcript — so a successful prompt injection cannot talk the system down to "safe".
+- **Provider-agnostic with failover.** Anthropic, Gemini and OpenAI adapters behind one interface. Every provider with a key joins an ordered chain: if the primary errors, hits quota, times out or returns unusable JSON, the next is tried before the request falls back to rules, all inside a fixed time budget. No vendor SDK is in the dependency tree; adapters use `fetch` and handle model-family quirks (GPT-5/6 reasoning-model parameters, Gemini thinking budget) themselves.
+- **Degrades instead of failing.** With no key, a bad key, a timeout, a malformed reply or a schema violation, the request still succeeds on the rule engine and the response says exactly why the model did not contribute. Every call is logged to `llm_invocations` with its provider, latency and fallback reason.
+
+### 2a. Retrieval-Augmented Generation (RAG)
+- A curated corpus of scam typologies, pre-vetted customer advisories and response/evidence policy, chunked, embedded and stored in Postgres. Retrieval is cosine similarity computed in process — sub-millisecond at this corpus size; pgvector is the scale-up path.
+- **Three uses:** grounding typology choice and customer advice so the model cannot invent guidance; semantic complaint→campaign clustering, which replaces token overlap that could not tell that one scam reported in Bangla, Banglish and English was the same campaign; and precedent retrieval for the analyst copilot.
+- **Indexed per language.** Each typology carries its Bangla, Banglish and English trigger phrases as separate chunks, because a Bangla-script query shares almost no surface form with English explanatory prose. This is what makes retrieval work in the language customers actually report in.
+- Ingestion is idempotent — unchanged documents embedded with the current model are skipped, and changing the embedding model invalidates the stored vectors, since embeddings from different models are not comparable.
+
+### 2b. Durable domain state
+- Every domain service writes through to Postgres and hydrates from it at boot. Analyst actions, triage changes, Safety Mode activations, campaign lifecycle transitions and coaching sessions survive a restart instead of reverting to the seeded demo objects.
+- A mutating request is not acknowledged until its write has committed, and the read cache is dropped on commit so a client cannot immediately read back a pre-write snapshot.
+- Demo baselines have stable ids and are published only on first boot, so seeding is idempotent and never overwrites real work.
 
 ### 3. Human Scam Coach & Customer Safety Mode
 - **Interactive, non-punitive intervention dialogs** explaining social engineering patterns in clear Bangla/English before funds leave the wallet.
@@ -280,9 +295,15 @@ All API responses follow a standardized JSON envelope:
 |---|---|---|
 | `GET` | `/health` | System liveness and environment check |
 | `GET` | `/health/db` | Database connection status and pool latency measurement |
+| `GET` | `/health/persistence` | Write-through persistence state, commit counters and durable row counts |
 | `POST` | `/v1/score/transaction` | Score contextual transaction risk with rule traces |
 | `POST` | `/v1/scamcheck` | Analyze voice/text conversations in Bangla/Banglish |
-| `GET` | `/v1/cases` | Retrieve analyst alert cases with risk tiers |
+| `GET` | `/v1/alerts` | Retrieve analyst alert cases with risk tiers |
+| `GET` | `/v1/intelligence/config` | Which model and embedding provider are actually live |
+| `GET` | `/v1/intelligence/rag/stats` | Retrieval corpus size and embedding coverage |
+| `POST` | `/v1/intelligence/rag/ingest` | Build or rebuild the embedded corpus (idempotent) |
+| `POST` | `/v1/intelligence/rag/search` | Run a retrieval query directly |
+| `GET` | `/v1/intelligence/llm/invocations` | Per-call model log: provider, latency, and whether it fell back to rules |
 | `POST` | `/v1/cases/:id/copilot` | Generate bilingual AI investigation brief |
 | `GET` | `/v1/cases/:id/recovery-route` | Generate optimized golden-hour fund recovery plan |
 | `GET` | `/v1/campaigns` | List discovered coordinated scam campaigns |

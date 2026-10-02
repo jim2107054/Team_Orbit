@@ -4,3 +4,4 @@ export { rateLimiter, apiRateLimiter, scoringRateLimiter, authRateLimiter } from
 export { responseCache, invalidateCache, getCacheStats, dashboardCache, listCache, heavyQueryCache } from './cache.js';
 export { apiCompression } from './compression.js';
 export { securityHeaders } from './security-headers.js';
+export { persistenceFlush } from './persistence-flush.js';

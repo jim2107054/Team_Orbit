@@ -5,14 +5,89 @@ import {
 } from '../core/types.js';
 import { BANGLISH_NORMALIZATION_MAP } from '../core/constants.js';
 import { auditService } from './audit-service.js';
+import { complaintStore, complaintGroupStore, complaintActionStore } from '../db/stores.js';
+import { analyzeComplaintWithLlm, mergeComplaintAnalysis } from './llm/complaint-analysis.js';
+import { retrievalService } from './rag/retrieval-service.js';
+import { ingestionService } from './rag/ingestion-service.js';
 
 export class ComplaintActionIntelligenceService {
   private complaints: Map<string, StructuredComplaint> = new Map();
   private duplicateGroups: Map<string, ComplaintDuplicateGroup> = new Map();
   private analystActions: ComplaintAnalystAction[] = [];
 
+  /**
+   * True while the constructor builds its demo baseline. Seeding is not an
+   * analyst action, so it must stay in memory: queueing it would re-publish a
+   * fresh set of randomly-numbered seed complaints on every single boot.
+   */
+  private seeding = false;
+
   constructor() {
-    this.seedDefaultComplaints();
+    this.seeding = true;
+    try {
+      this.seedDefaultComplaints();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * Load durable state at boot.
+   *
+   * First boot (empty tables): the constructor's seed objects are written out
+   * and become the durable baseline. Afterwards the database is authoritative —
+   * the in-memory seeds are discarded so analyst edits and deletions survive a
+   * restart instead of being overwritten by the hardcoded defaults.
+   */
+  async hydrate(): Promise<void> {
+    if (await complaintStore.isEmpty()) {
+      await complaintStore.upsertMany(Array.from(this.complaints.values()));
+      await complaintGroupStore.upsertMany(Array.from(this.duplicateGroups.values()));
+      return;
+    }
+
+    const [complaints, groups, actions] = await Promise.all([
+      complaintStore.loadAll(),
+      complaintGroupStore.loadAll(),
+      complaintActionStore.loadAll()
+    ]);
+
+    this.complaints.clear();
+    for (const c of complaints) this.complaints.set(c.complaint_id, c);
+
+    this.duplicateGroups.clear();
+    for (const g of groups) this.duplicateGroups.set(g.group_id, g);
+
+    this.analystActions = actions;
+  }
+
+  /** Update memory and queue the durable write for this request's flush. */
+  private saveComplaint(record: StructuredComplaint): StructuredComplaint {
+    this.complaints.set(record.complaint_id, record);
+    if (!this.seeding) complaintStore.enqueueUpsert(record);
+    return record;
+  }
+
+  private saveDuplicateGroup(group: ComplaintDuplicateGroup): ComplaintDuplicateGroup {
+    this.duplicateGroups.set(group.group_id, group);
+    if (!this.seeding) complaintGroupStore.enqueueUpsert(group);
+    return group;
+  }
+
+  private saveAnalystAction(action: ComplaintAnalystAction): void {
+    this.analystActions.push(action);
+    if (!this.seeding) complaintActionStore.enqueueUpsert(action);
+  }
+
+  /**
+   * Action ids are primary keys now, so a bare Date.now() is not enough: two
+   * actions inside the same millisecond would collide and the second would
+   * upsert over the first.
+   */
+  private actionSeq = 0;
+  private newActionId(kind: string): string {
+    this.actionSeq++;
+    return `ACT-${kind}-${Date.now()}-${this.actionSeq}`;
   }
 
   // ================= 1. LANGUAGE DETECTION & NORMALIZATION =================
@@ -569,8 +644,15 @@ export class ComplaintActionIntelligenceService {
     reporter_name?: string;
     elapsed_minutes?: number;
     custom_created_at?: string;
+    /**
+     * Caller-supplied id. The demo baseline passes stable ids so that seeding is
+     * idempotent: without it every boot minted new random ids and republished a
+     * fresh set of seed complaints instead of reusing the existing five.
+     */
+    complaint_id?: string;
   }): StructuredComplaint {
-    const complaintId = `CMP-SYN-${Math.floor(100000 + Math.random() * 900000)}`;
+    const complaintId = params.complaint_id
+      || `CMP-SYN-${Math.floor(100000 + Math.random() * 900000)}`;
     const detected_language = this.detectLanguage(params.raw_text);
     const normalized_text = this.normalizeText(params.raw_text);
     const extracted_entities = this.extractEntities(params.raw_text);
@@ -640,7 +722,7 @@ export class ComplaintActionIntelligenceService {
       updated_at: new Date().toISOString()
     };
 
-    this.complaints.set(complaintId, record);
+    this.saveComplaint(record);
 
     // Update or create duplicate group
     if (duplicate_group_id) {
@@ -667,7 +749,7 @@ export class ComplaintActionIntelligenceService {
           grp.total_exposure_bdt += potential_loss_bdt;
         }
       }
-      this.duplicateGroups.set(duplicate_group_id, grp);
+      this.saveDuplicateGroup(grp);
     }
 
     auditService.logAction(
@@ -678,6 +760,116 @@ export class ComplaintActionIntelligenceService {
     );
 
     return record;
+  }
+
+  /**
+   * Second pass over a freshly processed complaint: model triage, semantic
+   * near-duplicate search, and indexing into the retrieval corpus.
+   *
+   * Kept separate from `processComplaint` so that the synchronous pipeline stays
+   * synchronous and fully deterministic. The route awaits this, so the API
+   * response already carries the enriched result; if the model or the corpus is
+   * unavailable the complaint keeps its rule-derived classification and the
+   * response says why.
+   */
+  async enrichComplaint(complaint: StructuredComplaint): Promise<{
+    complaint: StructuredComplaint;
+    llm_used: boolean;
+    llm_unavailable_reason?: string;
+    escalated_by_model: boolean;
+    model_summary_en?: string;
+    model_summary_bn?: string;
+    model_next_steps?: string[];
+    model_classification?: string;
+    model_classification_confidence?: number;
+    rules_classification: string;
+    semantic_duplicates: Array<{ complaint_id: string; score: number }>;
+    duplicate_threshold: number;
+    cross_language_matching: boolean;
+    indexed_for_retrieval: boolean;
+    retrieved_context: Array<{ doc_id: string; title: string; score: number }>;
+  }> {
+    const rulesClassification = complaint.classification;
+    const rulesPriority = complaint.priority;
+
+    // Ground the triage in the typology corpus.
+    const retrieved = await retrievalService.retrieve(complaint.raw_text, {
+      collections: ['scam_typology', 'customer_advisory'],
+      topK: 3
+    });
+
+    const outcome = await analyzeComplaintWithLlm(complaint.raw_text, retrieved, complaint.complaint_id);
+    const merged = mergeComplaintAnalysis(
+      { classification: rulesClassification, priority: rulesPriority },
+      outcome.analysis
+    );
+
+    complaint.classification = merged.classification as StructuredComplaint['classification'];
+    complaint.priority = merged.priority;
+    if (merged.escalated_by_model && outcome.analysis) {
+      complaint.priority_reason =
+        `${complaint.priority_reason} | Escalated by model triage: ${outcome.analysis.priority_rationale}`;
+    }
+
+    // Find prior complaints describing the same scam. This is the part token
+    // overlap could not do: the same script reported in Bangla, Banglish and
+    // English shares almost no tokens, so lexical dedup missed coordinated
+    // waves that embeddings group together.
+    const similar = await retrievalService.retrieve(complaint.raw_text, {
+      collections: ['complaint_history'],
+      topK: 5,
+      excludeDocIds: [this.retrievalDocId(complaint.complaint_id)]
+    });
+
+    const threshold = retrievalService.nearDuplicateThreshold();
+    const semantic_duplicates = similar
+      .filter(s => s.score >= threshold)
+      .map(s => ({
+        complaint_id: s.doc_id.replace(/^CMP-DOC-/, ''),
+        score: s.score
+      }));
+
+    if (semantic_duplicates.length && !complaint.duplicate_group_id) {
+      complaint.duplicate_count = Math.max(complaint.duplicate_count, semantic_duplicates.length);
+      complaint.duplicate_similarity_score = semantic_duplicates[0].score;
+    }
+
+    complaint.updated_at = new Date().toISOString();
+    this.saveComplaint(complaint);
+
+    // Index this complaint so the next one can be matched against it.
+    const indexed = await ingestionService.upsertLiveDocument({
+      doc_id: this.retrievalDocId(complaint.complaint_id),
+      collection: 'complaint_history',
+      title: `Complaint ${complaint.complaint_id} (${complaint.classification})`,
+      content: complaint.raw_text,
+      source: 'customer complaint',
+      typology: String(complaint.typology)
+    });
+
+    return {
+      complaint,
+      llm_used: merged.llm_used,
+      llm_unavailable_reason: merged.llm_used ? undefined : outcome.reason,
+      escalated_by_model: merged.escalated_by_model,
+      model_summary_en: outcome.analysis?.summary_en,
+      model_summary_bn: outcome.analysis?.summary_bn,
+      model_next_steps: outcome.analysis?.recommended_next_steps,
+      // The model's category is shown even when the rules' category stands, so a
+      // disagreement between the two is visible to the analyst, not hidden.
+      model_classification: outcome.analysis?.classification,
+      model_classification_confidence: outcome.analysis?.classification_confidence,
+      rules_classification: rulesClassification,
+      semantic_duplicates,
+      duplicate_threshold: threshold,
+      cross_language_matching: retrievalService.crossLanguageCapable(),
+      indexed_for_retrieval: indexed,
+      retrieved_context: retrieved.map(c => ({ doc_id: c.doc_id, title: c.title, score: c.score }))
+    };
+  }
+
+  private retrievalDocId(complaintId: string): string {
+    return `CMP-DOC-${complaintId}`;
   }
 
   // ================= 8. DEMO: 5-COMPLAINT COORDINATED SCAM DISCOVERY =================
@@ -745,13 +937,16 @@ export class ComplaintActionIntelligenceService {
     let totalExposure = 0;
     let p1Count = 0;
 
-    for (const p of demoPayloads) {
+    for (const [index, p] of demoPayloads.entries()) {
       const cmp = this.processComplaint({
         raw_text: p.raw_text,
         reporter_name: p.reporter_name,
         reporter_phone: p.reporter_phone,
         reporter_wallet: p.reporter_wallet,
-        elapsed_minutes: p.elapsed_minutes
+        elapsed_minutes: p.elapsed_minutes,
+        // Stable ids keep this scenario idempotent across boots and across
+        // concurrent instances publishing the same baseline.
+        complaint_id: `CMP-DEMO-CARE-${index + 1}`
       });
       // Force group into coherent duplicate cluster for demo
       cmp.duplicate_group_id = demoGroupId;
@@ -764,7 +959,7 @@ export class ComplaintActionIntelligenceService {
 
       if (cmp.priority === 'P1') p1Count++;
       totalExposure += cmp.potential_loss_bdt;
-      this.complaints.set(cmp.complaint_id, cmp);
+      this.saveComplaint(cmp);
       generated.push(cmp);
     }
 
@@ -784,7 +979,7 @@ export class ComplaintActionIntelligenceService {
       created_at: new Date().toISOString()
     };
 
-    this.duplicateGroups.set(demoGroupId, duplicateGroup);
+    this.saveDuplicateGroup(duplicateGroup);
 
     auditService.logAction(
       'ANALYST-DEMO',
@@ -846,8 +1041,9 @@ export class ComplaintActionIntelligenceService {
     cmp.updated_at = new Date().toISOString();
     cmp.analyst_notes = notes ? `${cmp.analyst_notes ? cmp.analyst_notes + ' | ' : ''}${notes}` : cmp.analyst_notes;
 
-    this.analystActions.push({
-      action_id: `ACT-CMP-${Date.now()}`,
+    this.saveComplaint(cmp);
+    this.saveAnalystAction({
+      action_id: this.newActionId('CMP'),
       complaint_id: complaintId,
       action_type: 'OVERRIDE_LINK',
       analyst_id: analystId,
@@ -873,8 +1069,9 @@ export class ComplaintActionIntelligenceService {
     cmp.priority_reason = `Analyst Override (${analystId}): ${reason}`;
     cmp.updated_at = new Date().toISOString();
 
-    this.analystActions.push({
-      action_id: `ACT-PRIO-${Date.now()}`,
+    this.saveComplaint(cmp);
+    this.saveAnalystAction({
+      action_id: this.newActionId('PRIO'),
       complaint_id: complaintId,
       action_type: 'CHANGE_PRIORITY',
       analyst_id: analystId,
@@ -893,8 +1090,9 @@ export class ComplaintActionIntelligenceService {
     cmp.status = 'FROZEN_RECOVERY';
     cmp.updated_at = new Date().toISOString();
 
-    this.analystActions.push({
-      action_id: `ACT-HOLD-${Date.now()}`,
+    this.saveComplaint(cmp);
+    this.saveAnalystAction({
+      action_id: this.newActionId('HOLD'),
       complaint_id: complaintId,
       action_type: 'TRIGGER_EMERGENCY_HOLD',
       analyst_id: analystId,
@@ -918,8 +1116,9 @@ export class ComplaintActionIntelligenceService {
     cmp.customer_response_status = 'ADVISORY_SENT';
     cmp.updated_at = new Date().toISOString();
 
-    this.analystActions.push({
-      action_id: `ACT-ADV-${Date.now()}`,
+    this.saveComplaint(cmp);
+    this.saveAnalystAction({
+      action_id: this.newActionId('ADV'),
       complaint_id: complaintId,
       action_type: 'DISPATCH_ADVISORY',
       analyst_id: analystId,

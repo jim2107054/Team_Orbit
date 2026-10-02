@@ -130,4 +130,34 @@ export interface ConversationRiskProfile {
   detected_language: 'bn' | 'en' | 'banglish' | 'mixed';
   is_injection_attempt: boolean;
   normalized_turns?: ConversationTurn[];
+  /**
+   * Where each part of this verdict came from. Present so the UI and analysts
+   * can tell a deterministic rule hit from a model judgement, and can see when
+   * the model was unavailable and the rules ran alone.
+   */
+  analysis_provenance?: ConversationAnalysisProvenance;
+}
+
+export interface ConversationAnalysisProvenance {
+  rules_scam_probability: number;
+  rules_typology: TypologyId;
+  rules_escalation_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  rules_signal_count: number;
+  llm_used: boolean;
+  llm_unavailable_reason?: string;
+  llm_provider?: string;
+  llm_model?: string;
+  llm_latency_ms?: number;
+  /** Providers tried first that failed before the one that answered (or all of them). */
+  llm_failover?: Array<{ provider: string; model: string; reason: string }>;
+  llm_manipulation_tactics?: string[];
+  llm_reasoning_en?: string;
+  llm_reasoning_bn?: string;
+  llm_flagged_credential_request?: boolean;
+  retrieved_context?: Array<{
+    doc_id: string;
+    title: string;
+    collection: string;
+    score: number;
+  }>;
 }

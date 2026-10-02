@@ -3,6 +3,9 @@ import {
   ScamSpreadAlert, PropagationAnalystActionRecord 
 } from '../core/types.js';
 import { auditService } from './audit-service.js';
+import { propagationAlertStore, propagationActionStore } from '../db/stores.js';
+import { persistence } from '../db/persistence.js';
+import { getDbPool } from '../db/client.js';
 
 export class CommunityPropagationService {
   private alerts: Map<string, ScamSpreadAlert> = new Map();
@@ -10,8 +13,67 @@ export class CommunityPropagationService {
   private daySnapshots: DayPropagationSnapshot[] = [];
   private falseClusters: Set<string> = new Set();
 
+  private seeding = false;
+  private actionSeq = 0;
+
   constructor() {
-    this.seedPropagationData();
+    this.seeding = true;
+    try {
+      this.seedPropagationData();
+    } finally {
+      this.seeding = false;
+    }
+  }
+
+  /**
+   * First boot publishes the seeded alert; afterwards the database wins so
+   * analyst status transitions and false-cluster dismissals persist.
+   */
+  async hydrate(): Promise<void> {
+    if (await propagationAlertStore.isEmpty()) {
+      await propagationAlertStore.upsertMany(Array.from(this.alerts.values()));
+      return;
+    }
+
+    const [alerts, actions] = await Promise.all([
+      propagationAlertStore.loadAll(),
+      propagationActionStore.loadAll()
+    ]);
+
+    this.alerts.clear();
+    for (const a of alerts) this.alerts.set(a.alert_id, a);
+    this.analystActions = actions;
+
+    const res = await getDbPool().query('SELECT campaign_id FROM propagation_false_clusters');
+    this.falseClusters = new Set(res.rows.map(r => String(r.campaign_id)));
+  }
+
+  private saveAlert(alert: ScamSpreadAlert): ScamSpreadAlert {
+    this.alerts.set(alert.alert_id, alert);
+    if (!this.seeding) propagationAlertStore.enqueueUpsert(alert);
+    return alert;
+  }
+
+  private saveAnalystAction(action: PropagationAnalystActionRecord): void {
+    this.analystActions.push(action);
+    if (!this.seeding) propagationActionStore.enqueueUpsert(action);
+  }
+
+  /** Region ids dismissed as false clusters, kept out of future spread scoring. */
+  private markFalseCluster(regionId: string): void {
+    this.falseClusters.add(regionId);
+    if (this.seeding) return;
+    persistence.enqueue(`propagation_false_clusters:add:${regionId}`, async () => {
+      await getDbPool().query(
+        'INSERT INTO propagation_false_clusters (campaign_id, marked_by) VALUES ($1, $2) ON CONFLICT (campaign_id) DO NOTHING',
+        [regionId, 'ANALYST']
+      );
+    });
+  }
+
+  private newActionId(): string {
+    this.actionSeq++;
+    return `ACT-PROP-${Date.now()}-${this.actionSeq}`;
   }
 
   /**
@@ -517,7 +579,7 @@ export class CommunityPropagationService {
       updated_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString()
     };
 
-    this.alerts.set(alert1.alert_id, alert1);
+    this.saveAlert(alert1);
   }
 
   /**
@@ -649,7 +711,7 @@ export class CommunityPropagationService {
     }
 
     const actionRecord: PropagationAnalystActionRecord = {
-      action_id: `ACT-PROP-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      action_id: this.newActionId(),
       alert_id: alertId,
       action_type: actionType,
       analyst_id: analystId,
@@ -658,7 +720,7 @@ export class CommunityPropagationService {
       timestamp: new Date().toISOString()
     };
 
-    this.analystActions.push(actionRecord);
+    this.saveAnalystAction(actionRecord);
 
     // Apply state transitions
     switch (actionType) {
@@ -682,12 +744,13 @@ export class CommunityPropagationService {
         alert.status = 'DISMISSED_FALSE_CLUSTER';
         alert.cluster_status = 'FALSE_CLUSTER';
         alert.affected_regions.forEach(r => {
-          this.falseClusters.add(r);
+          this.markFalseCluster(r);
         });
         break;
     }
 
     alert.updated_at = new Date().toISOString();
+    this.saveAlert(alert);
 
     // Audit trail logging
     await auditService.logAction(

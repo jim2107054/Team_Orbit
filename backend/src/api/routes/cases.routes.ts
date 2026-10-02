@@ -5,6 +5,8 @@ import { recoveryTracer } from '../../services/recovery-tracer.js';
 import { auditService } from '../../services/audit-service.js';
 import { AlertCase } from '../../core/types.js';
 import { listCache, invalidateCache } from '../middleware/index.js';
+import { generateCopilotNarrative } from '../../services/llm/copilot-narrative.js';
+import { retrievalService } from '../../services/rag/retrieval-service.js';
 
 export const casesRouter = Router();
 
@@ -118,11 +120,46 @@ casesRouter.post('/cases/:id/copilot', async (req: Request, res: Response) => {
     const lang = (req.body.language === 'bn' ? 'bn' : 'en');
     const brief = copilotService.generateCaseBrief(c, lang);
 
+    // Model-written narrative alongside the deterministic brief, grounded in
+    // retrieved typology, policy and comparable past reports. Kept as a
+    // separate field so an analyst always sees which is which, and so the
+    // template brief is still there when the model is unavailable.
+    const query = [
+      `risk tier ${c.risk_tier}`,
+      c.action_recommended,
+      ...(c.reasons?.map(r => r.label_en) ?? []),
+      `amount ${c.amount_bdt} BDT`
+    ].join('. ');
+
+    const retrieved = await retrievalService.retrieve(query, {
+      collections: ['scam_typology', 'policy', 'complaint_history'],
+      topK: 4
+    });
+
+    const evidenceIds = copilotService.buildEvidenceIndex(c);
+    const narrativeOutcome = await generateCopilotNarrative(c, evidenceIds, retrieved);
+
     await repository.updateCase(c.case_id, { copilot_brief: brief });
     return res.status(200).json({
       success: true,
-      message: 'AI Copilot case brief generated successfully',
-      brief
+      message: narrativeOutcome.used
+        ? 'AI Copilot case brief generated with model narrative'
+        : 'AI Copilot case brief generated from deterministic templates',
+      brief,
+      model_narrative: narrativeOutcome.narrative,
+      provenance: {
+        llm_used: narrativeOutcome.used,
+        llm_unavailable_reason: narrativeOutcome.reason,
+        llm_provider: narrativeOutcome.meta?.provider,
+        llm_model: narrativeOutcome.meta?.model,
+        rejected_evidence_ids: narrativeOutcome.rejected_evidence_ids,
+        retrieved_context: retrieved.map(r => ({
+          doc_id: r.doc_id,
+          title: r.title,
+          collection: r.collection,
+          score: r.score
+        }))
+      }
     });
   } catch (err: any) {
     return res.status(500).json({

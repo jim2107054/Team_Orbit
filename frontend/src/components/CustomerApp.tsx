@@ -20,8 +20,9 @@ import {
 
 export const CustomerApp: React.FC = () => {
   const [activeScreen, setActiveScreen] = useState<
-    'send' | 'pause_verify' | 'scam_coach' | 'coach_summary' | 'hold_assist' | 'protected' | 'scam_check' | 'safety_mode'
+    'send' | 'pause_verify' | 'scam_coach' | 'coach_summary' | 'hold_assist' | 'protected' | 'scam_check' | 'safety_mode' | 'success_receipt'
   >('send');
+  const [helplineConnected, setHelplineConnected] = useState(false);
 
   const [senderWallet] = useState('W-SYN-004512');
   const [recipientNumber, setRecipientNumber] = useState('01399-991823');
@@ -243,7 +244,7 @@ export const CustomerApp: React.FC = () => {
       } else if (data.action === 'HOLD_ASSIST') {
         setActiveScreen('hold_assist');
       } else {
-        alert('Transaction Allowed Successfully! (No Scam Signals Detected)');
+        setActiveScreen('success_receipt');
       }
     } catch (err) {
       console.error(err);
@@ -833,8 +834,8 @@ export const CustomerApp: React.FC = () => {
 
                 <button
                   disabled={coolingTimer > 0}
-                  onClick={() => alert('Proceeded after cooling-off period.')}
-                  className="w-full py-2 rounded-[5px] bg-[#212B36] text-white font-nunito font-semibold text-xs border border-[#1B2850] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+                  onClick={() => setActiveScreen('success_receipt')}
+                  className="w-full py-2 rounded-[5px] bg-[#212B36] text-white font-nunito font-semibold text-xs border border-[#1B2850] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
                 >
                   {language === 'bn'
                     ? coolingTimer > 0
@@ -865,23 +866,63 @@ export const CustomerApp: React.FC = () => {
                       : 'For your protection, this transaction has been queued for security verification.'}
                   </p>
                 </div>
+
+                {helplineConnected && (
+                  <div className="p-3 bg-[#198754]/10 border border-[#198754]/30 text-xs font-nunito text-[#198754] text-center mb-3 animate-fadeIn">
+                    <CheckCircle2 className="w-4 h-4 mx-auto mb-1 text-[#198754]" />
+                    <span>{language === 'bn' ? '২৪/৭ সিকিউরিটি হেল্পলাইন ১৬২৬৮ এর সাথে কল সংযুক্ত হচ্ছে...' : 'Connecting to 24/7 Security Helpline 16268...'}</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2 mt-4">
                 <button
-                  onClick={() => alert('Connecting to 24/7 Security Helpline 16268...')}
-                  className="w-full dream-btn-primary py-2.5 text-xs flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setHelplineConnected(true);
+                    setTimeout(() => setHelplineConnected(false), 5000);
+                  }}
+                  className="w-full dream-btn-primary py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>{language === 'bn' ? 'সাপোর্টে কথা বলুন (১৬২৬৮)' : 'Call Support (16268)'}</span>
                 </button>
                 <button
                   onClick={() => setActiveScreen('send')}
-                  className="w-full dream-btn-outline py-2 text-xs font-nunito font-semibold"
+                  className="w-full dream-btn-outline py-2 text-xs font-nunito font-semibold cursor-pointer"
                 >
                   {language === 'bn' ? 'মূল স্ক্রিনে ফিরে যান' : 'Back to Home'}
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* SCREEN 3.5: SUCCESS RECEIPT */}
+          {activeScreen === 'success_receipt' && (
+            <div className="flex-1 flex flex-col justify-between py-2 animate-fadeIn">
+              <div>
+                <div className="p-4 rounded-none bg-[#198754]/10 border border-[#198754]/30 text-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-[#198754]/20 text-[#198754] mx-auto flex items-center justify-center mb-2">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-poppins font-bold text-sm text-[#198754] font-bangla">
+                    {language === 'bn' ? 'লেনদেন সফলভাবে সম্পন্ন হয়েছে' : 'Transfer Successfully Completed'}
+                  </h3>
+                  <p className="text-xs font-nunito text-[#212529] mt-1 font-bold">
+                    ৳{parseFloat(amount || '0').toLocaleString()} ➔ {recipientNumber}
+                  </p>
+                  <span className="text-[10px] font-mono text-[#646B72] block mt-1">
+                    TXN-{Date.now().toString().slice(-8)} · Clean MFS Ledger
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setActiveScreen('send')}
+                className="w-full dream-btn-primary py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>{language === 'bn' ? 'নতুন লেনদেন করুন' : 'Make Another Transfer'}</span>
+              </button>
             </div>
           )}
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Search, Plus, Shield, Bell, Mail, Maximize, 
   Settings, ChevronDown, ChevronLeft, ChevronRight, Radio, PhoneCall
@@ -16,10 +17,19 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
   onToggleSidebar,
   isSidebarCollapsed = false,
 }) => {
+  const router = useRouter();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hubOpen, setHubOpen] = useState(false);
   const [activeHub, setActiveHub] = useState('Dhaka Central Hub');
   const [lang, setLang] = useState<'bn' | 'en'>('bn');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/investigations`);
+    }
+  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -55,7 +65,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         {/* Sidebar Collapse Button */}
         <button
           onClick={onToggleSidebar}
-          className="w-6 h-6 rounded-full bg-[#FF9F43] hover:bg-[#f08e2f] text-white flex items-center justify-center transition-transform shadow-sm ml-1"
+          className="w-6 h-6 rounded-full bg-[#FF9F43] hover:bg-[#f08e2f] text-white flex items-center justify-center transition-transform shadow-sm ml-1 cursor-pointer"
           title="Toggle Navigation"
         >
           {isSidebarCollapsed ? (
@@ -66,17 +76,19 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         </button>
 
         {/* Global Search Bar (Wallet, Phone, Txn ID ... ⌘K) */}
-        <div className="hidden md:flex items-center relative ml-2">
+        <form onSubmit={handleSearch} className="hidden md:flex items-center relative ml-2">
           <Search className="w-4 h-4 text-[#A0AEC0] absolute left-3.5" />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search Wallet, Phone (013...), Txn ID..."
             className="pl-9 pr-10 py-1.5 w-[240px] lg:w-[300px] bg-[#F7F7F7] border border-[#E8EBED] rounded-[6px] text-xs font-nunito text-[#212B36] placeholder-[#A0AEC0] focus:outline-none focus:border-[#FF9F43] focus:bg-[#FFFFFF] transition-all"
           />
-          <span className="absolute right-2.5 px-1.5 py-0.5 rounded-[4px] bg-[#E2E8F0] text-[10px] font-mono text-[#646B72] font-semibold">
-            ⌘K
-          </span>
-        </div>
+          <button type="submit" className="absolute right-2 px-1.5 py-0.5 rounded-[4px] bg-[#E2E8F0] hover:bg-[#CBD5E1] text-[10px] font-mono text-[#646B72] font-semibold cursor-pointer">
+            ↵
+          </button>
+        </form>
       </div>
 
       {/* Right: Actions, Hub Selector, Alerts & User Profile */}
@@ -86,7 +98,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         <div className="relative hidden sm:block">
           <button
             onClick={() => setHubOpen(!hubOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFFFFF] border border-[#E8EBED] rounded-[6px] text-xs font-nunito font-semibold text-[#212B36] hover:bg-[#F7F7F7] transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFFFFF] border border-[#E8EBED] rounded-[6px] text-xs font-nunito font-semibold text-[#212B36] hover:bg-[#F7F7F7] transition-colors shadow-sm cursor-pointer"
           >
             <span className="w-2 h-2 rounded-full bg-[#05A677] animate-pulse"></span>
             <span>{activeHub}</span>
@@ -102,7 +114,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
                     setActiveHub(hub);
                     setHubOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 hover:bg-[#F7F7F7] flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 hover:bg-[#F7F7F7] flex items-center justify-between cursor-pointer ${
                     activeHub === hub ? 'text-[#FF9F43] font-bold bg-[#FFF4E8]' : 'text-[#212B36]'
                   }`}
                 >
@@ -117,7 +129,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         {/* Action: Test Scenario / Check Scam */}
         <Link
           href="/customer"
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF9F43] hover:bg-[#f08e2f] text-white rounded-[6px] text-xs font-poppins font-semibold shadow-[0px_4px_12px_0px_rgba(255,159,67,0.30)] transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF9F43] hover:bg-[#f08e2f] text-white rounded-[6px] text-xs font-poppins font-semibold shadow-[0px_4px_12px_0px_rgba(255,159,67,0.30)] transition-all active:scale-95 cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Test Transaction</span>
@@ -126,7 +138,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         {/* Action: USSD Dial (*268#) */}
         <Link
           href="/ussd"
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1B2850] hover:bg-[#131E3D] text-white rounded-[6px] text-xs font-poppins font-semibold shadow-sm transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1B2850] hover:bg-[#131E3D] text-white rounded-[6px] text-xs font-poppins font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
         >
           <Radio className="w-3.5 h-3.5 text-[#FF9F43]" />
           <span>USSD (*268#)</span>
@@ -135,7 +147,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         {/* Language Flag Selector (🇧🇩 Bangla / 🇺🇸 English) */}
         <button
           onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-          className="w-8 h-8 rounded-[6px] hover:bg-[#F7F7F7] flex items-center justify-center text-sm border border-transparent hover:border-[#E8EBED] transition-colors"
+          className="w-8 h-8 rounded-[6px] hover:bg-[#F7F7F7] flex items-center justify-center text-sm border border-transparent hover:border-[#E8EBED] transition-colors cursor-pointer"
           title={`Language: ${lang === 'bn' ? 'বাংলা (Bangla)' : 'English'}`}
         >
           {lang === 'bn' ? '🇧🇩' : '🇺🇸'}
@@ -144,25 +156,29 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
         {/* Fullscreen Toggle */}
         <button
           onClick={toggleFullscreen}
-          className="hidden md:flex w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] items-center justify-center transition-colors"
+          className="hidden md:flex w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] items-center justify-center transition-colors cursor-pointer"
           title="Toggle Fullscreen"
         >
           <Maximize className="w-4 h-4" />
         </button>
 
         {/* Live Ring-12 Alert Badge */}
-        <Link href="/analyst" className="relative">
-          <button className="w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] flex items-center justify-center transition-colors">
+        <Link href="/analyst" className="relative cursor-pointer" title="Active Triage Alerts">
+          <button className="w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] flex items-center justify-center transition-colors cursor-pointer">
             <Bell className="w-4 h-4" />
           </button>
           <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#FF0000] rounded-full ring-2 ring-white animate-ping"></span>
           <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#FF0000] rounded-full ring-2 ring-white"></span>
         </Link>
 
-        {/* Settings Gear */}
-        <button className="hidden sm:flex w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] items-center justify-center transition-colors">
+        {/* Settings Gear -> Model & System Settings */}
+        <Link
+          href="/fairness"
+          className="hidden sm:flex w-8 h-8 rounded-[6px] text-[#646B72] hover:text-[#212B36] hover:bg-[#F7F7F7] items-center justify-center transition-colors cursor-pointer"
+          title="Model Fairness & Drift Telemetry"
+        >
           <Settings className="w-4 h-4" />
-        </button>
+        </Link>
 
         {/* User Profile Avatar */}
         <div className="flex items-center gap-2 pl-2 border-l border-[#E8EBED]">

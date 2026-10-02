@@ -1,5 +1,5 @@
 import { CalculatedFeatures } from './feature-store.js';
-import { ReasonCodeDetail, RiskTier, PolicyAction } from '../core/types.js';
+import { ReasonCodeDetail, RiskTier, PolicyAction, HumanCoachSignals } from '../core/types.js';
 import { REASON_CODES } from '../core/constants.js';
 
 export interface RiskEvaluationResult {
@@ -29,8 +29,10 @@ export class RiskEngineService {
   evaluateRisk(
     features: CalculatedFeatures, 
     recipientRingRisk: number = 0.0,
-    safetyModeActive: boolean = false
+    safetyModeActive: boolean = false,
+    humanCoachSignals?: HumanCoachSignals
   ): RiskEvaluationResult {
+
     const startMs = performance.now();
     const ruleTrace: Array<{ rule: string; fired: boolean }> = [];
     const triggeredReasons: Array<{ code: string; weight: number }> = [];
@@ -146,6 +148,30 @@ export class RiskEngineService {
       });
     }
 
+    // 4b. Human Scam Coach Evidence Integration (Prompt 12)
+    if (humanCoachSignals) {
+      if (humanCoachSignals.credential_request) {
+        triggeredReasons.push({ code: 'RC17', weight: 0.45 });
+        ruleTrace.push({ rule: 'HUMAN_COACH_CREDENTIAL_REQUEST_CONFIRMED', fired: true });
+        scamContextScore = Math.max(scamContextScore, 0.90);
+      }
+      if (humanCoachSignals.authority_impersonation) {
+        triggeredReasons.push({ code: 'RC18', weight: 0.40 });
+        ruleTrace.push({ rule: 'HUMAN_COACH_AUTHORITY_IMPERSONATION_CONFIRMED', fired: true });
+        scamContextScore = Math.max(scamContextScore, 0.75);
+      }
+      if (humanCoachSignals.urgency_pressure || humanCoachSignals.secrecy_pressure) {
+        triggeredReasons.push({ code: 'RC19', weight: 0.30 });
+        ruleTrace.push({ rule: 'HUMAN_COACH_PRESSURE_CONFIRMED', fired: true });
+        scamContextScore = Math.max(scamContextScore, 0.60);
+      }
+      if (humanCoachSignals.advance_payment_scam || humanCoachSignals.investment_or_task_scam || humanCoachSignals.emergency_impersonation) {
+        triggeredReasons.push({ code: 'RC20', weight: 0.35 });
+        ruleTrace.push({ rule: 'HUMAN_COACH_TYPOLOGY_CONFIRMED', fired: true });
+        scamContextScore = Math.max(scamContextScore, 0.70);
+      }
+    }
+
     // 5. Calibrated Multi-Model Blend (ML-05)
     // weights: 0.35 tabular + 0.25 ato + 0.25 network + 0.15 scam
     const rawBlend = 
@@ -178,10 +204,10 @@ export class RiskEngineService {
       ruleTrace.push({ rule: 'SAFETY_MODE_PROTECTED_POLICY_THRESHOLDS', fired: true });
     }
 
-    if (calibratedScore >= holdThreshold || atoScore >= (isSafetyMode ? 0.70 : 0.80) || conversationScamScore >= (isSafetyMode ? 0.70 : 0.85) || (features.is_new_recipient && effectiveZScore >= 4.0 && features.is_night_time)) {
+    if (calibratedScore >= holdThreshold || atoScore >= (isSafetyMode ? 0.70 : 0.80) || conversationScamScore >= (isSafetyMode ? 0.70 : 0.85) || (features.is_new_recipient && effectiveZScore >= 4.0 && features.is_night_time) || (humanCoachSignals && humanCoachSignals.credential_request)) {
       tier = 'T3';
       action = 'HOLD_ASSIST';
-    } else if (calibratedScore >= pauseThreshold || features.recipient_report_count >= 2 || conversationScamScore >= (isSafetyMode ? 0.40 : 0.60) || (features.is_new_recipient && (effectiveZScore >= (isSafetyMode ? 1.2 : 2.0) || isSafetyMode))) {
+    } else if (calibratedScore >= pauseThreshold || features.recipient_report_count >= 2 || conversationScamScore >= (isSafetyMode ? 0.40 : 0.60) || (features.is_new_recipient && (effectiveZScore >= (isSafetyMode ? 1.2 : 2.0) || isSafetyMode)) || (humanCoachSignals && humanCoachSignals.total_positive_signals >= 1)) {
       tier = 'T2';
       action = 'PAUSE_VERIFY';
     } else if (calibratedScore >= nudgeThreshold) {
@@ -191,6 +217,7 @@ export class RiskEngineService {
       tier = 'T0';
       action = 'ALLOW';
     }
+
 
     // Map top-k unique reason codes by highest weight
     triggeredReasons.sort((a, b) => Math.abs(b.weight) - Math.abs(a.weight));

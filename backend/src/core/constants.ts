@@ -112,8 +112,37 @@ export const REASON_CODES: Record<string, ReasonCodeDetail> = {
     label_bn: 'গ্রাহক সুরক্ষা মোড সক্রিয় রয়েছে: অতিরিক্ত নিরাপত্তা যাচাইকরণ ও সতর্কতা প্রযোজ্য',
     weight: 0.35,
     description: 'Customer voluntarily activated temporary high-protection Safety Mode.'
+  },
+  RC17: {
+    code: 'RC17',
+    label_en: 'Human Scam Coach: Customer confirmed credential/OTP request',
+    label_bn: 'হিউম্যান কোচ: গ্রাহক নিশ্চিত করেছেন যে গোপন পিন বা ওটিপি কোড চাওয়া হয়েছে',
+    weight: 0.45,
+    description: 'Customer directly answered YES to receiving a PIN, OTP, or verification code request.'
+  },
+  RC18: {
+    code: 'RC18',
+    label_en: 'Human Scam Coach: Customer confirmed authority/customer care impersonation',
+    label_bn: 'হিউম্যান কোচ: গ্রাহক নিশ্চিত করেছেন যে ভুয়া কাস্টমার কেয়ার বা অফিসিয়াল পরিচয় দেওয়া হয়েছে',
+    weight: 0.40,
+    description: 'Customer directly confirmed requester claimed to be customer care or bank staff.'
+  },
+  RC19: {
+    code: 'RC19',
+    label_en: 'Human Scam Coach: Customer confirmed artificial urgency or secrecy pressure',
+    label_bn: 'হিউম্যান কোচ: গ্রাহক নিশ্চিত করেছেন যে অবিলম্বে পাঠানোর চাপ বা গোপন রাখার নির্দেশ ছিল',
+    weight: 0.30,
+    description: 'Customer confirmed presence of coercive urgency or isolation pressure.'
+  },
+  RC20: {
+    code: 'RC20',
+    label_en: 'Human Scam Coach: Customer confirmed prize or investment scheme',
+    label_bn: 'হিউম্যান কোচ: গ্রাহক নিশ্চিত করেছেন যে পুরস্কার, লটারি বা বেশি লাভের প্রতিশ্রুতি দেওয়া হয়েছে',
+    weight: 0.35,
+    description: 'Customer confirmed advance fee prize or task-based investment promised returns.'
   }
 };
+
 
 export const BANGLA_TEMPLATES = {
   PV_01_NEW_RECIPIENT: {

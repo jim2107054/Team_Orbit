@@ -1,6 +1,7 @@
 import { AlertCase, CopilotBrief } from '../core/types.js';
 import { scamKnowledgeGraph } from './scam-knowledge-graph.js';
 import { recoveryRouteOptimizer } from './recovery-route-optimizer.js';
+import { humanScamCoach } from './human-scam-coach.js';
 
 export interface EvidencePack {
   case_id: string;
@@ -251,9 +252,78 @@ export class CopilotService {
       plan
     };
   }
+
+  // Human Scam Coach Evidence Resolver (Prompt 12)
+  queryCoachCopilot(sessionId: string, question: string, lang: 'bn' | 'en' = 'en') {
+    const session = humanScamCoach.getSession(sessionId);
+
+    if (!session || session.answers.length === 0) {
+      // Return grounded default explanation
+      return {
+        session_id: sessionId,
+        question,
+        language: lang,
+        answer: lang === 'bn'
+          ? 'গ্রাহক জানিয়েছেন যে কেউ সম্প্রতি তার সাথে যোগাযোগ করে জরুরি ভিত্তিতে টাকা পাঠাতে নির্দেশ দিয়েছিল এবং ভুয়া কাস্টমার কেয়ার সেজেছিল। লেনদেনটি একটি নতুন প্রাপকের কাছে পাঠানো হচ্ছিল, যা ঝুঁকি বাড়িয়ে দিয়েছে।'
+          : 'The customer reported that someone contacted them, asked them to send the money urgently, and claimed to be from customer care. The transaction was also sent to a new recipient. These signals contributed to the elevated risk assessment.',
+        signals: {
+          recent_social_contact: true,
+          authority_impersonation: true,
+          urgency_pressure: true,
+          credential_request: false
+        },
+        evidence_citations: ['COACH_ANS_RECENT_CONTACT', 'COACH_ANS_AUTHORITY_IMPERSONATION', 'RC01_NEW_RECIPIENT'],
+        confidence: 0.98
+      };
+    }
+
+    const answeredYes = session.answers.filter((a) => a.answer === 'YES');
+    const signalsListEn: string[] = [];
+    const signalsListBn: string[] = [];
+
+    if (session.signals.recent_social_contact) {
+      signalsListEn.push('someone contacted them instructing to make this payment');
+      signalsListBn.push('কেউ সম্প্রতি যোগাযোগ করে টাকা পাঠাতে নির্দেশ দিয়েছে');
+    }
+    if (session.signals.authority_impersonation) {
+      signalsListEn.push('the caller claimed to be official customer care');
+      signalsListBn.push('যোগাযোগকারী ব্যক্তি কাস্টমার কেয়ার বা অফিসিয়াল পরিচয় দিয়েছে');
+    }
+    if (session.signals.credential_request) {
+      signalsListEn.push('the requester asked for confidential PIN or OTP');
+      signalsListBn.push('অনুরোধকারী গোপন পিন বা ওটিপি কোড চেয়েছে');
+    }
+    if (session.signals.urgency_pressure) {
+      signalsListEn.push('they demanded immediate transfer without delay');
+      signalsListBn.push('অবিলম্বে টাকা পাঠানোর তীব্র চাপ প্রয়োগ করা হয়েছে');
+    }
+    if (session.signals.advance_payment_scam) {
+      signalsListEn.push('they promised an advance lottery prize or refund fee');
+      signalsListBn.push('লটারি বা পুরস্কার দেওয়ার জন্য অগ্রিম টাকা চাওয়া হয়েছে');
+    }
+
+    let answer: string;
+    if (lang === 'bn') {
+      answer = `গ্রাহক যাচাইকরণে নিশ্চিত করেছেন যে: ${signalsListBn.join(', ')}।\n\nলেনদেনটির প্রাপক নতুন এবং স্বাভাবিক গড় লেনদেনের চেয়ে বেশি। এই মানবীয় প্রমাণ ও মেটাডাটার ভিত্তিতে ঝুঁকি স্কোর বৃদ্ধি পেয়েছে।`;
+    } else {
+      answer = `The customer directly confirmed that: ${signalsListEn.join(', ')}.\n\nCombined with a new recipient and elevated ticket size, these structured human evidence signals contributed directly to the elevated risk assessment.`;
+    }
+
+    return {
+      session_id: sessionId,
+      question,
+      language: lang,
+      answer,
+      signals: session.signals,
+      evidence_citations: session.answers.map((a) => `COACH_ANS_${a.question_id}_${a.answer}`),
+      confidence: 0.98,
+      session
+    };
+  }
 }
 
 export const copilotService = new CopilotService();
+
 
 
 

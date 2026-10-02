@@ -18,7 +18,9 @@ import { customerSafetyModeService } from '../../services/safety-mode-service.js
 import { complaintActionIntelligenceService } from '../../services/complaint-action-intelligence.js';
 import { scamKnowledgeGraph } from '../../services/scam-knowledge-graph.js';
 import { recoveryRouteOptimizer } from '../../services/recovery-route-optimizer.js';
+import { humanScamCoach } from '../../services/human-scam-coach.js';
 import { BANGLA_TEMPLATES } from '../../core/constants.js';
+
 
 
 import { AlertCase } from '../../core/types.js';
@@ -72,10 +74,26 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
       netContext
     );
 
-    // 2. Multi-Model Risk Evaluation (M3, M4)
+    // 2. Multi-Model Risk Evaluation (M3, M4 & Prompt 12 Human Coach Fusion)
     const isSafetyMode = customerSafetyModeService.isSafetyModeActive(txn.sender_wallet);
     const ringProximityRisk = txn.receiver_wallet.includes('091177') ? 0.90 : 0.05;
-    const evaluation = riskEngine.evaluateRisk(features, ringProximityRisk, isSafetyMode);
+    const coachSignals = (context as any)?.human_coach_signals;
+    const evaluation = riskEngine.evaluateRisk(features, ringProximityRisk, isSafetyMode, coachSignals);
+
+    // 2b. Human Scam Coach Dynamic Evaluation (Prompt 12)
+    const coachEvaluation = humanScamCoach.evaluateIntervention({
+      customer_wallet: txn.sender_wallet,
+      recipient_wallet: txn.receiver_wallet,
+      amount_bdt: txn.amount_bdt,
+      risk_score: evaluation.risk_score,
+      risk_tier: evaluation.risk_tier,
+      reasons: evaluation.reasons.map((r) => r.code),
+      is_new_recipient: features.is_new_recipient,
+      scam_conversation_score: features.scam_conversation_context_score,
+      safety_mode_active: isSafetyMode,
+      channel: channelType,
+      transaction_id: reqId
+    });
 
     // 3. Customer Bangla/English Message Template Mapping (M5)
     let customerTemplate = BANGLA_TEMPLATES.PV_01_NEW_RECIPIENT;
@@ -140,6 +158,7 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
         body_en: customerTemplate.body_en,
         cooling_off_seconds: evaluation.risk_tier === 'T2' ? 25 : 0
       },
+      coach_evaluation: coachEvaluation,
       analyst_case_id: analystCaseId,
       model_scores: evaluation.model_scores,
       versions: {
@@ -148,6 +167,7 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
       },
       latency_ms: evaluation.latency_ms
     });
+
   } catch (err: any) {
     console.error('Error scoring transaction:', err);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: err.message } });
@@ -1163,6 +1183,97 @@ shieldRouter.post('/copilot/recovery-query', (req: Request, res: Response) => {
     return res.status(500).json({ error: { code: 'COPILOT_RECOVERY_ERROR', message: err.message } });
   }
 });
+
+// ================= HUMAN SCAM COACH (PROMPT 12) =================
+
+// 1. Evaluate transaction context & determine whether to intervene with 1-4 questions
+shieldRouter.post('/coach/evaluate', (req: Request, res: Response) => {
+  try {
+    const { customer_wallet, recipient_wallet, amount_bdt, risk_score, risk_tier, reasons, is_new_recipient, scam_conversation_typology, safety_mode_active, channel } = req.body;
+    
+    if (!customer_wallet || !recipient_wallet || !amount_bdt) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'customer_wallet, recipient_wallet, amount_bdt are required' } });
+    }
+
+    const result = humanScamCoach.evaluateIntervention({
+      customer_wallet,
+      recipient_wallet,
+      amount_bdt: Number(amount_bdt),
+      risk_score: risk_score !== undefined ? Number(risk_score) : undefined,
+      risk_tier,
+      reasons,
+      is_new_recipient: is_new_recipient !== undefined ? Boolean(is_new_recipient) : undefined,
+      scam_conversation_typology,
+      safety_mode_active: Boolean(safety_mode_active),
+      channel
+    });
+
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COACH_EVALUATION_FAILED', message: err.message } });
+  }
+});
+
+// 2. Record customer answer & fetch next question or final explanation
+shieldRouter.post('/coach/answer', (req: Request, res: Response) => {
+  try {
+    const { session_id, question_id, answer } = req.body;
+
+    if (!session_id || !question_id || !answer) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'session_id, question_id, and answer are required' } });
+    }
+
+    const result = humanScamCoach.recordAnswer(session_id, question_id, answer);
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COACH_ANSWER_FAILED', message: err.message } });
+  }
+});
+
+// 3. Record customer's final safety decision (Cancel, Review, Continue)
+shieldRouter.post('/coach/choice', (req: Request, res: Response) => {
+  try {
+    const { session_id, choice } = req.body;
+
+    if (!session_id || !choice) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'session_id and choice are required' } });
+    }
+
+    const result = humanScamCoach.recordCustomerChoice(session_id, choice);
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COACH_CHOICE_FAILED', message: err.message } });
+  }
+});
+
+// 4. Get Human Scam Coach session for investigator case review
+shieldRouter.get('/coach/session/:id', (req: Request, res: Response) => {
+  try {
+    const session = humanScamCoach.getSession(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Coach session not found' } });
+    }
+    return res.json({ success: true, session });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COACH_SESSION_FAILED', message: err.message } });
+  }
+});
+
+// 5. Copilot Human Coach Query Endpoint
+shieldRouter.post('/copilot/coach-query', (req: Request, res: Response) => {
+  try {
+    const { session_id, question, language } = req.body;
+    if (!session_id || !question) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'session_id and question are required' } });
+    }
+
+    const result = copilotService.queryCoachCopilot(session_id, question, language || 'en');
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COPILOT_COACH_ERROR', message: err.message } });
+  }
+});
+
 
 
 

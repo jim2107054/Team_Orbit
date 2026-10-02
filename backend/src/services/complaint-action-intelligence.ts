@@ -100,18 +100,24 @@ export class ComplaintActionIntelligenceService {
 
 
     const amounts_bdt: number[] = [];
-    const amountRegex = /(?:৳|tk|bdt|টাকা)?\s*([0-9]{1,3}(?:,[0-9]{3})*|[0-9]+)(?:\s*(?:k|হাজার|টাকা|tk|bdt))?/gi;
+    // The comma-grouped branch requires at least one group, otherwise a bare "5000"
+    // was matched by the 1-3 digit branch and truncated to 500.
+    // The thousand shorthand ("5k", "৫ হাজার") is expanded BEFORE the range filter,
+    // otherwise "5k" was discarded for being below the minimum.
+    const amountRegex = /(?:৳|tk|bdt|টাকা)?\s*([0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\s*(k|হাজার|টাকা|taka|tk|bdt)?/gi;
     let match;
     while ((match = amountRegex.exec(cleanForAmounts)) !== null) {
-      let numStr = match[1].replace(/,/g, '');
+      const numStr = match[1].replace(/,/g, '');
       let val = parseFloat(numStr);
-      if (!isNaN(val) && val >= 50 && val <= 500000) {
-        if (match[0].toLowerCase().includes('k') || match[0].includes('হাজার')) {
-          val = val * 1000;
-        }
-        if (val >= 100 && val <= 500000) {
-          amounts_bdt.push(val);
-        }
+      if (isNaN(val)) continue;
+
+      const suffix = (match[2] || '').toLowerCase();
+      if (suffix === 'k' || suffix === 'হাজার') {
+        val = val * 1000;
+      }
+
+      if (val >= 100 && val <= 500000) {
+        amounts_bdt.push(val);
       }
     }
 

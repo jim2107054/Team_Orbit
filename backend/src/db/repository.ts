@@ -1,7 +1,8 @@
 import { getDbPool } from './client.js';
 import { 
   Customer, Wallet, Device, Agent, Merchant, Transaction, 
-  SessionEvent, CommunityReport, AlertCase, RingCase, AuditLogEntry 
+  SessionEvent, CommunityReport, AlertCase, RingCase, AuditLogEntry,
+  IncidentInvestigation
 } from '../core/types.js';
 
 export class ShieldRepository {
@@ -472,6 +473,359 @@ export class ShieldRepository {
   async getCustomerInterventions(limit: number = 50): Promise<any[]> {
     const res = await this.pool.query(`SELECT * FROM customer_interventions ORDER BY shown_ts DESC LIMIT $1`, [limit]);
     return res.rows;
+  }
+
+  /**
+   * Insert or refresh a transaction. Used by the investigation evidence ledger
+   * seeder so demo scenarios stay inside the golden-hour window across restarts.
+   * Does not touch rows whose txn_id is not supplied.
+   */
+  async upsertTransaction(t: Transaction): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO transactions (txn_id, ts, sender_wallet, receiver_wallet, type, amount_bdt, channel, device_id, geo_cell, fee_bdt, status, label_fraud, typology_id, ring_id, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+       ON CONFLICT (txn_id) DO UPDATE SET
+         ts = EXCLUDED.ts,
+         amount_bdt = EXCLUDED.amount_bdt,
+         status = EXCLUDED.status,
+         label_fraud = EXCLUDED.label_fraud,
+         ring_id = EXCLUDED.ring_id,
+         created_at = EXCLUDED.created_at`,
+      [
+        t.txn_id, t.ts, t.sender_wallet, t.receiver_wallet, t.type, t.amount_bdt,
+        t.channel, t.device_id, t.geo_cell, t.fee_bdt, t.status, t.label_fraud ? true : false,
+        t.typology_id || null, t.ring_id || null, t.created_at
+      ]
+    );
+  }
+
+  // ================= INCIDENT INVESTIGATION LEDGER QUERIES =================
+  /** Map a raw transactions row onto the domain Transaction type. */
+  private mapTransactionRow(r: any): Transaction {
+    return {
+      txn_id: String(r.txn_id),
+      ts: new Date(r.ts).toISOString(),
+      sender_wallet: String(r.sender_wallet),
+      receiver_wallet: String(r.receiver_wallet),
+      type: r.type as any,
+      amount_bdt: Number(r.amount_bdt),
+      channel: r.channel as any,
+      device_id: String(r.device_id),
+      geo_cell: String(r.geo_cell),
+      fee_bdt: Number(r.fee_bdt),
+      status: r.status as any,
+      label_fraud: Boolean(r.label_fraud),
+      typology_id: r.typology_id ? String(r.typology_id) as any : undefined,
+      ring_id: r.ring_id ? String(r.ring_id) : undefined,
+      created_at: new Date(r.created_at).toISOString()
+    };
+  }
+
+  async getTransactionById(txnId: string): Promise<Transaction | null> {
+    const res = await this.pool.query(`SELECT * FROM transactions WHERE txn_id = $1`, [txnId]);
+    if (res.rows.length === 0) return null;
+    return this.mapTransactionRow(res.rows[0]);
+  }
+
+  /**
+   * Candidate retrieval for complaint-to-transaction matching.
+   *
+   * Returns every transaction in [startTs, endTs] where the wallet is on either
+   * side of the ledger entry, in ONE query (no N+1 per candidate amount or time).
+   * Served by idx_txns_sender_ts / idx_txns_receiver_ts.
+   */
+  async getWalletTransactionsInWindow(
+    walletId: string,
+    startTs: string,
+    endTs: string,
+    limit: number = 200
+  ): Promise<Transaction[]> {
+    const res = await this.pool.query(
+      `SELECT * FROM transactions
+       WHERE (sender_wallet = $1 OR receiver_wallet = $1)
+         AND ts >= $2 AND ts <= $3
+       ORDER BY ts DESC
+       LIMIT $4`,
+      [walletId, startTs, endTs, limit]
+    );
+    return res.rows.map(r => this.mapTransactionRow(r));
+  }
+
+  /**
+   * Point-in-time counterparty history check for RETROSPECTIVE investigation.
+   *
+   * `hasPriorTransferBetween` is correct for live scoring but unbounded in time, so
+   * when an investigation re-scores a transaction that is already in the ledger, the
+   * disputed transaction itself makes the counterparty look familiar. This variant
+   * only considers transfers strictly BEFORE the given instant.
+   */
+  async hasPriorTransferBetweenBefore(sender: string, receiver: string, beforeTs: string): Promise<boolean> {
+    const res = await this.pool.query(
+      `SELECT 1 FROM transactions
+       WHERE sender_wallet = $1 AND receiver_wallet = $2 AND ts < $3
+       LIMIT 1`,
+      [sender, receiver, beforeTs]
+    );
+    return res.rows.length > 0;
+  }
+
+  /**
+   * Point-in-time inflow/outflow around a receiving wallet, for a retrospective
+   * pass-through and fan-in read. One query, both directions.
+   */
+  async getCounterpartyFlowWindow(
+    walletId: string,
+    windowStartTs: string,
+    windowEndTs: string
+  ): Promise<{ inflowBdt: number; outflowBdt: number; distinctSenders: number }> {
+    const res = await this.pool.query(
+      `SELECT
+         COALESCE(SUM(amount_bdt) FILTER (WHERE receiver_wallet = $1), 0) AS inflow,
+         COALESCE(SUM(amount_bdt) FILTER (WHERE sender_wallet = $1), 0) AS outflow,
+         COUNT(DISTINCT sender_wallet) FILTER (WHERE receiver_wallet = $1) AS senders
+       FROM transactions
+       WHERE (sender_wallet = $1 OR receiver_wallet = $1)
+         AND ts >= $2 AND ts <= $3`,
+      [walletId, windowStartTs, windowEndTs]
+    );
+    const r = res.rows[0] || {};
+    return {
+      inflowBdt: Number(r.inflow || 0),
+      outflowBdt: Number(r.outflow || 0),
+      distinctSenders: Number(r.senders || 0)
+    };
+  }
+
+  /** Outbound transactions from a wallet after an instant — downstream money-flow hops. */
+  async getOutboundTransactionsAfter(
+    walletId: string,
+    afterTs: string,
+    limit: number = 50
+  ): Promise<Transaction[]> {
+    const res = await this.pool.query(
+      `SELECT * FROM transactions
+       WHERE sender_wallet = $1 AND ts >= $2
+       ORDER BY ts ASC
+       LIMIT $3`,
+      [walletId, afterTs, limit]
+    );
+    return res.rows.map(r => this.mapTransactionRow(r));
+  }
+
+  /** Resolve a wallet from a customer-supplied phone number (either format). */
+  async getWalletByPhone(phone: string): Promise<Wallet | null> {
+    const digits = phone.replace(/[^\d]/g, '');
+    const res = await this.pool.query(
+      `SELECT * FROM wallets
+       WHERE REGEXP_REPLACE(phone, '[^0-9]', '', 'g') = $1
+       LIMIT 1`,
+      [digits]
+    );
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      wallet_id: String(r.wallet_id),
+      customer_id: String(r.customer_id),
+      phone: String(r.phone),
+      status: r.status as any,
+      balance: Number(r.balance),
+      daily_limit: Number(r.daily_limit),
+      monthly_limit: Number(r.monthly_limit),
+      created_at: new Date(r.created_at).toISOString(),
+      is_mule_candidate: Boolean(r.is_mule_candidate)
+    };
+  }
+
+  /** Rings whose member wallet/agent set contains the given entity. Single query. */
+  async getRingsContainingEntity(entityId: string): Promise<Array<{ ring_id: string; ring_name: string; ring_score: number; status: string }>> {
+    const res = await this.pool.query(
+      `SELECT ring_id, ring_name, ring_score, status
+       FROM ring_cases
+       WHERE members_json LIKE $1 OR agents_json LIKE $1
+       ORDER BY ring_score DESC
+       LIMIT 10`,
+      [`%${entityId}%`]
+    );
+    return res.rows.map(r => ({
+      ring_id: String(r.ring_id),
+      ring_name: String(r.ring_name),
+      ring_score: Number(r.ring_score),
+      status: String(r.status)
+    }));
+  }
+
+  // ================= INCIDENT INVESTIGATION PERSISTENCE =================
+  async insertIncidentInvestigation(inv: IncidentInvestigation): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO incident_investigations (
+         investigation_id, case_id, complaint_id, reporter_wallet, reporter_phone,
+         claim_type, detected_language, claimed_amount_bdt,
+         evidence_verdict, verdict_confidence, matched_txn_id, match_confidence,
+         fraud_risk, fraud_risk_score, routing_department, priority,
+         human_review_required, review_status,
+         injection_attempt_detected, response_safety_fallback_used,
+         linked_campaign_id, linked_ring_ids_json, reason_codes_json,
+         payload_json, weights_version, policy_version, total_latency_ms,
+         created_at, updated_at
+       ) VALUES (
+         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29
+       )
+       ON CONFLICT (investigation_id) DO NOTHING`,
+      [
+        inv.investigation_id,
+        inv.case_id || null,
+        inv.complaint_id || null,
+        inv.reporter_wallet || null,
+        inv.reporter_phone || null,
+        inv.claim.claim_type,
+        inv.claim.language,
+        inv.claim.amount_bdt ?? null,
+        inv.evidence.verdict,
+        inv.evidence.verdict_confidence,
+        inv.evidence.relevant_transaction_id || null,
+        inv.evidence.match_confidence ?? null,
+        inv.risk_context.fraud_risk || null,
+        inv.risk_context.fraud_risk_score ?? null,
+        inv.classification.routing_department,
+        inv.classification.priority,
+        inv.human_review.required,
+        inv.review_status,
+        inv.claim.injection_attempt_detected,
+        inv.customer_response.fallback_used,
+        inv.campaign_context.matched_campaign_id || null,
+        JSON.stringify(inv.graph_context.linked_ring_ids || []),
+        JSON.stringify((inv.reason_codes || []).map(r => r.code)),
+        JSON.stringify(inv),
+        inv.weights_version,
+        inv.policy_version,
+        inv.total_latency_ms,
+        inv.created_at,
+        inv.created_at
+      ]
+    );
+  }
+
+  async getIncidentInvestigationById(investigationId: string): Promise<IncidentInvestigation | null> {
+    const res = await this.pool.query(
+      `SELECT payload_json FROM incident_investigations WHERE investigation_id = $1`,
+      [investigationId]
+    );
+    if (res.rows.length === 0) return null;
+    return JSON.parse(String(res.rows[0].payload_json)) as IncidentInvestigation;
+  }
+
+  async listIncidentInvestigations(filters: {
+    limit?: number;
+    verdict?: string;
+    humanReviewRequired?: boolean;
+    reviewStatus?: string;
+    caseId?: string;
+    complaintId?: string;
+  } = {}): Promise<IncidentInvestigation[]> {
+    const clauses: string[] = [];
+    const params: any[] = [];
+    let i = 1;
+
+    if (filters.verdict) { clauses.push(`evidence_verdict = $${i++}`); params.push(filters.verdict); }
+    if (filters.humanReviewRequired !== undefined) { clauses.push(`human_review_required = $${i++}`); params.push(filters.humanReviewRequired); }
+    if (filters.reviewStatus) { clauses.push(`review_status = $${i++}`); params.push(filters.reviewStatus); }
+    if (filters.caseId) { clauses.push(`case_id = $${i++}`); params.push(filters.caseId); }
+    if (filters.complaintId) { clauses.push(`complaint_id = $${i++}`); params.push(filters.complaintId); }
+
+    const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+    params.push(Math.min(200, Math.max(1, filters.limit || 50)));
+
+    const res = await this.pool.query(
+      `SELECT payload_json FROM incident_investigations ${where} ORDER BY created_at DESC LIMIT $${i}`,
+      params
+    );
+    return res.rows.map(r => JSON.parse(String(r.payload_json)) as IncidentInvestigation);
+  }
+
+  async updateIncidentInvestigationReview(
+    investigationId: string,
+    updates: {
+      review_status: IncidentInvestigation['review_status'];
+      reviewed_by?: string;
+      review_notes?: string;
+      final_decision?: string;
+    }
+  ): Promise<IncidentInvestigation | null> {
+    const current = await this.getIncidentInvestigationById(investigationId);
+    if (!current) return null;
+
+    const reviewedAt = new Date().toISOString();
+    const merged: IncidentInvestigation = {
+      ...current,
+      review_status: updates.review_status,
+      reviewed_by: updates.reviewed_by || current.reviewed_by,
+      reviewed_at: reviewedAt,
+      review_notes: updates.review_notes ?? current.review_notes,
+      final_decision: updates.final_decision ?? current.final_decision
+    };
+
+    await this.pool.query(
+      `UPDATE incident_investigations
+       SET review_status = $1, reviewed_by = $2, reviewed_at = $3, review_notes = $4,
+           final_decision = $5, payload_json = $6, updated_at = $7
+       WHERE investigation_id = $8`,
+      [
+        merged.review_status,
+        merged.reviewed_by || null,
+        reviewedAt,
+        merged.review_notes || null,
+        merged.final_decision || null,
+        JSON.stringify(merged),
+        reviewedAt,
+        investigationId
+      ]
+    );
+    return merged;
+  }
+
+  /** Aggregate counters for the investigation observability endpoint. */
+  async getInvestigationAggregates(): Promise<{
+    total: number;
+    consistent: number;
+    inconsistent: number;
+    insufficient: number;
+    matched: number;
+    humanReview: number;
+    campaignLinked: number;
+    highRisk: number;
+    injectionAttempts: number;
+    safetyFallbacks: number;
+    avgLatencyMs: number;
+  }> {
+    const res = await this.pool.query(
+      `SELECT
+         COUNT(*)::int AS total,
+         COUNT(*) FILTER (WHERE evidence_verdict = 'CONSISTENT')::int AS consistent,
+         COUNT(*) FILTER (WHERE evidence_verdict = 'INCONSISTENT')::int AS inconsistent,
+         COUNT(*) FILTER (WHERE evidence_verdict = 'INSUFFICIENT_DATA')::int AS insufficient,
+         COUNT(*) FILTER (WHERE matched_txn_id IS NOT NULL)::int AS matched,
+         COUNT(*) FILTER (WHERE human_review_required)::int AS human_review,
+         COUNT(*) FILTER (WHERE linked_campaign_id IS NOT NULL)::int AS campaign_linked,
+         COUNT(*) FILTER (WHERE fraud_risk IN ('HIGH','CRITICAL'))::int AS high_risk,
+         COUNT(*) FILTER (WHERE injection_attempt_detected)::int AS injection_attempts,
+         COUNT(*) FILTER (WHERE response_safety_fallback_used)::int AS safety_fallbacks,
+         COALESCE(AVG(total_latency_ms), 0) AS avg_latency_ms
+       FROM incident_investigations`
+    );
+    const r = res.rows[0] || {};
+    return {
+      total: Number(r.total || 0),
+      consistent: Number(r.consistent || 0),
+      inconsistent: Number(r.inconsistent || 0),
+      insufficient: Number(r.insufficient || 0),
+      matched: Number(r.matched || 0),
+      humanReview: Number(r.human_review || 0),
+      campaignLinked: Number(r.campaign_linked || 0),
+      highRisk: Number(r.high_risk || 0),
+      injectionAttempts: Number(r.injection_attempts || 0),
+      safetyFallbacks: Number(r.safety_fallbacks || 0),
+      avgLatencyMs: Number(r.avg_latency_ms || 0)
+    };
   }
 
   // ================= SUMMARY STATS =================

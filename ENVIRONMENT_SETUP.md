@@ -27,6 +27,7 @@ All backend variables remain strictly on the server and are NEVER exposed to cli
 | `PORT` | Optional | Public | `4000` | `backend/src/server.ts` | Port on which the Express REST API listens |
 | `NODE_ENV` | Optional | Public | `development` | `backend/src/core/env.ts` | `development`, `production`, or `test` |
 | `FRONTEND_URL` | Optional | Public | `http://localhost:3000` | `backend/src/server.ts` (CORS) | Client origin allowed for cross-origin requests |
+| `INVESTIGATION_MATCHING_WEIGHTS` | Optional | Public | `{"AMOUNT_MATCH":0.30,"TIME_MATCH":0.12}` | `backend/src/core/constants/investigation-policy.ts` | JSON override for complaint-to-transaction matching weights. Unknown keys and non-numeric values are ignored; invalid JSON falls back to the documented defaults without failing boot. Lets calibrated weights replace the heuristic priors without a code change. |
 
 ---
 
@@ -38,6 +39,8 @@ upay Shield connects directly to **Neon Serverless PostgreSQL** with connection 
 - **Connection Pool Capacity:** 20 concurrent connections with 30-second idle timeout.
 - **Auto-Schema Initialization:** Upon backend startup, `initDatabase()` executes all DDL statements in `schema.ts` to ensure tables and composite velocity indexes exist.
 - **Auto-Seeding:** If the database is empty, the synthetic world generator (`generateSyntheticWorld()`) automatically seeds initial customers, wallets, agents, merchants, and transactions.
+- **Investigation Evidence Ledger:** On every startup, `seedInvestigationEvidenceLedger()` upserts 14 synthetic `TXN-INV-*` transactions plus two community reports across five investigation scenarios. It is idempotent, never deletes or overwrites unrelated rows, and refreshes timestamps so the golden-hour demo scenario stays live after a restart. A failure here is logged and skipped — it never prevents the server from starting. Re-run it on demand with `POST /v1/demo/investigation-ledger/seed`.
+- **Investigation Table:** `incident_investigations` stores one row per investigation with its full payload plus indexed columns for verdict, review state, matched transaction, case and complaint linkage.
 
 ---
 
@@ -67,4 +70,10 @@ npm run dev --prefix frontend
 # 4. Verify Live Health
 curl http://localhost:4000/health/db
 # Output: {"status":"ok","database":"connected","provider":"Neon PostgreSQL (Pooled)"}
+
+# 5. Verify the Incident Investigation pipeline end-to-end
+curl -s http://localhost:4000/v1/demo/investigation-scenarios
+curl -s -X POST http://localhost:4000/v1/investigations/analyze -H "Content-Type: application/json" -d '{"complaint":"vai amar 5k taka vul number e chole gese","reporter_wallet":"W-SYN-001001"}'
+# Returns the evidence verdict, matched transaction, risk/graph/campaign context,
+# timeline, human-review decision and the safety-validated customer reply.
 ```

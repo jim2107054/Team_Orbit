@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, ShieldAlert, Network, Clock, BarChart3, 
   Users, Smartphone, FileText, Shield, Radio, Sparkles, 
-  Activity, ShieldCheck, QrCode, MapPin, Layers
+  Activity, ShieldCheck, QrCode, MapPin, Layers, FileSearch
 } from 'lucide-react';
 
 interface DreamsSidebarProps {
@@ -97,6 +97,26 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
+
+            {/* Evidence-Driven Incident Investigation */}
+            <Link
+              href="/investigations"
+              className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
+                isActive('/investigations')
+                  ? 'bg-[#FFF4E8] text-[#FF9F43]'
+                  : 'text-[#646B72] hover:bg-[#F7F7F7] hover:text-[#212B36]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <FileSearch className={`w-4 h-4 ${isActive('/investigations') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
+                {!isCollapsed && <span>Incident Investigation</span>}
+              </div>
+              {!isCollapsed && (
+                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#7367F0]/10 text-[#7367F0] text-[9px] font-mono font-bold">
+                  EVIDENCE
+                </span>
+              )}
+            </Link>
 
             {/* Ring-12 Mule Explorer */}
             <Link

@@ -1,4 +1,4 @@
-import { AlertCase, CopilotBrief } from '../core/types.js';
+import { AlertCase, CopilotBrief, IncidentInvestigation } from '../core/types.js';
 import { scamKnowledgeGraph } from './scam-knowledge-graph.js';
 import { recoveryRouteOptimizer } from './recovery-route-optimizer.js';
 import { humanScamCoach } from './human-scam-coach.js';
@@ -182,6 +182,217 @@ export class CopilotService {
 
     brief.verified_claims = passedCount;
     return brief;
+  }
+
+  /**
+   * Incident Investigation Brief (Evidence-Driven Scam Incident Investigation).
+   *
+   * Extends this existing Copilot rather than introducing a second one. Every
+   * sentence carries the evidence ids it rests on, and `verified` is true only when
+   * all of those ids resolve to real evidence items in the investigation record —
+   * so an unsupported statement cannot pass as grounded.
+   *
+   * The brief keeps the four dimensions separate (evidence verdict, fraud risk,
+   * graph context, campaign context) and never asserts AI certainty about fraud.
+   */
+  generateIncidentInvestigationBrief(inv: IncidentInvestigation, lang: 'en' | 'bn' = 'en'): CopilotBrief {
+    const bn = lang === 'bn';
+
+    // Index every evidence item the investigation produced, so claim verification
+    // below is a real lookup rather than a formality.
+    const evidenceIndex = new Set<string>([
+      ...inv.evidence.supporting_evidence.map(e => e.evidence_id),
+      ...inv.evidence.conflicting_evidence.map(e => e.evidence_id),
+      ...inv.evidence.missing_evidence.map(e => e.evidence_id)
+    ]);
+    for (const step of inv.evidence.reasoning_chain) {
+      for (const id of step.evidence_ids) evidenceIndex.add(id);
+    }
+
+    const matched = inv.transaction_match.best_candidate;
+    const sections: CopilotBrief['sections'] = [];
+    const sentence = (text: string, evidenceIds: string[] = []) => ({
+      text,
+      evidence_ids: evidenceIds,
+      verified: evidenceIds.length > 0 && evidenceIds.every(id => evidenceIndex.has(id))
+    });
+
+    // ─── 1. Incident summary ────────────────────────────────────────────────
+    const claimEvidenceIds: string[] = [];
+    sections.push({
+      title: bn ? 'ঘটনার সারসংক্ষেপ (Incident Summary)' : 'Incident Summary',
+      sentences: [
+        sentence(
+          bn
+            ? `গ্রাহক ${inv.claim.language} ভাষায় একটি ${inv.claim.claim_type.replace(/_/g, ' ')} সংক্রান্ত অভিযোগ জানিয়েছেন${inv.claim.amount_bdt ? `, পরিমাণ ৳${inv.claim.amount_bdt.toLocaleString()}` : ''}।`
+            : `Customer reported a ${inv.claim.claim_type.replace(/_/g, ' ')}${inv.claim.amount_bdt ? ` of BDT ${inv.claim.amount_bdt.toLocaleString()}` : ''}${inv.claim.time_window?.evidence_span ? ` around "${inv.claim.time_window.evidence_span}"` : ''}, stated in ${inv.claim.language}.`,
+          claimEvidenceIds
+        ),
+        sentence(
+          bn
+            ? `যাচাইযোগ্য তথ্য পাওয়া গেছে: ${inv.claim.discriminators_present.join(', ') || 'কোনোটিই নয়'}।`
+            : `Verifiable discriminators extracted from the statement: ${inv.claim.discriminators_present.join(', ') || 'none'}.`,
+          claimEvidenceIds
+        )
+      ]
+    });
+
+    // ─── 2. Evidence ────────────────────────────────────────────────────────
+    const evidenceSentences: CopilotBrief['sections'][number]['sentences'] = [];
+    if (matched) {
+      evidenceSentences.push(
+        sentence(
+          bn
+            ? `সংশ্লিষ্ট লেনদেন: ${matched.txn_id} — ৳${matched.amount_bdt.toLocaleString()}, ${matched.type}, ${matched.status}, ${matched.ts}। মিল: ${(matched.match_score * 100).toFixed(0)}%।`
+            : `Matched transaction ${matched.txn_id}: BDT ${matched.amount_bdt.toLocaleString()}, ${matched.type}, status ${matched.status}, at ${matched.ts}. Match confidence ${(matched.match_score * 100).toFixed(0)}%.`,
+          inv.evidence.supporting_evidence
+            .filter(e => e.source === 'transaction' && e.reference_id === matched.txn_id)
+            .map(e => e.evidence_id)
+        )
+      );
+      for (const signal of matched.signals.filter(s => s.evaluable)) {
+        const supportingIds = [
+          ...inv.evidence.supporting_evidence,
+          ...inv.evidence.conflicting_evidence
+        ]
+          .filter(e => e.reference_id === matched.txn_id && (e.value as any)?.signal === signal.signal)
+          .map(e => e.evidence_id);
+        evidenceSentences.push(
+          sentence(
+            `${signal.signal}: ${signal.strength >= 0.9 ? 'YES' : signal.strength > 0 ? 'PARTIAL' : 'NO'} — ${signal.explanation}`,
+            supportingIds
+          )
+        );
+      }
+    } else {
+      evidenceSentences.push(
+        sentence(
+          bn
+            ? `${inv.transaction_match.candidates_considered}টি লেনদেন পরীক্ষা করা হয়েছে; কোনোটিই নিশ্চিতভাবে মেলেনি।`
+            : `${inv.transaction_match.candidates_considered} transaction(s) were searched between ${inv.transaction_match.search_window_start} and ${inv.transaction_match.search_window_end}; none matched strongly enough to identify a specific transaction.`,
+          inv.evidence.missing_evidence.map(e => e.evidence_id)
+        )
+      );
+    }
+    sections.push({
+      title: bn ? 'প্রমাণ (Evidence)' : 'Evidence',
+      sentences: evidenceSentences
+    });
+
+    // ─── 3. Evidence verdict ────────────────────────────────────────────────
+    sections.push({
+      title: bn ? 'প্রমাণভিত্তিক সিদ্ধান্ত (Evidence Verdict)' : 'Evidence Verdict',
+      sentences: [
+        sentence(
+          `${inv.evidence.verdict} — ${bn ? inv.evidence.reasoning_bn : inv.evidence.reasoning}`,
+          inv.evidence.reasoning_chain.flatMap(s => s.evidence_ids)
+        )
+      ]
+    });
+
+    // ─── 4. Fraud risk (separate question from the verdict) ──────────────────
+    sections.push({
+      title: bn ? 'ঝুঁকি প্রসঙ্গ (Fraud Risk)' : 'Fraud Risk Context',
+      sentences: [
+        sentence(
+          inv.risk_context.available
+            ? bn
+              ? `ঝুঁকি: ${inv.risk_context.fraud_risk} (${((inv.risk_context.fraud_risk_score || 0) * 100).toFixed(0)}%), স্তর ${inv.risk_context.risk_tier}। এটি প্রমাণভিত্তিক সিদ্ধান্ত থেকে আলাদা প্রশ্ন।`
+              : `Existing risk engine (${inv.risk_context.model_version}) rates this ${inv.risk_context.fraud_risk} at ${((inv.risk_context.fraud_risk_score || 0) * 100).toFixed(0)}%, tier ${inv.risk_context.risk_tier}, recommending ${inv.risk_context.action_recommended}. This is a separate question from whether the customer's account is supported.`
+            : bn
+              ? `ঝুঁকি নির্ধারণ করা যায়নি: ${inv.risk_context.unavailable_reason}`
+              : `Fraud risk unavailable: ${inv.risk_context.unavailable_reason}`,
+          inv.evidence.supporting_evidence.filter(e => e.source === 'risk_engine').map(e => e.evidence_id)
+        ),
+        ...inv.risk_context.reasons.map(r =>
+          sentence(
+            `${r.code}: ${bn ? r.label_bn : r.label_en}`,
+            inv.evidence.supporting_evidence
+              .filter(e => e.source === 'risk_engine' && (e.value as any)?.code === r.code)
+              .map(e => e.evidence_id)
+          )
+        )
+      ]
+    });
+
+    // ─── 5. Graph context ───────────────────────────────────────────────────
+    sections.push({
+      title: bn ? 'গ্রাফ প্রসঙ্গ (Graph Context)' : 'Graph Context',
+      sentences: [
+        sentence(
+          inv.graph_context.available
+            ? bn ? inv.graph_context.summary_bn : inv.graph_context.summary_en
+            : bn
+              ? `গ্রাফ তথ্য পাওয়া যায়নি: ${inv.graph_context.unavailable_reason}`
+              : `Graph evidence unavailable: ${inv.graph_context.unavailable_reason}. No counterparty relationships were assumed.`,
+          inv.evidence.supporting_evidence.filter(e => e.source === 'graph').map(e => e.evidence_id)
+        )
+      ]
+    });
+
+    // ─── 6. Campaign context ────────────────────────────────────────────────
+    sections.push({
+      title: bn ? 'ক্যাম্পেইন প্রসঙ্গ (Campaign Context)' : 'Campaign Context',
+      sentences: [
+        sentence(
+          inv.campaign_context.matched_campaign_id
+            ? bn ? inv.campaign_context.summary_bn : inv.campaign_context.summary_en
+            : inv.campaign_context.available
+              ? bn ? 'কোনো সক্রিয় ক্যাম্পেইনের সাথে মিল পাওয়া যায়নি।' : 'No active campaign matches this incident.'
+              : bn ? 'ক্যাম্পেইন তথ্য পাওয়া যায়নি।' : `Campaign evidence unavailable: ${inv.campaign_context.unavailable_reason}`,
+          inv.evidence.supporting_evidence.filter(e => e.source === 'campaign').map(e => e.evidence_id)
+        )
+      ]
+    });
+
+    // ─── 7. Conflicts ───────────────────────────────────────────────────────
+    if (inv.evidence.conflicts.length > 0) {
+      sections.push({
+        title: bn ? 'অসঙ্গতি (Evidence Conflicts)' : 'Evidence Conflicts',
+        sentences: inv.evidence.conflicts.map(c =>
+          sentence(
+            `Customer claim: ${c.customer_claim} | Observed: ${c.observed_evidence}${c.additional_context ? ` | Note: ${c.additional_context}` : ''}`,
+            []
+          )
+        )
+      });
+    }
+
+    // ─── 8. Recommended action & human review ───────────────────────────────
+    sections.push({
+      title: bn ? 'প্রস্তাবিত পদক্ষেপ (Recommended Action)' : 'Recommended Action',
+      sentences: inv.recommended_actions.map(a =>
+        sentence(`[${a.priority}] ${bn ? a.action_bn : a.action} — ${a.reason} (owner: ${a.owner})`, a.evidence_ids)
+      )
+    });
+
+    const verdictLabel = inv.human_review.required
+      ? `REQUIRED (${inv.human_review.escalation_level})`
+      : 'NOT REQUIRED';
+    sections.push({
+      title: bn ? 'মানব পর্যালোচনা (Human Review)' : 'Human Review',
+      sentences: [
+        sentence(`${verdictLabel}${inv.human_review.four_eyes_required ? ' — four-eyes approval needed' : ''}`, []),
+        ...inv.human_review.triggers.map(t => sentence(`${t.rule}: ${t.detail}`, []))
+      ]
+    });
+
+    const allSentences = sections.flatMap(s => s.sentences);
+    const verifiedCount = allSentences.filter(s => s.verified).length;
+
+    return {
+      language: lang,
+      case_id: inv.case_id || inv.investigation_id,
+      summary: bn ? inv.investigation_summary_bn : inv.investigation_summary_en,
+      sections,
+      total_claims: allSentences.length,
+      verified_claims: verifiedCount,
+      // Confidence in the VERDICT, carried over verbatim — not a new number.
+      confidence: inv.evidence.verdict_confidence,
+      suggested_actions: inv.recommended_actions.map(a => (bn ? a.action_bn : a.action)),
+      open_questions: inv.evidence.missing_evidence.map(m => (bn ? m.claim_bn : m.claim)),
+      generated_at: new Date().toISOString()
+    };
   }
 
   // Graph-Derived Copilot Query Resolver

@@ -20,6 +20,17 @@ export { scamKnowledgeGraph } from './scam-knowledge-graph.js';
 export { complaintActionIntelligenceService } from './complaint-action-intelligence.js';
 export { copilotService } from './copilot-service.js';
 
+// 3b. Evidence-Driven Scam Incident Investigation (UNDERSTAND / INVESTIGATE / EXPLAIN)
+export { incidentInvestigationService } from './investigation/incident-investigation-service.js';
+export { claimExtractor } from './investigation/claim-extractor.js';
+export { transactionMatcher } from './investigation/transaction-matcher.js';
+export { evidenceCollector } from './investigation/evidence-collector.js';
+export { evidenceVerdictEngine } from './investigation/evidence-verdict.js';
+export { responseSafetyValidator } from './investigation/response-safety-validator.js';
+export { safeResponseBuilder } from './investigation/safe-response-builder.js';
+export { untrustedInputGuard } from './investigation/untrusted-input-guard.js';
+export { investigationMetrics } from './investigation/investigation-metrics.js';
+
 // 4. Protection & Prevention
 export { customerSafetyModeService } from './safety-mode-service.js';
 export { humanScamCoach } from './human-scam-coach.js';

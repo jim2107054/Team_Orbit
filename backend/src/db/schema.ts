@@ -167,6 +167,45 @@ CREATE TABLE IF NOT EXISTS customer_interventions (
   treatment_flag BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+-- Evidence-Driven Scam Incident Investigations
+-- One row per investigation run. Sub-structures (claim, evidence, timeline, contexts)
+-- are stored as JSON text, consistent with the existing alert_cases/ring_cases style.
+CREATE TABLE IF NOT EXISTS incident_investigations (
+  investigation_id VARCHAR(80) PRIMARY KEY,
+  case_id VARCHAR(64),
+  complaint_id VARCHAR(64),
+  reporter_wallet VARCHAR(64),
+  reporter_phone VARCHAR(32),
+  claim_type VARCHAR(64) NOT NULL,
+  detected_language VARCHAR(16) NOT NULL,
+  claimed_amount_bdt DOUBLE PRECISION,
+  evidence_verdict VARCHAR(32) NOT NULL,
+  verdict_confidence DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+  matched_txn_id VARCHAR(64),
+  match_confidence DOUBLE PRECISION,
+  fraud_risk VARCHAR(16),
+  fraud_risk_score DOUBLE PRECISION,
+  routing_department VARCHAR(48) NOT NULL,
+  priority VARCHAR(8) NOT NULL DEFAULT 'P3',
+  human_review_required BOOLEAN NOT NULL DEFAULT FALSE,
+  review_status VARCHAR(32) NOT NULL DEFAULT 'PENDING_REVIEW',
+  reviewed_by VARCHAR(64),
+  reviewed_at TIMESTAMP WITH TIME ZONE,
+  review_notes TEXT,
+  final_decision VARCHAR(64),
+  injection_attempt_detected BOOLEAN NOT NULL DEFAULT FALSE,
+  response_safety_fallback_used BOOLEAN NOT NULL DEFAULT FALSE,
+  linked_campaign_id VARCHAR(64),
+  linked_ring_ids_json TEXT NOT NULL DEFAULT '[]',
+  reason_codes_json TEXT NOT NULL DEFAULT '[]',
+  payload_json TEXT NOT NULL,
+  weights_version VARCHAR(64) NOT NULL,
+  policy_version VARCHAR(64) NOT NULL,
+  total_latency_ms DOUBLE PRECISION NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
 --------------------------------------------------------------------------------
 -- HIGH-PERFORMANCE COMPOSITE & COVERING INDEXES
 --------------------------------------------------------------------------------
@@ -197,4 +236,12 @@ CREATE INDEX IF NOT EXISTS idx_audit_actor_ts ON audit_logs(actor, ts DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_target ON audit_logs(target_id);
 
 CREATE INDEX IF NOT EXISTS idx_interventions_txn ON customer_interventions(txn_id, shown_ts DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_created ON incident_investigations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_verdict ON incident_investigations(evidence_verdict, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_review ON incident_investigations(human_review_required, review_status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_case ON incident_investigations(case_id);
+CREATE INDEX IF NOT EXISTS idx_investigations_complaint ON incident_investigations(complaint_id);
+CREATE INDEX IF NOT EXISTS idx_investigations_reporter ON incident_investigations(reporter_wallet, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_matched_txn ON incident_investigations(matched_txn_id) WHERE matched_txn_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_txns_amount_ts ON transactions(amount_bdt, ts DESC);
 `;

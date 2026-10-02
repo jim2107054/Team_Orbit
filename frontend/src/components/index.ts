@@ -18,6 +18,7 @@ export { CommunityPropagation } from './CommunityPropagation';
 export { ComplaintIntelligence } from './ComplaintIntelligence';
 export { CustomerApp } from './CustomerApp';
 export { FairnessDrift } from './FairnessDrift';
+export { IncidentInvestigation } from './IncidentInvestigation';
 export { MerchantQrShield } from './MerchantQrShield';
 export { RecoveryTracer } from './RecoveryTracer';
 export { RingExplorer } from './RingExplorer';

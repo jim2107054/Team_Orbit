@@ -38,3 +38,6 @@ export * from './recovery.js';
 
 // Human scam coach
 export * from './coach.js';
+
+// Evidence-driven scam incident investigation (UNDERSTAND / INVESTIGATE / EXPLAIN)
+export * from './investigation.js';

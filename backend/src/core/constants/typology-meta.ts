@@ -148,6 +148,17 @@ export const BANGLISH_NORMALIZATION_MAP: Record<string, string> = {
   'bolben na': 'বলবেন না',
   'janaben na': 'জানাবেন না',
   'bhul': 'ভুল',
+  // Common Banglish spellings of "wrong" and "I have sent". These were absent, so a
+  // short Banglish complaint such as "vai 5k taka vul number e pathaisi" scored only
+  // one dictionary hit and was mis-detected as English.
+  'vul': 'ভুল',
+  'vhul': 'ভুল',
+  'pathaisi': 'পাঠিয়েছি',
+  'pathaichi': 'পাঠিয়েছি',
+  'pathiyechi': 'পাঠিয়েছি',
+  'pathailam': 'পাঠিয়েছি',
+  'gese': 'গেছে',
+  'geche': 'গেছে',
   'lottery': 'লটারি',
   'puroshkar': 'পুরস্কার',
   'upohar': 'উপহার',

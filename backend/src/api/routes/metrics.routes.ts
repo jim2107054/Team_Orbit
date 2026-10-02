@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { simulatorService } from '../../services/simulator-service.js';
 import { monitoringService } from '../../services/monitoring-service.js';
 import { repository } from '../../db/repository.js';
+import { investigationMetrics } from '../../services/investigation/investigation-metrics.js';
 import { dashboardCache, listCache } from '../middleware/index.js';
 
 export const metricsRouter = Router();
@@ -68,10 +69,13 @@ metricsRouter.get('/metrics/drift', (req: Request, res: Response) => {
 metricsRouter.get('/metrics/summary', async (req: Request, res: Response) => {
   try {
     const stats = await repository.getSummaryStats();
+    // Incident investigation counters are folded into the existing summary rather
+    // than exposed through a separate monitoring surface.
     return res.status(200).json({
       success: true,
       message: 'Summary metrics retrieved successfully',
-      ...stats
+      ...stats,
+      investigation: investigationMetrics.snapshot()
     });
   } catch (err: any) {
     return res.status(500).json({

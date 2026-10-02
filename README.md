@@ -3,7 +3,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.1-black.svg)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599.svg)](https://neon.tech/)
-[![Tests](https://img.shields.io/badge/Tests-74%2F74_Passing-emerald.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-151%2F151_Passing-emerald.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
 > **upay Shield** is an end-to-end, real-time fraud and scam prevention platform tailored specifically for Mobile Financial Services (MFS) in Bangladesh. It unifies conversational scam intelligence, contextual transaction risk scoring, graph-based mule ring detection, golden-hour recovery route optimization, and human-centric intervention into a production-ready ecosystem.
@@ -107,6 +107,22 @@ graph TD
 ### 9. Tamper-Evident Hash-Chained Audit Trail
 - Cryptographically chained SHA-256 audit ledger ensuring investigator actions, overrides, and threshold changes cannot be altered.
 
+### 10. Evidence-Driven Scam Incident Investigation
+Owns the **UNDERSTAND → INVESTIGATE → EXPLAIN** stage of the platform, on top of the existing detection, risk, graph and recovery engines. It answers one question: *what does the available evidence actually support?* — without assuming the customer is right and without assuming a model is right.
+
+- **Claim extraction** from Bangla, Banglish, English and mixed text into one structured representation (amount, resolved time window, counterparty, reference, scam indicators, authorisation denial). Values the complaint does not contain stay `undefined` — nothing is inferred.
+- **Complaint → transaction matching** with a transparent, normalised evidence score over seven documented signals (reference, amount, counterparty, time, type, status, context). Weights are configurable (`INVESTIGATION_MATCHING_WEIGHTS`), versioned, and asserted by tests; they are heuristic priors, not calibrated values.
+- **Three-state evidence verdict** — `CONSISTENT` / `INCONSISTENT` / `INSUFFICIENT_DATA` — decided by deterministic policy, never by a generative model. `INCONSISTENT` requires a falsifiable discriminator plus contradictory records, and is explicitly *not* a finding that the customer is being untruthful.
+- **Evidence conflict detection** across customer statement, ledger, risk, graph and campaign evidence. A denial of authorisation against an existing transaction resolves to `INSUFFICIENT_DATA` plus mandatory human review, never to "customer fraud".
+- **Traceable reasoning** — every conclusion carries a `CLAIM → EVIDENCE → REASON → CONCLUSION` chain whose evidence ids resolve to real evidence items, each marked record-verified or heuristic.
+- **Intelligence reuse, not duplication** — fraud risk comes from the existing risk engine (with point-in-time feature correction for retrospective scoring), ring and community-report evidence from the existing stores, campaign correlation from the existing Scam Campaign Intelligence, and recovery from the existing Golden-Hour Route Optimizer.
+- **Four separate dimensions** kept separate throughout: evidence verdict, fraud risk, case type, and operational routing department.
+- **Human-review policy** driven by a combination of thirteen named triggers (campaign involvement, graph relationships, evidence conflict, ambiguous match, golden-hour sensitivity, credential exposure, injection attempt, …) rather than a bare `risk > X`.
+- **Safe customer response** generated from vetted templates, then scanned by a **response safety validator** that blocks PIN/OTP/password/card requests, unverified third-party contact, and unauthorised refund / reversal / unblock promises — while still permitting the *warning* "we will never ask for your PIN or OTP", which a naive keyword block would wrongly reject. A rejected draft is discarded and replaced; the delivered reply always passes.
+- **Prompt-injection defense** — complaint text is untrusted data. An input guard detects and neutralises instruction-injection in English, Bangla and Banglish (25 patterns), records the attempt, escalates for review, and continues the investigation on the victim's actual account of events.
+- **Credential hygiene** — a PIN or OTP a victim pastes into their own complaint is redacted before storage and is never mistaken for a transaction amount.
+- **Graceful degradation** — every evidence source reports `AVAILABLE` / `EMPTY` / `UNAVAILABLE` / `NOT_APPLICABLE`. "Lookup failed" and "nothing found" are never collapsed, and no evidence is fabricated to make the UI look complete.
+
 ---
 
 ## 💻 Technology Stack
@@ -138,10 +154,11 @@ Team_Orbit/
 │   │   │   ├── client.ts            # PostgreSQL pool configuration
 │   │   │   ├── repository.ts        # Data access layer
 │   │   │   └── schema.ts            # DDL & high-performance composite indexes
-│   │   ├── generator/               # Synthetic MFS transaction & complaint generators
+│   │   ├── generator/               # Synthetic MFS transaction, complaint & evidence-ledger generators
 │   │   ├── services/                # 22 domain engines (Risk, NLP, Graph, Protection, etc.)
+│   │   │   └── investigation/       # Evidence-driven incident investigation pipeline
 │   │   └── server.ts                # Application entry point
-│   └── tests/                       # 12 Vitest suites covering all modules
+│   └── tests/                       # 14 Vitest suites covering all modules
 └── frontend/
     ├── src/
     │   ├── app/                     # 18 Next.js App Router views
@@ -152,6 +169,7 @@ Team_Orbit/
     │   │   ├── complaints/          # Complaint-to-Action Triage
     │   │   ├── customer/            # Customer App & Scam Coach Dialogs
     │   │   ├── fairness/            # Algorithmic Fairness & Bias Monitor
+    │   │   ├── investigations/      # Evidence-Driven Incident Investigation Console
     │   │   ├── knowledge-graph/     # Semantic Knowledge Graph Explorer
     │   │   ├── merchants/           # Merchant QR Scam Shield
     │   │   ├── propagation/         # Community Spread Defense Console
@@ -273,6 +291,17 @@ All API responses follow a standardized JSON envelope:
 | `POST` | `/v1/merchants/evaluate` | Evaluate contextual merchant QR transaction risk |
 | `POST` | `/v1/customer/safety-mode/activate` | Activate voluntary customer safety mode |
 | `GET` | `/v1/audit/logs` | Query tamper-evident hash-chained audit ledger |
+| `POST` | `/v1/investigations/analyze` | Run an evidence-driven incident investigation on a complaint |
+| `POST` | `/v1/complaints/:id/investigate` | Investigate a complaint already in the triage queue |
+| `POST` | `/v1/investigations/extract-claim` | Claim extraction only (dry run, no persistence) |
+| `GET` | `/v1/investigations` | List persisted investigations (filter by verdict, review state, case) |
+| `GET` | `/v1/investigations/:id` | Retrieve one investigation with its full evidence chain |
+| `POST` | `/v1/investigations/:id/copilot` | Investigator Copilot brief with per-statement evidence citations |
+| `POST` | `/v1/investigations/:id/review` | Record a human review decision into the audit chain |
+| `GET` | `/v1/investigations/metrics` | Investigation observability counters and latency distribution |
+| `POST` | `/v1/investigations/validate-response` | Run the response safety validator against a draft reply |
+| `GET` | `/v1/demo/investigation-scenarios` | Five demo scenarios with matching sample complaints |
+| `POST` | `/v1/demo/investigation-ledger/seed` | Refresh the synthetic evidence ledger (keeps golden hour live) |
 
 ---
 
@@ -282,6 +311,9 @@ All API responses follow a standardized JSON envelope:
 - **Explainability**: Every flagged risk decision outputs a machine-readable rule trace alongside clear, human-understandable Bangla (`কেন সতর্কতা?`, `করণীয় কি?`) explanations.
 - **Fairness & Bias Prevention**: Dedicated Fairness & Drift monitor tracking False Positive Rates (FPR) across user segments (`student`, `farmer`, `gig`, `salaried`) and regional district types (`rural` vs `urban`).
 - **Reversibility & Graceful Recovery**: Customer Safety Mode and Pause & Verify mechanisms are completely reversible with zero permanent user lockouts.
+- **No Over-Claimed AI**: The investigation layer never states that AI "knows" a case is fraud. It reports what the evidence supports — consistent, inconsistent, or insufficient — and refuses to force a confident answer when evidence is missing. Explanations are deterministic templates grounded in evidence ids, and their provenance is visually separated from stored evidence in the UI.
+- **Untrusted Input Isolation**: Customer complaint text is treated strictly as data. Instruction-injection attempts in English, Bangla and Banglish are neutralised, recorded and escalated — they cannot change a verdict, a risk score, or a human-review decision.
+- **Credential Non-Retention**: PIN/OTP values a victim pastes into a complaint are redacted before persistence; audit payloads carry decision provenance only, never raw complaint text or credentials.
 
 ---
 
@@ -307,6 +339,8 @@ npm test
 - ✅ **USSD Protection**: Cross-channel ATO detection and USSD intervention auditing.
 - ✅ **Customer Safety Mode**: Activation, extension, PIN step-up, and auto-expiry.
 - ✅ **Bangla Scam NLP**: Live Bangla/Banglish dialect impersonation detection.
+- ✅ **Incident Investigation**: Claim extraction, matching signals, three-state verdict, conflict detection, timeline, persistence, review workflow and graceful degradation (40 tests).
+- ✅ **Investigation Adversarial**: 25 injection patterns across English/Bangla/Banglish, policy-boundary enforcement, and response safety under hostile input (37 tests).
 
 ---
 

@@ -9,6 +9,7 @@ import {
   securityHeaders
 } from './api/middleware/index.js';
 import { generateSyntheticWorld } from './generator/synthetic-world.js';
+import { seedInvestigationEvidenceLedger } from './generator/investigation-evidence-ledger.js';
 import { repository } from './db/repository.js';
 import { envConfig } from './core/env.js';
 
@@ -85,6 +86,16 @@ async function startServer() {
     if (stats.totalTxns === 0) {
       console.log('Seeding initial synthetic world dataset...');
       await generateSyntheticWorld();
+    }
+
+    // Refresh the investigation evidence ledger on every boot. Idempotent (upsert by
+    // stable TXN-INV-* ids) and timestamp-relative, so the golden-hour demo scenario
+    // is always live. A failure here must not prevent the server from starting.
+    try {
+      const ledger = await seedInvestigationEvidenceLedger();
+      console.log(`Investigation evidence ledger refreshed: ${ledger.transactions_written} transactions across ${ledger.scenarios.length} scenarios.`);
+    } catch (err: any) {
+      console.warn('Investigation evidence ledger seeding skipped:', err?.message);
     }
 
     app.listen(PORT, () => {

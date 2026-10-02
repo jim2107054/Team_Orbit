@@ -304,7 +304,77 @@ export interface Agent {
   risk_status: 'normal' | 'watchlist' | 'investigating';
 }
 
+// ================= AGENT GUARD & LIQUIDITY TYPES =================
+export type AgentClassification = 'NORMAL' | 'HIGH_ACTIVITY' | 'LIQUIDITY_PRESSURE' | 'FRAUD_REVIEW';
+
+export interface AgentLiquiditySignals {
+  cash_in_volume_bdt: number;
+  cash_out_volume_bdt: number;
+  total_volume_bdt: number;
+  hourly_volume_peak: number;
+  inventory_balance_pressure: number; // 0.0 to 1.0 (float depletion / rebalance urgency)
+  customer_count: number;
+  repeat_customer_rate: number; // 0.0 to 1.0
+  regional_peer_deviation: number; // e.g. 1.2x or 8.5x
+  business_hours_ratio: number; // 0.0 to 1.0 (txns inside 08:00 - 22:00)
+  seasonal_volume_change: number; // e.g. 2.4x during Eid/Salary
+}
+
+export interface AgentFraudSignals {
+  shared_device_count: number;
+  suspicious_wallet_connections: number;
+  rapid_in_out_ratio: number; // 0.0 to 1.0 (cashouts within 10m of victim transfer)
+  ring_membership: string[]; // e.g. ['RING-003']
+  structured_amounts_count: number; // txns just below threshold e.g. ৳4,950
+  unusual_counterparties_rate: number; // out-of-district / unknown counterparties
+  complaint_rate: number; // direct complaints or Scam Check hits
+  pass_through_behavior_ratio: number; // 0.0 to 1.0
+}
+
+export interface AgentPeerBenchmark {
+  region: string;
+  size_tier: 'tier_1' | 'tier_2' | 'tier_3';
+  tenure_band: string;
+  business_profile: string;
+  peer_avg_daily_volume_bdt: number;
+  peer_avg_customer_count: number;
+  peer_avg_cashout_ratio: number;
+  peer_avg_repeat_rate: number;
+  peer_avg_structured_count: number;
+  peer_avg_shared_devices: number;
+}
+
+export interface AgentDualRiskProfile {
+  agent_id: string;
+  name: string;
+  phone: string;
+  division: string;
+  district_type: DistrictType;
+  business_profile: string;
+  size_tier: 'tier_1' | 'tier_2' | 'tier_3';
+  tenure_days: number;
+  
+  // Two Independent Scores
+  operational_pressure_score: number; // 0.0 to 1.0 (Liquidity & volume load)
+  fraud_risk_score: number; // 0.0 to 1.0 (Pure fraud & complicity signals)
+  
+  classification: AgentClassification;
+  classification_label_bn: string;
+  classification_label_en: string;
+  classification_reason: string;
+  
+  liquidity_signals: AgentLiquiditySignals;
+  fraud_signals: AgentFraudSignals;
+  peer_benchmark: AgentPeerBenchmark;
+  
+  active_warnings: string[];
+  coached_victim_prompts_bn: string[];
+  recommended_actions: string[];
+  last_evaluated_at: string;
+}
+
 export type MerchantTrustBadge = 'NEW' | 'NORMAL' | 'WATCH' | 'REVIEW';
+
 
 export interface Merchant {
   merchant_id: string;

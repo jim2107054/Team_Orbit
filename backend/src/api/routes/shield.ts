@@ -619,23 +619,56 @@ shieldRouter.get('/metrics/summary', async (req: Request, res: Response) => {
   return res.json(stats);
 });
 
-// ================= API-14: AGENT RISK =================
-shieldRouter.get('/agents/:id/risk', async (req: Request, res: Response) => {
-  const agent = {
-    agent_id: req.params.id,
-    name: 'Rahman Telecom & Flexiload',
-    phone: '01799-330192',
-    division: 'Dhaka',
-    district_type: 'urban' as const,
-    tenure_days: 420,
-    size_tier: 'tier_1' as const,
-    trained_flag: true,
-    cashout_velocity_score: 0.88,
-    risk_status: 'watchlist' as const
-  };
-  const profile = agentGuard.evaluateAgentRisk(agent);
-  return res.json(profile);
+// ================= AGENT GUARD & LIQUIDITY SEPARATION (M8) =================
+shieldRouter.get('/agents', (req: Request, res: Response) => {
+  const agents = agentGuard.getAllAgentProfiles();
+  return res.json({ success: true, count: agents.length, agents });
 });
+
+shieldRouter.get('/agents/:id/dual-profile', (req: Request, res: Response) => {
+  const profile = agentGuard.getAgentProfile(req.params.id) || agentGuard.evaluateDualProfile(req.params.id);
+  return res.json({ success: true, profile });
+});
+
+shieldRouter.get('/agents/:id/risk', async (req: Request, res: Response) => {
+  const profile = agentGuard.getAgentProfile(req.params.id) || agentGuard.evaluateDualProfile(req.params.id);
+  const legacy = {
+    agent_id: profile.agent_id,
+    name: profile.name,
+    division: profile.division,
+    cashout_ratio: profile.liquidity_signals.cash_out_volume_bdt / Math.max(1, profile.liquidity_signals.total_volume_bdt),
+    peer_avg_cashout_ratio: profile.peer_benchmark.peer_avg_cashout_ratio,
+    structured_txn_count: profile.fraud_signals.structured_amounts_count,
+    shared_device_count: profile.fraud_signals.shared_device_count,
+    risk_score: profile.fraud_risk_score,
+    risk_tier: profile.fraud_risk_score >= 0.60 ? 'HIGH_ALERT' : profile.fraud_risk_score >= 0.40 ? 'ELEVATED' : 'NORMAL',
+    active_warnings: profile.active_warnings,
+    coached_victim_prompts_bn: profile.coached_victim_prompts_bn,
+    dual_profile: profile
+  };
+  return res.json(legacy);
+});
+
+shieldRouter.post('/agents/:id/actions', (req: Request, res: Response) => {
+  try {
+    const { action, analyst_id, notes } = req.body;
+    if (!action) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'action is required' } });
+    }
+
+    const result = agentGuard.executeAnalystAction(
+      req.params.id,
+      action,
+      analyst_id || 'ANALYST-101',
+      notes
+    );
+
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'ACTION_FAILED', message: err.message } });
+  }
+});
+
 
 // ================= AUDIT LOGS (M17) =================
 shieldRouter.get('/audit/logs', async (req: Request, res: Response) => {

@@ -7,7 +7,7 @@ import {
   ExternalLink, Info, RefreshCw, Smartphone, Phone, Wallet,
   Store, Building2, FileText, MessageSquare, AlertCircle,
   MapPin, Calendar, HelpCircle, Eye, ShieldCheck, Zap,
-  ZoomIn, ZoomOut, Maximize2, Share2, Copy, Check
+  ZoomIn, ZoomOut, Maximize2, Share2, Copy, Check, Pin, X
 } from 'lucide-react';
 import { 
   KnowledgeNode, KnowledgeEdge, KnowledgeNodeType, 
@@ -419,8 +419,9 @@ export const ScamKnowledgeGraph: React.FC = () => {
               <div className="pt-2 border-t border-[#7367F0]/20 flex items-center gap-2 flex-wrap text-[10px] font-nunito">
                 <span className="font-bold text-[#7367F0]">Verified Citations:</span>
                 {queryResult.evidence_citations.map((ev, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded bg-[#FFFFFF] border border-[#7367F0]/30 text-[#7367F0] font-mono font-bold">
-                    📌 {ev.source_event_id} ({ev.verification_source})
+                  <span key={i} className="px-2 py-0.5 rounded bg-[#FFFFFF] border border-[#7367F0]/30 text-[#7367F0] font-mono font-bold flex items-center gap-1">
+                    <Pin className="w-2.5 h-2.5 text-[#7367F0]" />
+                    <span>{ev.source_event_id} ({ev.verification_source})</span>
                   </span>
                 ))}
               </div>
@@ -904,9 +905,10 @@ export const ScamKnowledgeGraph: React.FC = () => {
               </div>
               <button
                 onClick={() => setEvidenceModalEdge(null)}
-                className="text-xs font-nunito font-bold text-[#646B72] hover:text-[#000000]"
+                className="text-xs font-nunito font-bold text-[#646B72] hover:text-[#000000] flex items-center gap-1"
               >
-                ✕ Close
+                <X className="w-3.5 h-3.5" />
+                <span>Close</span>
               </button>
             </div>
 

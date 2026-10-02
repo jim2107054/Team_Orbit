@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Network, ShieldAlert, Sparkles, Activity, Clock, CheckCircle2, 
   AlertTriangle, Filter, Layers, ExternalLink, ArrowRight, 
-  FileText, User, Radio, Smartphone, Plus, RefreshCw, Send, Check
+  FileText, User, Radio, Smartphone, Plus, RefreshCw, Send, Check, Mic, Edit3
 } from 'lucide-react';
 import { ScamCampaign, CampaignLifecycle, ScamComplaintRecord } from '../core/types';
 
@@ -140,8 +140,12 @@ export const CampaignIntelligence: React.FC = () => {
             disabled={isGeneratingDemo}
             className="flex items-center gap-2 px-4 py-2 bg-[#FF9F43] hover:bg-[#f08e2f] text-white rounded-[6px] text-xs font-poppins font-semibold shadow-[0px_4px_15px_0px_rgba(255,159,67,0.30)] transition-all active:scale-95 disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingDemo ? 'animate-spin' : ''}`} />
-            <span>{isGeneratingDemo ? 'Clustering 50 Incidents...' : '🚀 Discover 50-Complaint Campaign'}</span>
+            {isGeneratingDemo ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+            )}
+            <span>{isGeneratingDemo ? 'Clustering 50 Incidents...' : 'Discover 50-Complaint Campaign'}</span>
           </button>
         </div>
       </div>
@@ -301,7 +305,8 @@ export const CampaignIntelligence: React.FC = () => {
                     href="/rings"
                     className="px-3 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#1B2850] text-xs font-nunito font-bold flex items-center gap-1.5 shadow-sm"
                   >
-                    <span>🕸️ View Ring-12</span>
+                    <Network className="w-3.5 h-3.5 text-[#FF9F43]" />
+                    <span>View Ring-12</span>
                     <ExternalLink className="w-3.5 h-3.5 text-[#FF9F43]" />
                   </Link>
                   <button
@@ -329,7 +334,7 @@ export const CampaignIntelligence: React.FC = () => {
                   <div className="p-2 bg-white rounded border border-[#E8EBED]">
                     <span className="text-[#646B72] block">Linguistic Sim</span>
                     <strong className="text-[#FF9F43] font-mono">
-                      {(selectedCampaign.score_breakdown.linguistic_similarity * 100).toFixed(0)}%
+                       {(selectedCampaign.score_breakdown.linguistic_similarity * 100).toFixed(0)}%
                     </strong>
                   </div>
                   <div className="p-2 bg-white rounded border border-[#E8EBED]">
@@ -363,43 +368,47 @@ export const CampaignIntelligence: React.FC = () => {
               <div className="flex items-center gap-2 pt-2 border-b border-[#E8EBED] text-xs font-nunito">
                 <button
                   onClick={() => setSelectedTab('graph')}
-                  className={`pb-2 px-3 font-bold border-b-2 transition-colors ${
+                  className={`pb-2 px-3 font-bold border-b-2 flex items-center gap-1.5 transition-colors ${
                     selectedTab === 'graph'
                       ? 'border-[#FF9F43] text-[#FF9F43]'
                       : 'border-transparent text-[#646B72] hover:text-[#212B36]'
                   }`}
                 >
-                  🕸️ Campaign Graph Layer
+                  <Network className="w-3.5 h-3.5" />
+                  <span>Campaign Graph Layer</span>
                 </button>
                 <button
                   onClick={() => setSelectedTab('evidence')}
-                  className={`pb-2 px-3 font-bold border-b-2 transition-colors ${
+                  className={`pb-2 px-3 font-bold border-b-2 flex items-center gap-1.5 transition-colors ${
                     selectedTab === 'evidence'
                       ? 'border-[#FF9F43] text-[#FF9F43]'
                       : 'border-transparent text-[#646B72] hover:text-[#212B36]'
                   }`}
                 >
-                  🎙️ Linguistic &amp; Phrase Fingerprints
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>Linguistic &amp; Phrase Fingerprints</span>
                 </button>
                 <button
                   onClick={() => setSelectedTab('complaints')}
-                  className={`pb-2 px-3 font-bold border-b-2 transition-colors ${
+                  className={`pb-2 px-3 font-bold border-b-2 flex items-center gap-1.5 transition-colors ${
                     selectedTab === 'complaints'
                       ? 'border-[#FF9F43] text-[#FF9F43]'
                       : 'border-transparent text-[#646B72] hover:text-[#212B36]'
                   }`}
                 >
-                  📋 Correlated Complaints ({complaints.length})
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Correlated Complaints ({complaints.length})</span>
                 </button>
                 <button
                   onClick={() => setSelectedTab('actions')}
-                  className={`pb-2 px-3 font-bold border-b-2 transition-colors ${
+                  className={`pb-2 px-3 font-bold border-b-2 flex items-center gap-1.5 transition-colors ${
                     selectedTab === 'actions'
                       ? 'border-[#FF9F43] text-[#FF9F43]'
                       : 'border-transparent text-[#646B72] hover:text-[#212B36]'
                   }`}
                 >
-                  ✍️ Analyst Notes &amp; Chained Ledger
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Analyst Notes &amp; Chained Ledger</span>
                 </button>
               </div>
             </div>

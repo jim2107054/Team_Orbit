@@ -23,7 +23,11 @@ import {
   HelpCircle,
   FileText,
   UserCheck,
-  Flame
+  Flame,
+  Zap,
+  Scale,
+  Search,
+  DollarSign
 } from 'lucide-react';
 import {
   RecoveryRoutePlan,
@@ -170,8 +174,9 @@ export const RecoveryTracer: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
+              <Zap className="w-5 h-5 text-[#FF9F43]" />
               <span className="font-poppins font-bold text-xl text-[#000000]">
-                ⚡ Recovery Route Optimizer &amp; Golden-Hour Decision Support
+                Recovery Route Optimizer &amp; Golden-Hour Decision Support
               </span>
               <span className="px-2.5 py-0.5 rounded-[4px] text-xs font-nunito font-bold bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30">
                 PROMPT 11 • EVIDENCE-BASED
@@ -576,21 +581,25 @@ export const RecoveryTracer: React.FC = () => {
               <span className="text-[11px] font-nunito font-semibold text-[#646B72]">Quick Questions:</span>
               <div className="flex flex-col gap-1.5">
                 {[
-                  { q: 'What should I investigate first?', label: '🔍 What should I investigate first?' },
-                  { q: 'প্রথমে কোন অ্যাকাউন্টে ফোকাস করব?', label: '🇧🇩 প্রথমে কোন অ্যাকাউন্টে ফোকাস করব?' },
-                  { q: 'Is there active balance remaining in downstream wallets?', label: '💰 Active balance in downstream wallets?' }
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setCopilotQuestion(item.q);
-                      handleAskCopilot(item.q);
-                    }}
-                    className="text-left px-3 py-1.5 rounded-[4px] text-xs font-nunito bg-[#FFFFFF] border border-[#DADFE5] hover:border-[#FF9F43] transition-all text-[#212529] hover:bg-[#FFF9F2]"
-                  >
-                    {item.label}
-                  </button>
-                ))}
+                  { q: 'What should I investigate first?', label: 'What should I investigate first?', icon: Search },
+                  { q: 'প্রথমে কোন অ্যাকাউন্টে ফোকাস করব?', label: 'প্রথমে কোন অ্যাকাউন্টে ফোকাস করব?', icon: Search },
+                  { q: 'Is there active balance remaining in downstream wallets?', label: 'Active balance in downstream wallets?', icon: DollarSign }
+                ].map((item, idx) => {
+                  const IconComp = item.icon;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setCopilotQuestion(item.q);
+                        handleAskCopilot(item.q);
+                      }}
+                      className="text-left px-3 py-1.5 rounded-[4px] text-xs font-nunito bg-[#FFFFFF] border border-[#DADFE5] hover:border-[#FF9F43] transition-all text-[#212529] hover:bg-[#FFF9F2] flex items-center gap-1.5"
+                    >
+                      <IconComp className="w-3.5 h-3.5 text-[#FF9F43]" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -777,9 +786,12 @@ export const RecoveryTracer: React.FC = () => {
             })}
           </div>
 
-          <div className="p-3 bg-[#F7F7F7] border border-[#DADFE5] text-[11px] font-nunito text-[#646B72]">
-            ⚖️ <strong>Governance &amp; Safeguard (RAI-05):</strong> Holds require human analyst approval. 
-            No autonomous denial or irreversible freezing is conducted by the AI engine.
+          <div className="p-3 bg-[#F7F7F7] border border-[#DADFE5] text-[11px] font-nunito text-[#646B72] flex items-start gap-2">
+            <Scale className="w-4 h-4 text-[#FF9F43] shrink-0 mt-0.5" />
+            <div>
+              <strong>Governance &amp; Safeguard (RAI-05):</strong> Holds require human analyst approval. 
+              No autonomous denial or irreversible freezing is conducted by the AI engine.
+            </div>
           </div>
         </div>
       </div>

@@ -22,15 +22,15 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onSelectScenario }) => {
   const tabs = [
-    { id: 'customer', label: '📱 Customer Demo', icon: Smartphone },
-    { id: 'ussd', label: '📟 USSD (*268#)', icon: Radio },
-    { id: 'analyst', label: '🛡️ Analyst Triage', icon: ShieldAlert },
-    { id: 'rings', label: '🕸️ Ring Explorer', icon: Network },
-    { id: 'recovery', label: '⚡ Golden-Hour Trace', icon: Clock },
-    { id: 'simulator', label: '📊 ROI Simulator', icon: BarChart3 },
-    { id: 'fairness', label: '⚖️ Fairness & Drift', icon: Users },
-    { id: 'agent', label: '🏪 Agent Guard', icon: Shield },
-    { id: 'audit', label: '🔒 Audit Ledger', icon: FileText },
+    { id: 'customer', label: 'Customer Demo', icon: Smartphone },
+    { id: 'ussd', label: 'USSD (*268#)', icon: Radio },
+    { id: 'analyst', label: 'Analyst Triage', icon: ShieldAlert },
+    { id: 'rings', label: 'Ring Explorer', icon: Network },
+    { id: 'recovery', label: 'Golden-Hour Trace', icon: Clock },
+    { id: 'simulator', label: 'ROI Simulator', icon: BarChart3 },
+    { id: 'fairness', label: 'Fairness & Drift', icon: Users },
+    { id: 'agent', label: 'Agent Guard', icon: Shield },
+    { id: 'audit', label: 'Audit Ledger', icon: FileText },
   ];
 
   return (

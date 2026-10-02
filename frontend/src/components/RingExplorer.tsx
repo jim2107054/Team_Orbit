@@ -226,7 +226,7 @@ export const RingExplorer: React.FC = () => {
               >
                 <rect x="475" y="80" width="38" height="38" rx="4" fill="#0E9384" stroke="#0b7a6d" strokeWidth="2" />
                 <text x="494" y="104" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">
-                  🏪 Agt1
+                  AGT-1
                 </text>
               </g>
 
@@ -245,7 +245,7 @@ export const RingExplorer: React.FC = () => {
               >
                 <rect x="475" y="240" width="38" height="38" rx="4" fill="#0E9384" stroke="#0b7a6d" strokeWidth="2" />
                 <text x="494" y="264" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">
-                  🏪 Agt2
+                  AGT-2
                 </text>
               </g>
             </svg>

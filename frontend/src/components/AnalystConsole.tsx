@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, Clock, CheckCircle, XCircle, FileText, 
-  Send, AlertTriangle, Sparkles, UserCheck, Lock, ExternalLink
+  Send, AlertTriangle, Sparkles, UserCheck, Lock, ExternalLink, Network, Mic, Check
 } from 'lucide-react';
 
 interface CaseItem {
@@ -112,14 +112,16 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
             onClick={onOpenRing}
             className="px-3.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-semibold flex items-center gap-1.5 shadow-sm"
           >
-            <span>🕸️ Open Ring-12 Explorer</span>
+            <Network className="w-3.5 h-3.5 text-[#FF9F43]" />
+            <span>Open Ring-12 Explorer</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#FF9F43]" />
           </button>
           <button
             onClick={onOpenTrace}
             className="px-3.5 py-1.5 rounded-[5px] bg-[#FF9F43] hover:bg-[#f08e2f] text-white text-xs font-poppins font-semibold flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(254,159,67,0.20)]"
           >
-            <span>⚡ Golden-Hour Money Trace</span>
+            <Clock className="w-3.5 h-3.5" />
+            <span>Golden-Hour Money Trace</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -209,8 +211,8 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
 
                 {/* Channel & Device Context Telemetry */}
                 <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-[#DADFE5] text-[11px] font-nunito">
-                  <span className="px-2 py-0.5 bg-[#05A677]/15 text-[#05A677] border border-[#05A677]/30 font-mono font-bold">
-                    🔒 Safety Mode: ACTIVE (Self-Activated)
+                  <span className="px-2 py-0.5 bg-[#05A677]/15 text-[#05A677] border border-[#05A677]/30 font-mono font-bold flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Safety Mode: ACTIVE (Self-Activated)
                   </span>
                   <span className="px-2 py-0.5 bg-[#FF9F43]/15 text-[#FF9F43] font-mono font-bold">
                     Channel: APP
@@ -323,7 +325,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
             <div className="dream-card p-5 space-y-4 shadow-sm border-t-2 border-t-[#FF9F43]">
               <div className="flex items-center justify-between pb-3 border-b border-[#DADFE5]">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">🎙️</span>
+                  <Mic className="w-4 h-4 text-[#FF9F43]" />
                   <h3 className="font-poppins font-bold text-sm text-[#000000]">
                     Bangla Scam Call Intelligence &amp; Multi-Turn Signal Timeline
                   </h3>
@@ -380,20 +382,20 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 <div className="p-3 bg-[#FFFFFF] border border-[#DADFE5] space-y-1.5">
                   <h5 className="font-poppins font-bold text-[#000000] text-xs">Structured Behavioral Signals</h5>
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
-                      ✓ Time Pressure (SIG_URGENCY)
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Time Pressure (SIG_URGENCY)
                     </span>
-                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
-                      ✓ Customer Care Spoofing
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Customer Care Spoofing
                     </span>
-                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
-                      ✓ OTP Harvesting
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> OTP Harvesting
                     </span>
-                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
-                      ✓ Account Suspension Threat
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Account Suspension Threat
                     </span>
-                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold">
-                      ✓ Coerced Transfer Demand
+                    <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 rounded-none text-[11px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Coerced Transfer Demand
                     </span>
                   </div>
                 </div>
@@ -419,7 +421,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   <h3 className="font-poppins font-bold text-sm text-[#000000]">Investigation Copilot Brief</h3>
                   <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-nunito font-bold bg-[#198754]/15 text-[#198754] border border-[#198754]/30 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
-                    <span>✔ Verified 6/6 Claims</span>
+                    <span>Verified 6/6 Claims</span>
                   </span>
                 </div>
 
@@ -461,7 +463,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                         <div className="space-y-1.5 text-[#212529]">
                           {sec.sentences.map((st: any, sIdx: number) => (
                             <div key={sIdx} className="flex items-start gap-1.5">
-                              <span className="text-[#198754] font-bold">✔</span>
+                              <Check className="w-3.5 h-3.5 text-[#198754] shrink-0 mt-0.5" />
                               <span>{st.text}</span>
                             </div>
                           ))}
@@ -474,8 +476,9 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   {copilotBrief.str_draft && (
                     <div className="p-3.5 bg-[#F7F7F7] rounded-none border border-[#DADFE5]">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-mono text-[11px] font-bold text-[#646B72]">
-                          📄 PRE-FILLED STR DRAFT (HUMAN REVIEW REQUIRED)
+                        <span className="font-mono text-[11px] font-bold text-[#646B72] flex items-center gap-1.5">
+                          <FileText className="w-3.5 h-3.5 text-[#092C4C]" />
+                          <span>PRE-FILLED STR DRAFT (HUMAN REVIEW REQUIRED)</span>
                         </span>
                         <button
                           onClick={() => alert('STR Draft Exported as PDF/JSON.')}

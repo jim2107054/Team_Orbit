@@ -38,8 +38,9 @@ export const AuditLogView: React.FC = () => {
       <div className="dream-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
+            <Lock className="w-5 h-5 text-[#FF9F43]" />
             <span className="font-poppins font-bold text-lg text-[#000000]">
-              🔒 Immutable Tamper-Evident Audit Ledger (M17)
+              Immutable Tamper-Evident Audit Ledger (M17)
             </span>
             <span className="px-2.5 py-0.5 rounded-[4px] text-xs font-nunito font-bold bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30">
               SHA-256 Hash-Chained

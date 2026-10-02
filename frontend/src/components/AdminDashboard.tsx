@@ -7,7 +7,7 @@ import {
   Target, Hash, Calendar, X, AlertCircle, ShoppingCart, 
   Users, User, ChevronRight, ArrowUpRight, ArrowDownRight, 
   Settings, Sparkles, ExternalLink, ArrowRight, Smartphone, Radio,
-  Activity, Layers, FileText
+  Activity, Layers, FileText, Network
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -43,7 +43,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2 text-[#D46B08]">
             <AlertCircle className="w-4 h-4 text-[#FF9F43] flex-shrink-0" />
             <span>
-              <strong className="text-[#FF9F43] font-bold">🚨 Live Threat Alert:</strong> 3 split mule hops detected in Mirpur Hub (৳18,500). Golden-Hour Auto-Hold recommended.{' '}
+              <strong className="text-[#FF9F43] font-bold">Live Threat Alert:</strong> 3 split mule hops detected in Mirpur Hub (৳18,500). Golden-Hour Auto-Hold recommended.{' '}
               <Link href="/analyst" className="underline font-bold hover:text-[#D46B08]">Review Alert in Triage</Link>
             </span>
           </div>
@@ -370,7 +370,10 @@ export const AdminDashboard: React.FC = () => {
                 href="/customer"
                 className="p-2.5 rounded-[6px] bg-[#FFF4E8] text-[#FF9F43] font-bold border border-[#FFD8BF] flex items-center justify-between hover:bg-[#FFE7BA] transition-colors"
               >
-                <span>📱 Customer Demo</span>
+                <div className="flex items-center gap-1.5">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Customer Demo</span>
+                </div>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
 
@@ -378,7 +381,10 @@ export const AdminDashboard: React.FC = () => {
                 href="/ussd"
                 className="p-2.5 rounded-[6px] bg-[#1B2850]/5 text-[#1B2850] font-bold border border-[#E8EBED] flex items-center justify-between hover:bg-[#1B2850]/10 transition-colors"
               >
-                <span>📟 USSD (*268#)</span>
+                <div className="flex items-center gap-1.5">
+                  <Radio className="w-3.5 h-3.5" />
+                  <span>USSD (*268#)</span>
+                </div>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
 
@@ -386,7 +392,10 @@ export const AdminDashboard: React.FC = () => {
                 href="/analyst"
                 className="p-2.5 rounded-[6px] bg-[#FF0000]/5 text-[#FF0000] font-bold border border-[#FF0000]/20 flex items-center justify-between hover:bg-[#FF0000]/10 transition-colors"
               >
-                <span>🛡️ Analyst Triage</span>
+                <div className="flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Analyst Triage</span>
+                </div>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
 
@@ -394,7 +403,10 @@ export const AdminDashboard: React.FC = () => {
                 href="/rings"
                 className="p-2.5 rounded-[6px] bg-[#05A677]/5 text-[#05A677] font-bold border border-[#05A677]/20 flex items-center justify-between hover:bg-[#05A677]/10 transition-colors"
               >
-                <span>🕸️ Ring-12 Hub</span>
+                <div className="flex items-center gap-1.5">
+                  <Network className="w-3.5 h-3.5" />
+                  <span>Ring-12 Hub</span>
+                </div>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

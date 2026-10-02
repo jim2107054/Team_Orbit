@@ -45,8 +45,9 @@ export const Simulator: React.FC = () => {
       <div className="dream-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-[#FF9F43]" />
             <span className="font-poppins font-bold text-lg text-[#000000]">
-              📊 Parametric Business Impact &amp; ROI Simulator
+              Parametric Business Impact &amp; ROI Simulator
             </span>
             <span className="px-2.5 py-0.5 rounded-[4px] text-xs font-nunito font-bold bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30">
               SRS §16 Model

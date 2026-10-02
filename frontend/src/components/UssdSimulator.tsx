@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { 
   PhoneCall, ShieldAlert, ShieldCheck, CheckCircle, XCircle, 
   RotateCcw, ArrowRight, Smartphone, Radio, Activity, AlertTriangle,
-  History, Server, Sparkles, UserX, UserCheck
+  History, Server, Sparkles, UserX, UserCheck, Signal, Battery, Loader2
 } from 'lucide-react';
 
 interface UssdState {
@@ -409,17 +409,20 @@ export const UssdSimulator: React.FC = () => {
               {/* LCD Status Header */}
               <div className="flex items-center justify-between text-[10px] pb-1 border-b border-[#7B936E]">
                 <div className="flex items-center gap-1">
-                  <span>📶 2G/GSM</span>
-                  <span>| GP-upay</span>
+                  <Signal className="w-3 h-3 text-[#1A2518]" />
+                  <span>2G/GSM | GP-upay</span>
                 </div>
-                <div>🔋 84%</div>
+                <div className="flex items-center gap-1">
+                  <Battery className="w-3.5 h-3.5 text-[#1A2518]" />
+                  <span>84%</span>
+                </div>
               </div>
 
               {/* LCD Message Area */}
               <div className="py-2 text-[12px] leading-snug whitespace-pre-line font-bold flex-1">
                 {ussd.isEvaluating ? (
                   <div className="flex flex-col items-center justify-center h-full py-4 text-center">
-                    <span className="animate-spin text-lg mb-1">⏳</span>
+                    <Loader2 className="w-5 h-5 animate-spin mb-1 text-[#1A2518]" />
                     <span>যাচাই করা হচ্ছে...</span>
                     <span className="text-[10px] text-[#33462A]">upay Shield AI Checking...</span>
                   </div>

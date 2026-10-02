@@ -6,7 +6,7 @@ import {
   MapPin, Play, Pause, RotateCcw, AlertTriangle, ShieldAlert, 
   TrendingUp, Users, Wallet, Radio, Layers, Sparkles, CheckCircle2, 
   XCircle, Send, ArrowRight, Clock, RefreshCw, ExternalLink, ShieldCheck,
-  Filter, Eye, FileText
+  Filter, Eye, FileText, X
 } from 'lucide-react';
 import { 
   DayPropagationSnapshot, RegionalSpreadData, ScamSpreadAlert, 
@@ -162,7 +162,9 @@ export const CommunityPropagation: React.FC = () => {
             <CheckCircle2 className="w-4 h-4" />
             <span>{actionSuccess}</span>
           </div>
-          <button onClick={() => setActionSuccess(null)} className="text-white/80 hover:text-white">✕</button>
+          <button onClick={() => setActionSuccess(null)} className="text-white/80 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
@@ -665,7 +667,9 @@ export const CommunityPropagation: React.FC = () => {
                   Draft Targeted Customer Warning Broadcast
                 </h3>
               </div>
-              <button onClick={() => setIsWarningModalOpen(false)} className="text-[#646B72] hover:text-[#212B36]">✕</button>
+              <button onClick={() => setIsWarningModalOpen(false)} className="text-[#646B72] hover:text-[#212B36]">
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             <div className="space-y-3 text-xs font-nunito">

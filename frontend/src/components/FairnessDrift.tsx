@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Activity, ShieldCheck, CheckCircle2, AlertTriangle, FileCode } from 'lucide-react';
+import { Users, Activity, ShieldCheck, CheckCircle2, AlertTriangle, FileCode, Scale, Moon } from 'lucide-react';
 
 export const FairnessDrift: React.FC = () => {
   const [slices, setSlices] = useState<any[]>([]);
@@ -25,8 +25,9 @@ export const FairnessDrift: React.FC = () => {
       <div className="dream-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
+            <Scale className="w-5 h-5 text-[#FF9F43]" />
             <span className="font-poppins font-bold text-lg text-[#000000]">
-              ⚖️ Responsible AI, Fairness &amp; PSI Drift Audit
+              Responsible AI, Fairness &amp; PSI Drift Audit
             </span>
             <span className="px-2.5 py-0.5 rounded-[4px] text-xs font-nunito font-bold bg-[#198754]/15 text-[#198754] border border-[#198754]/30">
               RAI-03 &amp; RAI-04 Compliant
@@ -143,7 +144,7 @@ export const FairnessDrift: React.FC = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 pb-3 border-b border-[#DADFE5]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-base">🌙</span>
+              <Moon className="w-4 h-4 text-[#FF9F43]" />
               <h3 className="font-poppins font-bold text-sm text-[#000000]">
                 Bangladesh Temporal Risk Intelligence — Seasonal Model Comparison
               </h3>

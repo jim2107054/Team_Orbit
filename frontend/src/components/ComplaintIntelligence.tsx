@@ -5,7 +5,7 @@ import {
   FileText, ShieldAlert, AlertTriangle, Clock, CheckCircle2, 
   ExternalLink, Sparkles, Filter, Search, Phone, 
   Wallet, Building2, Store, ArrowRight, RefreshCw, Send,
-  Lock, Eye, EyeOff, ShieldCheck, Link2, Unlink, Layers, Copy, Check
+  Lock, Eye, EyeOff, ShieldCheck, Link2, Unlink, Layers, Copy, Check, Zap, Play, Plus, X
 } from 'lucide-react';
 import { 
   StructuredComplaint, ComplaintPriority, ComplaintCategory, 
@@ -277,7 +277,7 @@ export const ComplaintIntelligence: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 rounded-[6px] bg-gradient-to-r from-[#FF9F43] to-[#FF8510] text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 transition-all"
           >
             <Sparkles className="w-4 h-4" />
-            <span>🚀 Run 5-Complaint Scam Demo</span>
+            <span>Run 5-Complaint Scam Demo</span>
           </button>
 
           {/* Process New Complaint */}
@@ -285,7 +285,8 @@ export const ComplaintIntelligence: React.FC = () => {
             onClick={() => setShowNewModal(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-[6px] bg-[#1B2850] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#121B38] transition-all"
           >
-            <span>✍️ New Complaint</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Complaint</span>
           </button>
         </div>
       </div>
@@ -550,9 +551,10 @@ export const ComplaintIntelligence: React.FC = () => {
 
                     <button
                       onClick={handleEmergencyHold}
-                      className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors whitespace-nowrap"
+                      className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors whitespace-nowrap flex items-center gap-1.5"
                     >
-                      ⚡ Emergency Freeze
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>Emergency Freeze</span>
                     </button>
                   </div>
                 )}
@@ -702,9 +704,10 @@ export const ComplaintIntelligence: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E2E8F0]">
                   <button
                     onClick={handleEmergencyHold}
-                    className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors"
+                    className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors flex items-center gap-1.5"
                   >
-                    ⚡ Freeze Destination Wallet
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Freeze Destination Wallet</span>
                   </button>
 
                   <button
@@ -717,9 +720,10 @@ export const ComplaintIntelligence: React.FC = () => {
 
                   <button
                     onClick={() => setShowOverrideModal(true)}
-                    className="px-3 py-1.5 rounded-[6px] bg-[#1B2850] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#121B38] transition-colors"
+                    className="px-3 py-1.5 rounded-[6px] bg-[#1B2850] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#121B38] transition-colors flex items-center gap-1.5"
                   >
-                    🔗 Re-assign / Override Case
+                    <Link2 className="w-3.5 h-3.5" />
+                    <span>Re-assign / Override Case</span>
                   </button>
                 </div>
               </div>
@@ -741,7 +745,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 Process New Customer Complaint
               </h3>
               <button onClick={() => setShowNewModal(false)} className="text-[#646B72] hover:text-[#1B2850]">
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -808,9 +812,10 @@ export const ComplaintIntelligence: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[6px] bg-[#FF9F43] text-white text-xs font-bold shadow-sm hover:bg-[#E68A30]"
+                  className="px-4 py-2 rounded-[6px] bg-[#FF9F43] text-white text-xs font-bold shadow-sm hover:bg-[#E68A30] flex items-center gap-1.5"
                 >
-                  ⚡ Execute AI Pipeline
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Execute AI Pipeline</span>
                 </button>
               </div>
             </form>
@@ -827,7 +832,7 @@ export const ComplaintIntelligence: React.FC = () => {
                 Analyst Override Case Link
               </h3>
               <button onClick={() => setShowOverrideModal(false)} className="text-[#646B72] hover:text-[#1B2850]">
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

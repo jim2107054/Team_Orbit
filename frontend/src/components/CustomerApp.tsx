@@ -7,7 +7,7 @@ import {
   PhoneCall, MessageSquareWarning, Sparkles, Shield, Clock,
   KeyRound, Plus, PhoneForwarded, X, RefreshCw, AlertCircle,
   HelpCircle, Check, UserCheck, MessageSquare, ChevronRight,
-  Eye, FileText, Bot
+  Eye, FileText, Bot, ShieldAlert
 } from 'lucide-react';
 import {
   CustomerSafetyModeRecord,
@@ -429,12 +429,13 @@ export const CustomerApp: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setSimpleMode(!simpleMode)}
-                className={`text-[10px] px-2 py-0.5 rounded-[4px] font-nunito font-bold border transition-all ${
+                className={`text-[10px] px-2 py-0.5 rounded-[4px] font-nunito font-bold border transition-all flex items-center gap-1 ${
                   simpleMode ? 'bg-[#092C4C] text-white border-[#092C4C]' : 'bg-[#F7F7F7] text-[#646B72] border-[#DADFE5]'
                 }`}
                 title="Toggle Simple / Low-Literacy Language Mode"
               >
-                {simpleMode ? '🟢 সাধারণ ভাষা' : 'সাধারণ ভাষা'}
+                {simpleMode && <CheckCircle2 className="w-2.5 h-2.5 text-[#05A677]" />}
+                <span>সাধারণ ভাষা</span>
               </button>
               <button
                 onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
@@ -689,8 +690,9 @@ export const CustomerApp: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-[10px] text-center text-[#646B72] font-nunito">
-                🔒 আপনার উত্তরগুলো সরাসরি নিরাপত্তা অডিটের জন্য সংরক্ষিত হয়।
+              <div className="text-[10px] text-center text-[#646B72] font-nunito flex items-center justify-center gap-1">
+                <Lock className="w-3 h-3 text-[#646B72]" />
+                <span>আপনার উত্তরগুলো সরাসরি নিরাপত্তা অডিটের জন্য সংরক্ষিত হয়।</span>
               </div>
             </div>
           )}
@@ -768,8 +770,9 @@ export const CustomerApp: React.FC = () => {
                   <div className="w-9 h-9 rounded-full bg-[#FF0000]/15 text-[#FF0000] mx-auto flex items-center justify-center mb-1 animate-bounce">
                     <AlertTriangle className="w-5 h-5" />
                   </div>
-                  <h3 className="font-poppins font-bold text-sm text-[#FF0000] font-bangla">
-                    {language === 'bn' ? '⚠ থামুন! একটু যাচাই করে নিন' : '⚠ Pause! Please Verify First'}
+                  <h3 className="font-poppins font-bold text-sm text-[#FF0000] font-bangla flex items-center justify-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-[#FF0000]" />
+                    <span>{language === 'bn' ? 'থামুন! একটু যাচাই করে নিন' : 'Pause! Please Verify First'}</span>
                   </h3>
                   <p className="text-[11px] font-nunito text-[#646B72] mt-0.5 font-bangla">
                     {language === 'bn'
@@ -809,11 +812,12 @@ export const CustomerApp: React.FC = () => {
                     className="flex items-center gap-1.5 px-3 py-1 rounded-[5px] bg-[#FFFFFF] border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-semibold hover:bg-[#F7F7F7] shadow-sm"
                   >
                     <Volume2 className="w-3.5 h-3.5 text-[#FF9F43]" />
-                    <span>{isSpeaking ? 'শুনছেন...' : '🔊 শুনুন (Voice)'}</span>
+                    <span>{isSpeaking ? 'শুনছেন...' : 'শুনুন (Voice)'}</span>
                   </button>
 
-                  <div className="text-xs font-poppins font-bold text-[#FF9F43] bg-[#FF9F43]/10 border border-[#FF9F43]/30 px-3 py-1 rounded-[5px]">
-                    ⏱ {coolingTimer > 0 ? `${coolingTimer}s` : 'Done'}
+                  <div className="text-xs font-poppins font-bold text-[#FF9F43] bg-[#FF9F43]/10 border border-[#FF9F43]/30 px-3 py-1 rounded-[5px] flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#FF9F43]" />
+                    <span>{coolingTimer > 0 ? `${coolingTimer}s` : 'Done'}</span>
                   </div>
                 </div>
               </div>
@@ -1028,7 +1032,9 @@ export const CustomerApp: React.FC = () => {
                   স্টেপ-আপ ভেরিফিকেশন (Step-Up)
                 </h3>
               </div>
-              <button onClick={() => setIsStepUpModalOpen(false)} className="text-[#646B72]">✕</button>
+              <button onClick={() => setIsStepUpModalOpen(false)} className="text-[#646B72] hover:text-[#212B36]">
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             <p className="text-xs font-bangla text-[#646B72]">
@@ -1134,29 +1140,57 @@ export const CustomerApp: React.FC = () => {
           <div className="grid grid-cols-2 gap-2 text-xs font-nunito">
             <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] rounded space-y-1">
               <span className="text-[#646B72] text-[10px] block">Customer Social Contact:</span>
-              <div className="font-bold text-[#212529]">
-                {coachSession?.signals.recent_social_contact ? '⚠️ YES (Reported by Customer)' : 'NO / None'}
+              <div className="font-bold text-[#212529] flex items-center gap-1">
+                {coachSession?.signals.recent_social_contact ? (
+                  <>
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    <span>YES (Reported by Customer)</span>
+                  </>
+                ) : (
+                  <span>NO / None</span>
+                )}
               </div>
             </div>
 
             <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] rounded space-y-1">
               <span className="text-[#646B72] text-[10px] block">Credential / OTP Request:</span>
-              <div className={`font-bold ${coachSession?.signals.credential_request ? 'text-[#FF0000]' : 'text-[#212529]'}`}>
-                {coachSession?.signals.credential_request ? '🚨 YES (PIN/OTP Requested)' : 'NO'}
+              <div className={`font-bold flex items-center gap-1 ${coachSession?.signals.credential_request ? 'text-[#FF0000]' : 'text-[#212529]'}`}>
+                {coachSession?.signals.credential_request ? (
+                  <>
+                    <ShieldAlert className="w-3.5 h-3.5 text-[#FF0000]" />
+                    <span>YES (PIN/OTP Requested)</span>
+                  </>
+                ) : (
+                  <span>NO</span>
+                )}
               </div>
             </div>
 
             <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] rounded space-y-1">
               <span className="text-[#646B72] text-[10px] block">Authority Impersonation:</span>
-              <div className="font-bold text-[#212529]">
-                {coachSession?.signals.authority_impersonation ? '⚠️ YES (Claimed Customer Care)' : 'NO'}
+              <div className="font-bold text-[#212529] flex items-center gap-1">
+                {coachSession?.signals.authority_impersonation ? (
+                  <>
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    <span>YES (Claimed Customer Care)</span>
+                  </>
+                ) : (
+                  <span>NO</span>
+                )}
               </div>
             </div>
 
             <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] rounded space-y-1">
               <span className="text-[#646B72] text-[10px] block">Urgency / Secrecy Pressure:</span>
-              <div className="font-bold text-[#212529]">
-                {coachSession?.signals.urgency_pressure || coachSession?.signals.secrecy_pressure ? '⚠️ YES (Pressure Exerted)' : 'NO'}
+              <div className="font-bold text-[#212529] flex items-center gap-1">
+                {coachSession?.signals.urgency_pressure || coachSession?.signals.secrecy_pressure ? (
+                  <>
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    <span>YES (Pressure Exerted)</span>
+                  </>
+                ) : (
+                  <span>NO</span>
+                )}
               </div>
             </div>
           </div>

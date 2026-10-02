@@ -5,7 +5,7 @@ import {
   Shield, AlertTriangle, Users, MessageSquare, Activity, 
   TrendingUp, ArrowDownRight, ArrowUpRight, Scale, CheckCircle2, 
   AlertCircle, RefreshCw, Smartphone, Layers, Zap, Info, ShieldAlert,
-  Clock, DollarSign, BarChart3, Building2, Store, HelpCircle, FileCheck
+  Clock, DollarSign, BarChart3, Building2, Store, HelpCircle, FileCheck, MapPin
 } from 'lucide-react';
 import { 
   AgentDualRiskProfile, AgentClassification, 
@@ -276,10 +276,10 @@ export const AgentGuardView: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4 mt-1.5 text-xs font-nunito text-[#646B72] flex-wrap">
-                  <span>📍 Division: <strong>{selectedAgent.division} ({selectedAgent.district_type})</strong></span>
-                  <span>🏢 Profile: <strong>{selectedAgent.business_profile}</strong></span>
-                  <span>⏳ Tenure: <strong>{selectedAgent.tenure_days} days</strong></span>
-                  <span>🏷️ Tier: <strong className="uppercase">{selectedAgent.size_tier}</strong></span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> Division: <strong>{selectedAgent.division} ({selectedAgent.district_type})</strong></span>
+                  <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5 text-slate-400" /> Profile: <strong>{selectedAgent.business_profile}</strong></span>
+                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-slate-400" /> Tenure: <strong>{selectedAgent.tenure_days} days</strong></span>
+                  <span className="flex items-center gap-1"><Layers className="w-3.5 h-3.5 text-slate-400" /> Tier: <strong className="uppercase">{selectedAgent.size_tier}</strong></span>
                 </div>
               </div>
 
@@ -646,7 +646,7 @@ export const AgentGuardView: React.FC = () => {
                     </td>
                     <td className="p-3 text-[#646B72]">
                       {(fraud?.shared_device_count || 0) > 2 
-                        ? '🚨 Multiple emulators operating behind single counter (Indicates mule nexus)' 
+                        ? 'Multiple emulators operating behind single counter (Indicates mule nexus)' 
                         : 'Authentic mobile hardware verified'}
                     </td>
                   </tr>
@@ -697,7 +697,7 @@ export const AgentGuardView: React.FC = () => {
                 <div className="space-y-2 font-bangla text-xs text-[#212529]">
                   {selectedAgent.coached_victim_prompts_bn?.map((prompt: string, idx: number) => (
                     <div key={idx} className="p-3 bg-[#FFFFFF] border border-[#DADFE5] rounded-[4px] flex items-start gap-2 shadow-xs">
-                      <span className="text-[#FF9F43] font-bold text-sm shrink-0">❓</span>
+                      <HelpCircle className="w-4 h-4 text-[#FF9F43] shrink-0 mt-0.5" />
                       <span className="leading-relaxed">{prompt}</span>
                     </div>
                   ))}

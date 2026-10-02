@@ -106,33 +106,36 @@ export const MerchantQrShield: React.FC = () => {
         <div className="flex items-center gap-1 bg-[#F7F7F7] p-1 rounded-[6px] border border-[#E8EBED] text-xs font-nunito">
           <button
             onClick={() => setActiveTab('simulator')}
-            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors ${
+            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors flex items-center gap-1.5 ${
               activeTab === 'simulator'
                 ? 'bg-[#FF9F43] text-white shadow-sm'
                 : 'text-[#646B72] hover:text-[#212B36]'
             }`}
           >
-            📱 Customer QR Simulator
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>Customer QR Simulator</span>
           </button>
           <button
             onClick={() => setActiveTab('analyst_profile')}
-            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors ${
+            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors flex items-center gap-1.5 ${
               activeTab === 'analyst_profile'
                 ? 'bg-[#FF9F43] text-white shadow-sm'
                 : 'text-[#646B72] hover:text-[#212B36]'
             }`}
           >
-            🛡️ Analyst Profile &amp; Graph
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Analyst Profile &amp; Graph</span>
           </button>
           <button
             onClick={() => setActiveTab('benchmark')}
-            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors ${
+            className={`px-3 py-1.5 rounded-[4px] font-bold transition-colors flex items-center gap-1.5 ${
               activeTab === 'benchmark'
                 ? 'bg-[#FF9F43] text-white shadow-sm'
                 : 'text-[#646B72] hover:text-[#212B36]'
             }`}
           >
-            📊 Model Benchmark Lift
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Model Benchmark Lift</span>
           </button>
         </div>
       </div>

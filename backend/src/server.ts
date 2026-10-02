@@ -53,6 +53,8 @@ app.use('/api/v1', shieldRouter);
 // Health check endpoints
 app.get(['/health', '/healthz'], (req, res) => {
   res.json({
+    success: true,
+    message: 'System is healthy and operational',
     status: 'HEALTHY',
     service: 'upay-shield-core',
     environment: envConfig.NODE_ENV,
@@ -68,6 +70,8 @@ app.get('/health/db', async (req, res) => {
     const latency = (performance.now() - dbStart).toFixed(2);
     
     res.json({
+      success: true,
+      message: 'Neon PostgreSQL database is connected and active',
       status: 'ok',
       database: 'connected',
       provider: 'Neon PostgreSQL (Pooled)',
@@ -78,25 +82,35 @@ app.get('/health/db', async (req, res) => {
     });
   } catch (err: any) {
     res.status(503).json({
+      success: false,
+      message: `Database connection error: ${err.message}`,
       status: 'error',
       database: 'disconnected',
-      error: err.message,
+      error: { code: 'DB_CONNECTION_FAILED', details: err.message },
       timestamp: new Date().toISOString()
     });
   }
 });
 
 app.get('/readyz', (req, res) => {
-  res.json({ status: 'READY', models_loaded: true, db_connected: true });
+  res.json({
+    success: true,
+    message: 'System is fully initialized and ready to accept traffic',
+    status: 'READY',
+    models_loaded: true,
+    db_connected: true
+  });
 });
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled server error:', err);
   res.status(500).json({
+    success: false,
+    message: err.message || 'An unexpected server error occurred',
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: err.message || 'An unexpected error occurred'
+      details: err.message || 'An unexpected error occurred'
     }
   });
 });

@@ -15,12 +15,14 @@ import type { Config } from "tailwindcss";
  *   · `font-bangla`  → Noto Sans Bengali for Bengali script
  */
 
-/** Merriweather (serif) — display / headings / hero figures */
-const DISPLAY = ["Merriweather", "Noto Sans Bengali"];
-/** Merriweather Sans — interface copy, labels, tables, numerals */
-const UI = ["Merriweather Sans", "Noto Sans Bengali"];
-/** Noto Sans Bengali — Bengali script first */
-const BANGLA = ["Noto Sans Bengali", "Merriweather Sans"];
+/** Inter — bold headings, labels, buttons, brand accent (#FF5C00) */
+const INTER = ["Inter", "-apple-system", "BlinkMacSystemFont", "Noto Sans Bengali", "sans-serif"];
+/** Plus Jakarta Sans — open, highly readable body copy and subtext */
+const JAKARTA = ["Plus Jakarta Sans", "Inter", "-apple-system", "BlinkMacSystemFont", "Noto Sans Bengali", "sans-serif"];
+/** Geist Mono — geometric monospace for technical metadata, telemetry, tickers, tokens */
+const GEIST = ["Geist Mono", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"];
+/** Noto Sans Bengali — Bengali script */
+const BANGLA = ["Noto Sans Bengali", "Plus Jakarta Sans", "sans-serif"];
 
 /** Theme-aware token helper: reads `--c-*` RGB channels set in globals.css */
 const token = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
@@ -35,20 +37,22 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // Canonical names
-        display: DISPLAY,
-        ui: UI,
-        num: UI,
+        // Canonical cyber-tech SaaS typography stack
+        display: INTER,
+        ui: JAKARTA,
+        num: GEIST,
+        mono: GEIST,
         bangla: BANGLA,
-        sans: UI,
-        serif: DISPLAY,
-        mono: UI,
-        // Legacy aliases kept so no surface regresses to a system font
-        outfit: DISPLAY,
-        poppins: DISPLAY,
-        syne: DISPLAY,
-        jakarta: UI,
-        nunito: UI,
+        sans: JAKARTA,
+        serif: INTER,
+        inter: INTER,
+        jakarta: JAKARTA,
+        geist: GEIST,
+        // Aliases
+        outfit: INTER,
+        poppins: INTER,
+        syne: INTER,
+        nunito: JAKARTA,
       },
 
       colors: {

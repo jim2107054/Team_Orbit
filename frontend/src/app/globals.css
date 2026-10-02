@@ -1,14 +1,10 @@
 /* ==========================================================================
-   upay Shield — "Fintrixity" Design System
-   Reference: Finance Analytics landing page / dashboard
-   (near-black canvas · inset rounded panel · matte elevated cards ·
-    one vivid flame-orange accent · hairline borders · generous radii)
-
-   Typeface: Merriweather (display) + Merriweather Sans (interface)
-             Noto Sans Bengali (Bengali script)
+   upay Shield — "Cyber-Tech SaaS" Design System
+   Architecture: Inter (Display/Headings) + Plus Jakarta Sans (Interface/Subtext) + Geist Mono (Technical Metadata)
+   Palette: Deep Charcoal / Pitch Black background with Safety Orange (#FF5C00) theme
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Merriweather+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@200;300;400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,40 +14,32 @@
    Everything below is layered deliberately:
      · @layer base       — tokens, element defaults, typography, chrome
      · @layer components — the reusable surface/control classes
-   Layering matters: Tailwind emits utilities AFTER components, so a utility
-   such as `hidden` still beats `.fx-icon-btn { display: inline-flex }`.
    =========================================================================== */
 
 @layer base {
-  /* --------------------------------------------------------------------------
-     1. Design tokens
-     `--c-*` are space-separated RGB channels so Tailwind can apply
-     opacity modifiers (e.g. `bg-card/80`, `border-hair/60`).
-     -------------------------------------------------------------------------- */
-
   :root {
-    /* Type stacks — Merriweather only, no generic fallbacks */
-    --font-display: 'Merriweather', 'Noto Sans Bengali';
-    --font-ui: 'Merriweather Sans', 'Noto Sans Bengali';
-    --font-num: 'Merriweather Sans', 'Noto Sans Bengali';
-    --font-bn: 'Noto Sans Bengali', 'Merriweather Sans';
+    /* Type stacks: Inter (700 Bold accents/headings) + Plus Jakarta Sans (subtext/body) + Geist Mono (metadata) */
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans Bengali', sans-serif;
+    --font-ui: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans Bengali', sans-serif;
+    --font-num: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+    --font-bn: 'Noto Sans Bengali', 'Plus Jakarta Sans', sans-serif;
 
     /* Legacy aliases */
     --font-outfit: var(--font-display);
     --font-jakarta: var(--font-ui);
-    --font-mono: var(--font-num);
     --font-syne: var(--font-display);
 
-    /* Flame accent — constant across themes */
-    --accent: #FF5A1F;
-    --accent-hi: #FF7A3D;
-    --accent-lo: #F04405;
+    /* Safety Orange Accent Theme (#FF5C00) */
+    --accent: #FF5C00;
+    --accent-hi: #FF7324;
+    --accent-lo: #E04B00;
     --accent-deep: #C73504;
-    --accent-ember: #FFB23D;
-    --accent-rgb: 255 90 31;
+    --accent-ember: #FF9E3D;
+    --accent-rgb: 255 92 0;
 
-    --flame-grad: linear-gradient(135deg, #FF4A00 0%, #FF5A1F 45%, #FF8A3D 100%);
-    --flame-grad-hover: linear-gradient(135deg, #FF5F14 0%, #FF6E33 45%, #FFA055 100%);
+    --flame-grad: linear-gradient(135deg, #FF4500 0%, #FF5C00 45%, #FF7E2B 100%);
+    --flame-grad-hover: linear-gradient(135deg, #FF5510 0%, #FF6C15 45%, #FF8F3E 100%);
 
     /* ── Light theme ─────────────────────────────────────────────────── */
     --c-canvas: 244 244 246;        /* #F4F4F6 page */
@@ -107,21 +95,21 @@
   }
 
   html.dark {
-    /* ── Dark theme — the reference aesthetic ───────────────────────── */
-    --c-canvas: 4 4 7;              /* #040407 near-black page + rail */
-    --c-panel: 16 16 21;            /* #101015 inset content panel */
-    --c-card: 21 21 27;             /* #15151B matte card */
-    --c-elev: 30 30 38;             /* #1E1E26 card footer / input */
-    --c-raise: 39 39 48;            /* #272730 chip / active pill */
+    /* ── Dark theme — deep pitch black / charcoal with safety orange ─── */
+    --c-canvas: 8 9 12;              /* #08090C deep pitch black page */
+    --c-panel: 14 16 22;             /* #0E1016 deep charcoal panel */
+    --c-card: 18 21 28;              /* #12151C matte card */
+    --c-elev: 26 30 40;              /* #1A1E28 card footer / input */
+    --c-raise: 35 40 54;             /* #232836 chip / active tab */
 
-    --c-hair: 38 38 46;             /* ≈ rgba(255,255,255,.08) over card */
-    --c-hairsoft: 29 29 36;
-    --c-hairbold: 56 56 66;
+    --c-hair: 36 42 56;              /* hairline border */
+    --c-hairsoft: 26 30 42;
+    --c-hairbold: 52 60 80;
 
     --c-ink: 255 255 255;
-    --c-ink-body: 227 227 232;      /* #E3E3E8 */
-    --c-ink-muted: 154 154 165;     /* #9A9AA5 */
-    --c-ink-dim: 107 107 118;       /* #6B6B76 */
+    --c-ink-body: 226 232 240;       /* #E2E8F0 muted light gray */
+    --c-ink-muted: 148 163 184;      /* #94A3B8 subtext light slate */
+    --c-ink-dim: 100 116 139;        /* #64748B */
 
     --c-inverse: 35 35 41;
     --c-inverse-hi: 48 48 56;

@@ -64,6 +64,70 @@ export class ShieldRepository {
     };
   }
 
+  // ================= AGENTS & MERCHANTS =================
+  async insertAgent(a: Agent): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO agents (agent_id, name, phone, division, district_type, tenure_days, size_tier, trained_flag, cashout_velocity_score, risk_status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       ON CONFLICT (agent_id) DO NOTHING`,
+      [a.agent_id, a.name, a.phone, a.division, a.district_type, a.tenure_days, a.size_tier, a.trained_flag, a.cashout_velocity_score, a.risk_status]
+    );
+  }
+
+  async getAllAgents(): Promise<Agent[]> {
+    const res = await this.pool.query(`SELECT * FROM agents ORDER BY agent_id ASC`);
+    return res.rows.map(r => ({
+      agent_id: String(r.agent_id),
+      name: String(r.name),
+      phone: String(r.phone),
+      division: String(r.division),
+      district_type: r.district_type as any,
+      tenure_days: Number(r.tenure_days),
+      size_tier: r.size_tier as any,
+      trained_flag: Boolean(r.trained_flag),
+      cashout_velocity_score: Number(r.cashout_velocity_score),
+      risk_status: r.risk_status as any
+    }));
+  }
+
+  async getAgentById(agentId: string): Promise<Agent | null> {
+    const res = await this.pool.query(`SELECT * FROM agents WHERE agent_id = $1`, [agentId]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      agent_id: String(r.agent_id),
+      name: String(r.name),
+      phone: String(r.phone),
+      division: String(r.division),
+      district_type: r.district_type as any,
+      tenure_days: Number(r.tenure_days),
+      size_tier: r.size_tier as any,
+      trained_flag: Boolean(r.trained_flag),
+      cashout_velocity_score: Number(r.cashout_velocity_score),
+      risk_status: r.risk_status as any
+    };
+  }
+
+  async insertMerchant(m: Merchant): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO merchants (merchant_id, name, category, division, created_at)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (merchant_id) DO NOTHING`,
+      [m.merchant_id, m.name, m.category, m.division, m.created_at]
+    );
+  }
+
+  async getAllMerchants(): Promise<Merchant[]> {
+    const res = await this.pool.query(`SELECT * FROM merchants ORDER BY merchant_id ASC`);
+    return res.rows.map(r => ({
+      merchant_id: String(r.merchant_id),
+      name: String(r.name),
+      category: String(r.category),
+      division: String(r.division),
+      created_at: new Date(r.created_at).toISOString()
+    }));
+  }
+
   // ================= TRANSACTIONS =================
   async insertTransaction(t: Transaction): Promise<void> {
     await this.pool.query(

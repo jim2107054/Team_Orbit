@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ShieldAlert, ShieldCheck, Shield, RotateCcw, Clock, 
@@ -13,6 +13,28 @@ import {
 export const AdminDashboard: React.FC = () => {
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [activeChartRange, setActiveChartRange] = useState<'1D' | '1W' | '1M' | '3M' | '6M' | '1Y'>('1Y');
+  const [dbStats, setDbStats] = useState<{ totalTxns: number; totalVolume: number; totalAlerts: number; totalRings: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/v1/metrics/summary')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setDbStats({
+            totalTxns: data.totalTxns || 0,
+            totalVolume: data.totalVolume || 0,
+            totalAlerts: data.totalAlerts || 0,
+            totalRings: data.totalRings || 0
+          });
+        }
+      })
+      .catch((err) => console.error('Error loading dashboard summary stats:', err));
+  }, []);
+
+  const displayVolume = dbStats?.totalVolume ? `৳${dbStats.totalVolume.toLocaleString()}` : '৳48,988,078';
+  const displayTxns = dbStats?.totalTxns ? dbStats.totalTxns.toLocaleString() : '14,200+';
+  const displayAlerts = dbStats?.totalAlerts ? dbStats.totalAlerts.toString() : '142';
+  const displayRings = dbStats?.totalRings ? dbStats.totalRings.toString() : '12';
 
   return (
     <div className="space-y-6 pb-12 animate-fadeIn relative">
@@ -24,7 +46,7 @@ export const AdminDashboard: React.FC = () => {
             Welcome, Risk Operations Officer
           </h1>
           <p className="text-xs font-nunito text-[#646B72] mt-0.5">
-            You have <span className="text-[#FF9F43] font-bold">142</span> Active Alerts &amp; <span className="text-[#05A677] font-bold">14,200+</span> Protected Transactions Today
+            You have <span className="text-[#FF9F43] font-bold">{displayAlerts}</span> Active Alerts &amp; <span className="text-[#05A677] font-bold">{displayTxns}</span> Protected Transactions Today
           </p>
         </div>
 
@@ -69,7 +91,7 @@ export const AdminDashboard: React.FC = () => {
             <div>
               <span className="text-xs font-nunito font-medium text-white/90 block">Total Protected Volume</span>
               <strong className="text-lg lg:text-xl font-poppins font-bold block leading-tight mt-0.5">
-                ৳48,988,078
+                {displayVolume}
               </strong>
             </div>
           </div>

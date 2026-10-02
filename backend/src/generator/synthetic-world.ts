@@ -99,6 +99,30 @@ export async function generateSyntheticWorld(): Promise<{
       risk_status: 'normal'
     }
   ];
+  for (const agent of agents) {
+    await repository.insertAgent(agent);
+  }
+
+  // 4. Seed Merchants
+  const merchants: Merchant[] = [
+    {
+      merchant_id: 'M-DHK-9921',
+      name: 'Gulshan Mega Electronics',
+      category: 'ELECTRONICS',
+      division: 'Dhaka',
+      created_at: '2025-02-14T08:00:00Z'
+    },
+    {
+      merchant_id: 'M-CTG-4412',
+      name: 'Agrabad Wholesale Mart',
+      category: 'WHOLESALE',
+      division: 'Chittagong',
+      created_at: '2025-05-10T11:00:00Z'
+    }
+  ];
+  for (const merchant of merchants) {
+    await repository.insertMerchant(merchant);
+  }
 
   // Insert 20 more realistic synthetic customers & wallets for baseline activity
   const banglaNames = [

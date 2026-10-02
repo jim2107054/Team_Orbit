@@ -14,22 +14,45 @@ export function getDbPool(): pg.Pool {
   }
 
   const connectionString = process.env.DATABASE_URL;
+  const isProduction = process.env.NODE_ENV === 'production';
 
   pool = new Pool({
     connectionString,
     ssl: {
       rejectUnauthorized: false
     },
-    max: 20, // Connection pooling (20 concurrent connections)
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000
-  });
+    // ─── Connection Pool Tuning ───────────────────────────
+    max: 25,                          // Max concurrent connections (tune per Neon plan)
+    min: 5,                           // Keep 5 warm connections ready
+    idleTimeoutMillis: 30_000,        // Release idle connections after 30s
+    connectionTimeoutMillis: 10_000,  // Fail fast if can't connect in 10s
+    maxUses: 7500,                    // Recycle connections after 7500 queries (prevents leaks)
+    allowExitOnIdle: false,           // Keep pool alive for server lifetime
+    // ─── Statement & Query Tuning ─────────────────────────
+    application_name: 'upay-shield-backend',  // Visible in pg_stat_activity
+    statement_timeout: isProduction ? 30_000 : 0, // 30s timeout in production
+  } as any);
 
   pool.on('error', (err) => {
-    console.error('Unexpected error on idle PostgreSQL client', err);
+    console.error('[DB Pool] Unexpected error on idle client:', err.message);
+  });
+
+  pool.on('connect', (client) => {
+    // Set session-level optimizations
+    client.query('SET timezone = \'UTC\'').catch(() => {});
   });
 
   return pool;
+}
+
+/** Get pool health statistics for monitoring endpoints */
+export function getPoolStats(): { total: number; idle: number; waiting: number } {
+  const p = getDbPool();
+  return {
+    total: p.totalCount,
+    idle: p.idleCount,
+    waiting: p.waitingCount,
+  };
 }
 
 export async function initDatabase(): Promise<void> {

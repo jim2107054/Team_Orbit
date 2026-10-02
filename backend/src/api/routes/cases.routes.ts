@@ -4,8 +4,12 @@ import { copilotService } from '../../services/copilot-service.js';
 import { recoveryTracer } from '../../services/recovery-tracer.js';
 import { auditService } from '../../services/audit-service.js';
 import { AlertCase } from '../../core/types.js';
+import { listCache, invalidateCache } from '../middleware/index.js';
 
 export const casesRouter = Router();
+
+// Cache the alerts list for 30s
+casesRouter.get('/alerts', listCache);
 
 // ================= API-06 & API-07: ALERTS & CASES =================
 casesRouter.get('/alerts', async (req: Request, res: Response) => {
@@ -79,6 +83,7 @@ casesRouter.post('/cases/:id/actions', async (req: Request, res: Response) => {
     }
 
     await repository.updateCase(caseId, updates);
+    invalidateCache('/alerts');  // Bust the alerts list cache on any case mutation
     await auditService.logAction(analyst_id || 'ANALYST-101', `CASE_ACTION_${action}`, caseId, { updates });
 
     return res.status(200).json({

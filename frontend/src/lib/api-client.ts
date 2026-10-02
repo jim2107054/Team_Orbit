@@ -111,10 +111,68 @@ apiClient.interceptors.response.use(
 /**
  * High-level typed API methods for components and hooks
  */
+
+// ─── Request Deduplication ──────────────────────────────────
+// Prevents duplicate concurrent GET requests to the same URL
+const inflightRequests = new Map<string, Promise<any>>();
+
+async function deduplicatedGet<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  const cacheKey = `${url}?${JSON.stringify(config?.params || {})}`;
+  
+  const inflight = inflightRequests.get(cacheKey);
+  if (inflight) {
+    return inflight;
+  }
+
+  const promise = apiClient.get<ApiResponse<T>>(url, config)
+    .then(res => res.data)
+    .finally(() => {
+      inflightRequests.delete(cacheKey);
+    });
+
+  inflightRequests.set(cacheKey, promise);
+  return promise;
+}
+
+// ─── Retry Logic ────────────────────────────────────────────
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 2,
+  backoffMs: number = 500,
+  retryStatuses: number[] = [502, 503, 504]
+): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      const status = error?.status || error?.response?.status;
+      const isRetryable = status ? retryStatuses.includes(status) : error?.code === 'ECONNABORTED';
+
+      if (attempt < retries && isRetryable) {
+        const delay = backoffMs * Math.pow(2, attempt);
+        console.warn(`[API Retry] Attempt ${attempt + 1}/${retries} in ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error('Retry exhausted');
+}
+
 export const api = {
+  /** Standard GET request */
   get: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
     const res = await apiClient.get<ApiResponse<T>>(url, config);
     return res.data;
+  },
+
+  /** GET with deduplication — concurrent identical requests share one network call */
+  getDedup: deduplicatedGet,
+
+  /** GET with automatic retry on transient failures (502/503/504/timeout) */
+  getWithRetry: async <T = any>(url: string, config?: AxiosRequestConfig, retries: number = 2): Promise<ApiResponse<T>> => {
+    return withRetry(() => apiClient.get<ApiResponse<T>>(url, config).then(r => r.data), retries);
   },
 
   post: async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
@@ -139,3 +197,4 @@ export const api = {
 };
 
 export default api;
+

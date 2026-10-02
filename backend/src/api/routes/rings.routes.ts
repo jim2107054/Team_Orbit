@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { repository } from '../../db/repository.js';
+import { heavyQueryCache } from '../middleware/index.js';
 
 export const ringsRouter = Router();
+
+// Rings are expensive to parse (JSON graph payloads) — cache for 60s
+ringsRouter.get('/rings', heavyQueryCache);
 
 // ================= API-08: RINGS & GRAPHS =================
 ringsRouter.get('/rings', async (req: Request, res: Response) => {

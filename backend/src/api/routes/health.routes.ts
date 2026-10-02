@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { getDbPool } from '../../db/client.js';
+import { getDbPool, getPoolStats } from '../../db/client.js';
 import { envConfig } from '../../core/env.js';
+import { getCacheStats } from '../middleware/index.js';
 
 export const healthRouter = Router();
 
@@ -33,6 +34,8 @@ healthRouter.get('/health/db', async (_req: Request, res: Response) => {
       latency_ms: Number(latency),
       db_time: result.rows[0]?.db_time,
       total_transactions: Number(result.rows[0]?.txn_count || 0),
+      pool: getPoolStats(),
+      cache: getCacheStats(),
       timestamp: new Date().toISOString()
     });
   } catch (err: any) {

@@ -1,0 +1,56 @@
+services:
+  # ─── PostgreSQL Database ──────────────────────────────────
+  # For local development. Production uses Neon PostgreSQL.
+  postgres:
+    image: postgres:16-alpine
+    container_name: upay-shield-db
+    environment:
+      POSTGRES_USER: shield_user
+      POSTGRES_PASSWORD: shield_pass_2026
+      POSTGRES_DB: upay_shield
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shield_user -d upay_shield"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API Server ───────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: upay-shield-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=postgresql://shield_user:shield_pass_2026@postgres:5432/upay_shield?sslmode=disable
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─── Frontend Next.js App ─────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: upay-shield-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:4000/v1
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local

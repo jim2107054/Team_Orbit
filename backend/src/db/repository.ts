@@ -74,8 +74,8 @@ export class ShieldRepository {
     );
   }
 
-  async getAllAgents(): Promise<Agent[]> {
-    const res = await this.pool.query(`SELECT * FROM agents ORDER BY agent_id ASC`);
+  async getAllAgents(limit: number = 200): Promise<Agent[]> {
+    const res = await this.pool.query(`SELECT * FROM agents ORDER BY agent_id ASC LIMIT $1`, [limit]);
     return res.rows.map(r => ({
       agent_id: String(r.agent_id),
       name: String(r.name),
@@ -117,8 +117,8 @@ export class ShieldRepository {
     );
   }
 
-  async getAllMerchants(): Promise<Merchant[]> {
-    const res = await this.pool.query(`SELECT * FROM merchants ORDER BY merchant_id ASC`);
+  async getAllMerchants(limit: number = 200): Promise<Merchant[]> {
+    const res = await this.pool.query(`SELECT * FROM merchants ORDER BY merchant_id ASC LIMIT $1`, [limit]);
     return res.rows.map(r => ({
       merchant_id: String(r.merchant_id),
       name: String(r.name),
@@ -283,8 +283,8 @@ export class ShieldRepository {
     );
   }
 
-  async getAllAlertCases(): Promise<AlertCase[]> {
-    const res = await this.pool.query(`SELECT * FROM alert_cases ORDER BY risk_score DESC, created_at DESC`);
+  async getAllAlertCases(limit: number = 200): Promise<AlertCase[]> {
+    const res = await this.pool.query(`SELECT * FROM alert_cases ORDER BY risk_score DESC, created_at DESC LIMIT $1`, [limit]);
     return res.rows.map(r => ({
       case_id: String(r.case_id),
       txn_id: String(r.txn_id),
@@ -370,8 +370,8 @@ export class ShieldRepository {
     );
   }
 
-  async getAllRings(): Promise<RingCase[]> {
-    const res = await this.pool.query(`SELECT * FROM ring_cases ORDER BY ring_score DESC`);
+  async getAllRings(limit: number = 100): Promise<RingCase[]> {
+    const res = await this.pool.query(`SELECT * FROM ring_cases ORDER BY ring_score DESC LIMIT $1`, [limit]);
     return res.rows.map(r => {
       const graph = JSON.parse(String(r.graph_payload_json));
       return {

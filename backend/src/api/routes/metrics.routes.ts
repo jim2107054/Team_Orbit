@@ -2,8 +2,14 @@ import { Router, Request, Response } from 'express';
 import { simulatorService } from '../../services/simulator-service.js';
 import { monitoringService } from '../../services/monitoring-service.js';
 import { repository } from '../../db/repository.js';
+import { dashboardCache, listCache } from '../middleware/index.js';
 
 export const metricsRouter = Router();
+
+// Apply caching to dashboard-critical GET endpoints
+metricsRouter.get('/metrics/summary', dashboardCache);
+metricsRouter.get('/metrics/fairness', listCache);
+metricsRouter.get('/metrics/drift', listCache);
 
 // ================= API-11: IMPACT SIMULATOR =================
 metricsRouter.post('/simulate', (req: Request, res: Response) => {

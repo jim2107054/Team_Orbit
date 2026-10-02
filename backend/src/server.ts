@@ -2,7 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import { initDatabase, getDbPool } from './db/client.js';
 import { shieldRouter, healthRouter } from './api/routes/index.js';
-import { requestLogger, errorHandler } from './api/middleware/index.js';
+import {
+  requestLogger,
+  errorHandler,
+  apiRateLimiter,
+  securityHeaders
+} from './api/middleware/index.js';
 import { generateSyntheticWorld } from './generator/synthetic-world.js';
 import { repository } from './db/repository.js';
 import { envConfig } from './core/env.js';
@@ -10,7 +15,11 @@ import { envConfig } from './core/env.js';
 const app = express();
 const PORT = envConfig.PORT;
 
-// Security & CORS Configuration
+// ─── 1. Security Headers (OWASP) ────────────────────────────
+app.use(securityHeaders);
+app.disable('x-powered-by');
+
+// ─── 2. CORS Configuration ──────────────────────────────────
 const allowedOrigins = [
   envConfig.FRONTEND_URL,
   'http://localhost:3000',
@@ -26,23 +35,45 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'idempotency-key']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'idempotency-key'],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset', 'X-Cache', 'X-Response-Time'],
+  maxAge: 600  // Preflight cache: 10 minutes
 }));
 
+// ─── 3. Body Parsing ────────────────────────────────────────
 app.use(express.json({ limit: '4mb' }));
 
-// Response-time and request ID tracking middleware
+// ─── 4. Request Tracking & Logging ──────────────────────────
 app.use(requestLogger);
 
-// Health check routes at root
+// ─── 5. Global Rate Limiter ─────────────────────────────────
+app.use(apiRateLimiter);
+
+// ─── 6. Health Routes (outside rate-limiting for monitoring) ──
 app.use(healthRouter);
 
-// Main API routes with version prefixes
+// ─── 7. Main API Routes ─────────────────────────────────────
 app.use('/v1', shieldRouter);
 app.use('/api/v1', shieldRouter);
 
-// Global Error Handler middleware
+// ─── 8. Global Error Handler ────────────────────────────────
 app.use(errorHandler);
+
+// ─── Graceful Shutdown ──────────────────────────────────────
+async function gracefulShutdown(signal: string) {
+  console.log(`\n[${signal}] Graceful shutdown initiated...`);
+  const pool = getDbPool();
+  try {
+    await pool.end();
+    console.log('Database pool drained.');
+  } catch (err) {
+    console.error('Error during pool drain:', err);
+  }
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 async function startServer() {
   try {
@@ -58,10 +89,13 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(`====================================================`);
-      console.log(`🛡️ upay Shield Backend Engine running on port ${PORT}`);
-      console.log(`📍 API Base: http://localhost:${PORT}/v1`);
-      console.log(`🩺 Health:   http://localhost:${PORT}/health`);
-      console.log(`🗄️ DB Health: http://localhost:${PORT}/health/db`);
+      console.log(`  upay Shield Backend Engine running on port ${PORT}`);
+      console.log(`  API Base: http://localhost:${PORT}/v1`);
+      console.log(`  Health:   http://localhost:${PORT}/health`);
+      console.log(`  DB Health: http://localhost:${PORT}/health/db`);
+      console.log(`  Environment: ${envConfig.NODE_ENV}`);
+      console.log(`  Pool Size: 20 connections`);
+      console.log(`  Rate Limit: 120 req/min per IP`);
       console.log(`====================================================`);
     });
   } catch (err) {
@@ -71,4 +105,3 @@ async function startServer() {
 }
 
 startServer();
-

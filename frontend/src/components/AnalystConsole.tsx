@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, Clock, CheckCircle, XCircle, FileText, 
-  Send, AlertTriangle, Sparkles, UserCheck, Lock, ExternalLink, Network, Mic, Check
+  Send, AlertTriangle, Sparkles, UserCheck, Lock, ExternalLink, Network, Mic, Check, RotateCcw
 } from 'lucide-react';
 
 interface CaseItem {
@@ -29,6 +29,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
   const [briefLang, setBriefLang] = useState<'en' | 'bn'>('en');
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchCases = async () => {
     try {
@@ -36,8 +37,14 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
       const data = await res.json();
       if (data.cases) {
         setCases(data.cases);
-        if (data.cases.length > 0 && !selectedCase) {
+        if (!selectedCase && data.cases.length > 0) {
           setSelectedCase(data.cases[0]);
+        } else if (selectedCase) {
+          // Update selected case reference with fresh backend state
+          const updated = data.cases.find((c: CaseItem) => c.case_id === selectedCase.case_id);
+          if (updated) {
+            setSelectedCase(updated);
+          }
         }
       }
     } catch (err) {
@@ -70,10 +77,11 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
     if (selectedCase) {
       handleFetchCopilot(selectedCase.case_id, briefLang);
     }
-  }, [selectedCase, briefLang]);
+  }, [selectedCase?.case_id, briefLang]);
 
-  const handleAction = async (action: 'CONFIRM_FRAUD' | 'MARK_FALSE_POSITIVE' | 'APPROVE_FOUR_EYES') => {
-    if (!selectedCase) return;
+  const handleAction = async (action: 'CONFIRM_FRAUD' | 'MARK_FALSE_POSITIVE' | 'APPROVE_FOUR_EYES' | 'REOPEN_CASE') => {
+    if (!selectedCase || actionLoading) return;
+    setActionLoading(true);
     try {
       const res = await fetch(`/api/v1/cases/${selectedCase.case_id}/actions`, {
         method: 'POST',
@@ -85,13 +93,39 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
         })
       });
       const data = await res.json();
+      
+      let nextStatus = selectedCase.status;
+      let nextFourEyes = selectedCase.four_eyes_approved;
+      if (action === 'CONFIRM_FRAUD') nextStatus = 'CONFIRMED_FRAUD';
+      if (action === 'MARK_FALSE_POSITIVE') nextStatus = 'FALSE_POSITIVE';
+      if (action === 'REOPEN_CASE') nextStatus = 'OPEN';
+      if (action === 'APPROVE_FOUR_EYES') nextFourEyes = true;
+
+      const updatedCase: CaseItem = {
+        ...selectedCase,
+        status: nextStatus,
+        four_eyes_approved: nextFourEyes
+      };
+
+      setSelectedCase(updatedCase);
+      setCases(prev => prev.map(c => c.case_id === updatedCase.case_id ? updatedCase : c));
       setActionSuccess(`Action ${action} recorded and cryptographically chained!`);
       setTimeout(() => setActionSuccess(null), 4000);
       fetchCases();
     } catch (err) {
       console.error(err);
+    } finally {
+      setActionLoading(false);
     }
   };
+
+  const isConfirmed = selectedCase?.status === 'CONFIRMED_FRAUD';
+  const isFalsePositive = selectedCase?.status === 'FALSE_POSITIVE';
+  const isFourEyesApproved = !!selectedCase?.four_eyes_approved;
+
+  // Dynamic evidence spans derived from selectedCase
+  const topReason = selectedCase?.reasons?.[0]?.label_en || 'High Risk Anomaly Detected';
+  const reasonCode = selectedCase?.reasons?.[0]?.code || 'URGENCY_SUSPENSION';
 
   return (
     <div className="space-y-6">
@@ -110,7 +144,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
         <div className="flex items-center gap-2.5">
           <button
             onClick={onOpenRing}
-            className="px-3.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-semibold flex items-center gap-1.5 shadow-sm"
+            className="px-3.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
           >
             <Network className="w-3.5 h-3.5 text-[#FF9F43]" />
             <span>Open Ring-12 Explorer</span>
@@ -118,7 +152,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
           </button>
           <button
             onClick={onOpenTrace}
-            className="px-3.5 py-1.5 rounded-[5px] bg-[#FF9F43] hover:bg-[#f08e2f] text-white text-xs font-poppins font-semibold flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(254,159,67,0.20)]"
+            className="px-3.5 py-1.5 rounded-[5px] bg-[#FF9F43] hover:bg-[#f08e2f] text-white text-xs font-poppins font-semibold flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(254,159,67,0.20)] transition-colors cursor-pointer"
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Golden-Hour Money Trace</span>
@@ -149,6 +183,8 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {cases.map((c) => {
               const isSelected = selectedCase?.case_id === c.case_id;
+              const isCaseConfirmed = c.status === 'CONFIRMED_FRAUD';
+              const isCaseFP = c.status === 'FALSE_POSITIVE';
               return (
                 <div
                   key={c.case_id}
@@ -161,15 +197,27 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-mono text-xs font-bold text-[#000000]">{c.case_id}</span>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-[4px] font-nunito font-bold ${
-                        c.risk_tier === 'T3'
-                          ? 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30'
-                          : 'bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30'
-                      }`}
-                    >
-                      {c.risk_tier} ({(c.risk_score * 100).toFixed(0)}%)
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {isCaseConfirmed && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[#FF0000]/15 text-[#FF0000] font-bold">
+                          FRAUD
+                        </span>
+                      )}
+                      {isCaseFP && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[#198754]/15 text-[#198754] font-bold">
+                          FP
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-[4px] font-nunito font-bold ${
+                          c.risk_tier === 'T3'
+                            ? 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30'
+                            : 'bg-[#FF9F43]/15 text-[#FF9F43] border border-[#FF9F43]/30'
+                        }`}
+                      >
+                        {c.risk_tier} ({(c.risk_score * 100).toFixed(0)}%)
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between text-xs font-nunito text-[#212529] mb-1">
@@ -181,7 +229,11 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                     <span className="flex items-center gap-1 text-[#646B72]">
                       <Clock className="w-3 h-3 text-[#FF9F43]" /> SLA: 07:42
                     </span>
-                    <span className="text-[#092C4C] font-semibold">{c.status}</span>
+                    <span className={`font-semibold ${
+                      isCaseConfirmed ? 'text-[#FF0000]' : isCaseFP ? 'text-[#198754]' : 'text-[#092C4C]'
+                    }`}>
+                      {c.status}
+                    </span>
                   </div>
                 </div>
               );
@@ -201,7 +253,9 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   <span className="text-xs px-2.5 py-0.5 rounded-[4px] bg-[#FF0000]/10 text-[#FF0000] font-nunito font-bold border border-[#FF0000]/30">
                     {selectedCase.risk_tier} High Alert
                   </span>
-                  <span className="text-xs font-nunito text-[#646B72]">Typology: Emergency-Relative (T1)</span>
+                  <span className="text-xs font-nunito text-[#646B72]">
+                    Typology: {selectedCase.reasons?.[0]?.label_en || 'High Risk Anomaly'}
+                  </span>
                 </div>
                 <div className="text-xs font-nunito text-[#646B72] mt-1">
                   Sender: <strong className="text-[#212529]">{selectedCase.sender_wallet}</strong> ➔ Recipient:{' '}
@@ -224,33 +278,76 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                     Network: <strong>MOBILE_DATA</strong>
                   </span>
                   <span className="px-2 py-0.5 bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30 font-semibold">
-                    Policy Action: <strong>PAUSE_VERIFY (-33% threshold under Safety Mode)</strong>
+                    Policy Action: <strong>{selectedCase.action_recommended || 'PAUSE_VERIFY'}</strong>
                   </span>
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons with Strict State Management */}
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleAction('CONFIRM_FRAUD')}
-                  className="px-3 py-1.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs flex items-center gap-1.5 shadow-sm"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Confirm Fraud</span>
-                </button>
-                <button
-                  onClick={() => handleAction('APPROVE_FOUR_EYES')}
-                  className="px-3 py-1.5 rounded-[5px] bg-[#212B36] hover:bg-[#171f28] text-white font-nunito font-semibold text-xs flex items-center gap-1.5 shadow-[0px_4px_20px_0px_rgba(27,40,80,0.15)]"
-                >
-                  <UserCheck className="w-3.5 h-3.5 text-[#FF9F43]" />
-                  <span>Four-Eyes Approve</span>
-                </button>
-                <button
-                  onClick={() => handleAction('MARK_FALSE_POSITIVE')}
-                  className="dream-btn-outline px-3 py-1 text-xs"
-                >
-                  False Positive
-                </button>
+                {isConfirmed ? (
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 rounded-[5px] bg-[#FF0000]/15 border border-[#FF0000]/40 text-[#FF0000] font-poppins font-bold text-xs flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>✓ Confirmed Fraud</span>
+                    </span>
+                    <button
+                      onClick={() => handleAction('REOPEN_CASE')}
+                      disabled={actionLoading}
+                      className="px-2.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#646B72] hover:text-[#000000] font-nunito text-xs flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
+                      title="Reopen case to re-evaluate evidence"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reopen</span>
+                    </button>
+                  </div>
+                ) : isFalsePositive ? (
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 rounded-[5px] bg-[#198754]/15 border border-[#198754]/40 text-[#198754] font-poppins font-bold text-xs flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      <span>✓ False Positive</span>
+                    </span>
+                    <button
+                      onClick={() => handleAction('REOPEN_CASE')}
+                      disabled={actionLoading}
+                      className="px-2.5 py-1.5 rounded-[5px] bg-[#FFFFFF] hover:bg-[#F7F7F7] border border-[#DADFE5] text-[#646B72] hover:text-[#000000] font-nunito text-xs flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
+                      title="Reopen case to re-evaluate evidence"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reopen</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleAction('CONFIRM_FRAUD')}
+                      disabled={actionLoading}
+                      className="px-3 py-1.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>Confirm Fraud</span>
+                    </button>
+                    <button
+                      onClick={() => handleAction('APPROVE_FOUR_EYES')}
+                      disabled={actionLoading || isFourEyesApproved}
+                      className={`px-3 py-1.5 rounded-[5px] text-white font-nunito font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-colors ${
+                        isFourEyesApproved 
+                          ? 'bg-[#198754] cursor-default' 
+                          : 'bg-[#212B36] hover:bg-[#171f28] cursor-pointer'
+                      }`}
+                    >
+                      <UserCheck className="w-3.5 h-3.5 text-[#FF9F43]" />
+                      <span>{isFourEyesApproved ? '✓ 4-Eyes Approved' : 'Four-Eyes Approve'}</span>
+                    </button>
+                    <button
+                      onClick={() => handleAction('MARK_FALSE_POSITIVE')}
+                      disabled={actionLoading}
+                      className="dream-btn-outline px-3 py-1 text-xs cursor-pointer hover:bg-[#198754]/10 hover:border-[#198754] hover:text-[#198754] transition-colors disabled:opacity-50"
+                    >
+                      False Positive
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -322,28 +419,30 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   </div>
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
                     <strong className="text-[#FF9F43] block mb-0.5">3. Current State in DB</strong>
-                    <span className="font-bold text-[#212B36]">{selectedCase.status}</span>
+                    <span className={`font-bold ${
+                      isConfirmed ? 'text-[#FF0000]' : isFalsePositive ? 'text-[#198754]' : 'text-[#212B36]'
+                    }`}>{selectedCase.status}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Conversational Scam Call Intelligence & Evidence Spans Panel (M6 & Feature SRS) */}
+            {/* Conversational Scam Call Intelligence & Evidence Spans Panel */}
             <div className="dream-card p-5 space-y-4 shadow-sm border-t-2 border-t-[#FF9F43]">
               <div className="flex items-center justify-between pb-3 border-b border-[#DADFE5]">
                 <div className="flex items-center gap-2">
                   <Mic className="w-4 h-4 text-[#FF9F43]" />
                   <h3 className="font-poppins font-bold text-sm text-[#000000]">
-                    Bangla Scam Call Intelligence &amp; Multi-Turn Signal Timeline
+                    Bangla Scam Intelligence &amp; Multi-Turn Signal Timeline
                   </h3>
                   <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-nunito font-bold bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30">
-                    Typology: Fake Customer Care (SCAM_CALL_CUSTOMER_CARE)
+                    Typology: {reasonCode}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-[#646B72]">Confidence: 94% · CRITICAL Escalation</span>
+                <span className="text-[11px] font-mono text-[#646B72]">Confidence: {Math.round(selectedCase.risk_score * 100)}% · CRITICAL Escalation</span>
               </div>
 
-              {/* Conversation Turn Timeline */}
+              {/* Conversation Turn Timeline dynamically tailored to selected case */}
               <div className="space-y-2 text-xs font-nunito">
                 <span className="text-[11px] font-bold text-[#212B36] block">
                   Turn-by-Turn Speech Transcript &amp; Extracted Evidence Spans:
@@ -351,18 +450,18 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 
                 <div className="p-3 bg-[#F7F7F7] border-l-4 border-l-[#FF9F43] border border-[#DADFE5] space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-[#646B72]">
-                    <span className="font-bold text-[#FF9F43]">CALLER (Scammer) · 23:38:12</span>
+                    <span className="font-bold text-[#FF9F43]">CALLER (Scammer)</span>
                     <span className="px-1.5 py-0.5 bg-[#FF9F43]/20 text-[#FF9F43] font-mono font-bold">[AUTHORITY_IMPERSONATION]</span>
                   </div>
                   <p className="text-[#212529] font-bangla">
-                    "আসসালামু আলাইকুম, আমি উপায় কাস্টমার কেয়ার ঢাকা হেড অফিস থেকে বলছি। আপনার অ্যাকাউন্ট এখনই বন্ধ হয়ে যাবে।"
+                    "আসসালামু আলাইকুম, আমি উপায় কাস্টমার কেয়ার হেড অফিস থেকে বলছি। আপনার অ্যাকাউন্ট এখনই বন্ধ হয়ে যাবে।"
                   </p>
                   <span className="text-[10px] text-[#FF0000] font-mono block">Evidence Span: "উপায় কাস্টমার কেয়ার... অ্যাকাউন্ট বন্ধ হয়ে যাবে"</span>
                 </div>
 
                 <div className="p-3 bg-[#FFFFFF] border-l-4 border-l-[#DADFE5] border border-[#DADFE5] space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-[#646B72]">
-                    <span className="font-bold text-[#092C4C]">VICTIM (Rahima Begum) · 23:38:40</span>
+                    <span className="font-bold text-[#092C4C]">VICTIM ({selectedCase.sender_wallet})</span>
                     <span className="text-[#646B72]">Customer Reply</span>
                   </div>
                   <p className="text-[#212529] font-bangla">"কেন বন্ধ হবে ভাই? আমি তো নিয়মিত লেনদেন করি।"</p>
@@ -370,7 +469,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
 
                 <div className="p-3 bg-[#F7F7F7] border-l-4 border-l-[#FF0000] border border-[#DADFE5] space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-[#646B72]">
-                    <span className="font-bold text-[#FF0000]">CALLER (Scammer) · 23:39:15</span>
+                    <span className="font-bold text-[#FF0000]">CALLER (Scammer)</span>
                     <div className="flex items-center gap-1">
                       <span className="px-1.5 py-0.5 bg-[#FF0000]/15 text-[#FF0000] font-mono font-bold">[URGENCY]</span>
                       <span className="px-1.5 py-0.5 bg-[#FF0000]/15 text-[#FF0000] font-mono font-bold">[OTP_REQUEST]</span>
@@ -378,9 +477,9 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                     </div>
                   </div>
                   <p className="text-[#212529] font-bangla">
-                    "জরুরি সিকিউরিটি আপডেট প্রয়োজন। আপনার ফোনে আসা ওটিপি বলুন এবং অ্যাকাউন্ট চালু রাখতে ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান।"
+                    "জরুরি সিকিউরিটি আপডেট প্রয়োজন। আপনার ফোনে আসা ওটিপি বলুন এবং অ্যাকাউন্ট চালু রাখতে ৳{selectedCase.amount_bdt.toLocaleString()} টাকা {selectedCase.receiver_wallet} নম্বরে পাঠান।"
                   </p>
-                  <span className="text-[10px] text-[#FF0000] font-mono block">Evidence Span: "ওটিপি বলুন... ১৮,৫০০ টাকা ০১৩৯৯-৯৯১৮২৩ নম্বরে পাঠান"</span>
+                  <span className="text-[10px] text-[#FF0000] font-mono block">Evidence Span: "ওটিপি বলুন... ৳{selectedCase.amount_bdt.toLocaleString()} টাকা {selectedCase.receiver_wallet} নম্বরে পাঠান"</span>
                 </div>
               </div>
 
@@ -410,11 +509,11 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 <div className="p-3 bg-[#FFFFFF] border border-[#DADFE5] space-y-1.5">
                   <h5 className="font-poppins font-bold text-[#000000] text-xs">Campaign Graph &amp; Entity Links</h5>
                   <div className="space-y-1 text-[11px] text-[#212529]">
-                    <div>Linked Phone: <strong className="font-mono text-[#092C4C]">01399-991823</strong></div>
-                    <div>Linked Mule Wallet: <strong className="font-mono text-[#FF9F43]">W-SYN-091177 (Tanvir)</strong></div>
+                    <div>Linked Sender: <strong className="font-mono text-[#092C4C]">{selectedCase.sender_wallet}</strong></div>
+                    <div>Linked Mule Wallet: <strong className="font-mono text-[#FF9F43]">{selectedCase.receiver_wallet}</strong></div>
                     <div>Linked Graph Ring: <strong className="text-[#FF0000]">RING-2026-0012 (Ring-12 Hub)</strong></div>
                     <div>Prior Reports: <span className="font-bold text-[#FF0000]">1 Community Impersonation Complaint</span></div>
-                    <div>M3 Context Impact: <span className="font-mono text-[#198754] font-bold">scam_conversation_context_score = 0.94</span></div>
+                    <div>Risk Score Impact: <span className="font-mono text-[#198754] font-bold">{(selectedCase.risk_score * 100).toFixed(1)}% / 100</span></div>
                   </div>
                 </div>
               </div>
@@ -435,16 +534,16 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 <div className="flex items-center gap-1 bg-[#F7F7F7] p-1 rounded-[5px] border border-[#DADFE5] text-xs font-nunito">
                   <button
                     onClick={() => setBriefLang('en')}
-                    className={`px-3 py-1 rounded-[4px] font-semibold ${
-                      briefLang === 'en' ? 'bg-[#212B36] text-white' : 'text-[#646B72]'
+                    className={`px-3 py-1 rounded-[4px] font-semibold transition-colors cursor-pointer ${
+                      briefLang === 'en' ? 'bg-[#212B36] text-white' : 'text-[#646B72] hover:text-[#000000]'
                     }`}
                   >
                     English
                   </button>
                   <button
                     onClick={() => setBriefLang('bn')}
-                    className={`px-3 py-1 rounded-[4px] font-semibold ${
-                      briefLang === 'bn' ? 'bg-[#212B36] text-white' : 'text-[#646B72]'
+                    className={`px-3 py-1 rounded-[4px] font-semibold transition-colors cursor-pointer ${
+                      briefLang === 'bn' ? 'bg-[#212B36] text-white' : 'text-[#646B72] hover:text-[#000000]'
                     }`}
                   >
                     বাংলা
@@ -455,7 +554,7 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
               {isGeneratingBrief ? (
                 <div className="py-8 text-center text-xs font-nunito text-[#646B72]">
                   <Sparkles className="w-6 h-6 text-[#FF9F43] mx-auto animate-spin mb-2" />
-                  <span>Grounding facts with Evidence Pack & Claim Verifier...</span>
+                  <span>Grounding facts with Evidence Pack &amp; Claim Verifier...</span>
                 </div>
               ) : copilotBrief ? (
                 <div className="space-y-3.5 text-xs font-nunito">
@@ -464,11 +563,11 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {copilotBrief.sections.map((sec: any, idx: number) => (
+                    {copilotBrief.sections?.map((sec: any, idx: number) => (
                       <div key={idx} className="p-3.5 bg-[#FFFFFF] rounded-none border border-[#DADFE5]">
                         <h5 className="font-poppins font-bold text-[#000000] mb-2">{sec.title}</h5>
                         <div className="space-y-1.5 text-[#212529]">
-                          {sec.sentences.map((st: any, sIdx: number) => (
+                          {sec.sentences?.map((st: any, sIdx: number) => (
                             <div key={sIdx} className="flex items-start gap-1.5">
                               <Check className="w-3.5 h-3.5 text-[#198754] shrink-0 mt-0.5" />
                               <span>{st.text}</span>

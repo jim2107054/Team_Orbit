@@ -79,6 +79,8 @@ casesRouter.post('/cases/:id/actions', async (req: Request, res: Response) => {
     } else if (action === 'APPROVE_FOUR_EYES') {
       updates.four_eyes_approved = true;
       updates.second_analyst_id = second_analyst_id || 'ANALYST-MLRO-99';
+    } else if (action === 'REOPEN_CASE') {
+      updates.status = 'OPEN';
     }
 
     await repository.updateCase(caseId, updates);

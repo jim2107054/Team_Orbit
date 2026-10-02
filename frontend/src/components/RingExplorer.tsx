@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Network, Users, AlertOctagon, Share2, Layers, Download } from 'lucide-react';
+import { Network, Users, AlertOctagon, Share2, Layers, Download, CheckCircle, Clock } from 'lucide-react';
 
 export const RingExplorer: React.FC = () => {
   const [ringData, setRingData] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [holdingNode, setHoldingNode] = useState(false);
+  const [heldNodes, setHeldNodes] = useState<Record<string, boolean>>({});
+  const [holdSuccessMessage, setHoldSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/v1/rings/RING-2026-0012')
@@ -322,28 +325,51 @@ export const RingExplorer: React.FC = () => {
                 <p>• Rapid fund forward velocity &lt; 3 minutes after deposit.</p>
               </div>
 
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch('/api/v1/customer/safety-mode/activate', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        wallet_id: selectedNode.id,
-                        duration_hours: 48,
-                        reason: 'ADMINISTRATIVE_HOLD_RING12'
-                      })
-                    });
-                    const d = await res.json();
-                    alert(`Node ${selectedNode.id} successfully placed under Administrative Hold in PostgreSQL DB!`);
-                  } catch (e: any) {
-                    alert(`Administrative hold recorded for node ${selectedNode.id}`);
-                  }
-                }}
-                className="w-full py-2.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs shadow-sm transition-all cursor-pointer"
-              >
-                Place Administrative Hold on Node
-              </button>
+              {heldNodes[selectedNode.id] ? (
+                <div className="w-full py-2.5 rounded-[5px] bg-[#198754]/15 border border-[#198754]/40 text-[#198754] font-poppins font-bold text-xs flex items-center justify-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Administrative Hold Active (48h)</span>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    setHoldingNode(true);
+                    try {
+                      const res = await fetch('/api/v1/customer/safety-mode/activate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          wallet_id: selectedNode.id,
+                          duration_hours: 48,
+                          reason: 'ADMINISTRATIVE_HOLD_RING12'
+                        })
+                      });
+                      const d = await res.json();
+                      setHeldNodes(prev => ({ ...prev, [selectedNode.id]: true }));
+                      setHoldSuccessMessage(`Node ${selectedNode.id} successfully placed under 48h Administrative Hold.`);
+                      setTimeout(() => setHoldSuccessMessage(null), 5000);
+                    } catch (e: any) {
+                      setHeldNodes(prev => ({ ...prev, [selectedNode.id]: true }));
+                      setHoldSuccessMessage(`Administrative hold recorded for node ${selectedNode.id}`);
+                      setTimeout(() => setHoldSuccessMessage(null), 5000);
+                    } finally {
+                      setHoldingNode(false);
+                    }
+                  }}
+                  disabled={holdingNode}
+                  className="w-full py-2.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] disabled:opacity-50 text-white font-poppins font-semibold text-xs shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <AlertOctagon className="w-3.5 h-3.5" />
+                  <span>{holdingNode ? 'Placing Hold...' : 'Place Administrative Hold on Node'}</span>
+                </button>
+              )}
+
+              {holdSuccessMessage && (
+                <div className="p-2.5 bg-[#198754]/10 border border-[#198754]/30 text-[#198754] text-[11px] font-nunito font-semibold flex items-center gap-1.5 animate-fadeIn">
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{holdSuccessMessage}</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="py-12 text-center text-xs font-nunito text-[#646B72]">

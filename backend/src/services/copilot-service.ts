@@ -1,5 +1,6 @@
 import { AlertCase, CopilotBrief } from '../core/types.js';
 import { scamKnowledgeGraph } from './scam-knowledge-graph.js';
+import { recoveryRouteOptimizer } from './recovery-route-optimizer.js';
 
 export interface EvidencePack {
   case_id: string;
@@ -196,8 +197,63 @@ export class CopilotService {
       graph_result: graphResult
     };
   }
+
+  // Recovery Route Optimizer Copilot Resolver (Prompt 11)
+  queryRecoveryCopilot(caseId: string, question: string, lang: 'bn' | 'en' = 'en') {
+    const plan = recoveryRouteOptimizer.generateRecoveryRoute(caseId);
+    const topStep = plan.route[0];
+
+    if (!topStep) {
+      return {
+        case_id: caseId,
+        question,
+        language: lang,
+        answer: lang === 'bn'
+          ? 'এই মুহূর্তে কোনো নতুন রিকভারি পদক্ষেপের প্রয়োজন নেই অথবা সব পদক্ষেপ সম্পন্ন হয়েছে।'
+          : 'All prioritized recovery actions for this case have already been reviewed or completed.',
+        evidence_ids: [],
+        confidence: 0.99,
+        plan
+      };
+    }
+
+    if (plan.estimated_recoverability.level === 'INSUFFICIENT_EVIDENCE') {
+      return {
+        case_id: caseId,
+        question,
+        language: lang,
+        answer: lang === 'bn'
+          ? `অপর্যাপ্ত তথ্যপ্রমাণ: নির্ভরযোগ্য রিকভারি রুট তৈরির জন্য পর্যাপ্ত ডেটা নেই। তথ্য সংগ্রহ অব্যাহত রাখুন ও আইনি সংস্থায় এসকেলেট করুন।`
+          : `Insufficient evidence for a reliable recovery route. Continue evidence collection and escalate to Law Enforcement.`,
+        evidence_ids: topStep.evidence_items.map((e) => e.evidence_id),
+        confidence: 0.85,
+        plan
+      };
+    }
+
+    const evidenceRefs = topStep.evidence_items.map((e) => e.source_event_id).join(' → ');
+
+    let answer: string;
+    if (lang === 'bn') {
+      answer = `অগ্রাধিকার ১: ${topStep.target_entity_label} (${topStep.action_type}) পর্যালোচনা করুন।\n\nকারণ:\n${topStep.reason_bn}\n\nপ্রমাণ:\n${evidenceRefs}\n\nআস্থা: ${topStep.priority} (${(topStep.evidence_confidence * 100).toFixed(0)}%) | অবশিষ্ট গোল্ডেন আওয়ার: ${plan.golden_hour_state.remaining_minutes} মিনিট।`;
+    } else {
+      answer = `Priority 1:\nReview ${topStep.target_entity_label} (${topStep.action_type}).\n\nWhy:\n${topStep.reason_en}\n\nEvidence:\n${evidenceRefs}\n\nConfidence: ${topStep.priority} (${(topStep.evidence_confidence * 100).toFixed(0)}%) | Golden Hour: ${plan.golden_hour_state.remaining_minutes} min remaining.`;
+    }
+
+    return {
+      case_id: caseId,
+      question,
+      language: lang,
+      answer,
+      evidence_ids: topStep.evidence_items.map((e) => e.evidence_id),
+      top_step: topStep,
+      confidence: topStep.evidence_confidence,
+      plan
+    };
+  }
 }
 
 export const copilotService = new CopilotService();
+
 
 

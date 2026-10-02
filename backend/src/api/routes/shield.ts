@@ -17,7 +17,9 @@ import { communityPropagationService } from '../../services/community-propagatio
 import { customerSafetyModeService } from '../../services/safety-mode-service.js';
 import { complaintActionIntelligenceService } from '../../services/complaint-action-intelligence.js';
 import { scamKnowledgeGraph } from '../../services/scam-knowledge-graph.js';
+import { recoveryRouteOptimizer } from '../../services/recovery-route-optimizer.js';
 import { BANGLA_TEMPLATES } from '../../core/constants.js';
+
 
 import { AlertCase } from '../../core/types.js';
 
@@ -1063,6 +1065,105 @@ shieldRouter.post('/copilot/knowledge-query', (req: Request, res: Response) => {
     return res.status(500).json({ error: { code: 'COPILOT_ERROR', message: err.message } });
   }
 });
+
+// ================= RECOVERY ROUTE OPTIMIZER (PROMPT 11) =================
+
+// 1. Get current Recovery Route Plan for a case
+shieldRouter.get('/cases/:id/recovery-route', (req: Request, res: Response) => {
+  try {
+    const caseId = req.params.id;
+    const scenario = (req.query.scenario as any) || undefined;
+    const remainingMin = req.query.golden_hour_remaining ? Number(req.query.golden_hour_remaining) : undefined;
+    const amount = req.query.amount ? Number(req.query.amount) : undefined;
+
+    const plan = recoveryRouteOptimizer.generateRecoveryRoute(caseId, undefined, {
+      scenarioId: scenario,
+      goldenHourRemainingMin: remainingMin,
+      disputedAmountBdt: amount
+    });
+
+    return res.json({ success: true, plan });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'RECOVERY_ROUTE_FAILED', message: err.message } });
+  }
+});
+
+// 2. Generate / Re-optimize Recovery Route with custom parameters
+shieldRouter.post('/cases/:id/recovery-route/optimize', (req: Request, res: Response) => {
+  try {
+    const caseId = req.params.id;
+    const { scenario_id, golden_hour_remaining_min, disputed_amount_bdt, transaction_id } = req.body;
+
+    const plan = recoveryRouteOptimizer.generateRecoveryRoute(caseId, transaction_id, {
+      scenarioId: scenario_id,
+      goldenHourRemainingMin: golden_hour_remaining_min,
+      disputedAmountBdt: disputed_amount_bdt
+    });
+
+    return res.json({ success: true, plan });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'RECOVERY_OPTIMIZE_FAILED', message: err.message } });
+  }
+});
+
+// 3. Update recovery action status (Mark Reviewed, Skip, Escalate) & prevent duplicates
+shieldRouter.post('/cases/:id/recovery-route/actions/:actionId', async (req: Request, res: Response) => {
+  try {
+    const caseId = req.params.id;
+    const actionId = req.params.actionId;
+    const { status, notes, analyst_id } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'status is required' } });
+    }
+
+    const result = recoveryRouteOptimizer.updateActionStatus(
+      caseId,
+      actionId,
+      status,
+      notes,
+      analyst_id || 'ANALYST-101'
+    );
+
+    await auditService.logAction(
+      analyst_id || 'ANALYST-101',
+      `RECOVERY_ACTION_${status}`,
+      `${caseId}:${actionId}`,
+      { status, notes }
+    );
+
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'ACTION_UPDATE_FAILED', message: err.message } });
+  }
+});
+
+// 4. Get chronological recovery timeline events
+shieldRouter.get('/cases/:id/recovery-timeline', (req: Request, res: Response) => {
+  try {
+    const caseId = req.params.id;
+    const events = recoveryRouteOptimizer.getRecoveryTimeline(caseId);
+    return res.json({ success: true, count: events.length, timeline: events });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'TIMELINE_FETCH_FAILED', message: err.message } });
+  }
+});
+
+// 5. Copilot Recovery Query Endpoint
+shieldRouter.post('/copilot/recovery-query', (req: Request, res: Response) => {
+  try {
+    const { case_id, question, language } = req.body;
+    if (!case_id || !question) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'case_id and question are required' } });
+    }
+
+    const result = copilotService.queryRecoveryCopilot(case_id, question, language || 'en');
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'COPILOT_RECOVERY_ERROR', message: err.message } });
+  }
+});
+
 
 
 

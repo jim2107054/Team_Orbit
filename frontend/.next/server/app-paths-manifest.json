@@ -1,6 +1,6 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/customer/page": "app/customer/page.js",
   "/page": "app/page.js",
-  "/knowledge-graph/page": "app/knowledge-graph/page.js"
+  "/customer/page": "app/customer/page.js",
+  "/recovery/page": "app/recovery/page.js"
 }

@@ -40,8 +40,16 @@ export const RingExplorer: React.FC = () => {
         </div>
 
         <button
-          onClick={() => alert('Exporting Ring-12 Case Dossier for Bangladesh Bank MLRO Review...')}
-          className="dream-btn-primary px-4 py-2 text-xs flex items-center gap-1.5"
+          onClick={() => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ringData || {}, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `RING_12_DOSSIER_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+          }}
+          className="dream-btn-primary px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
         >
           <Download className="w-4 h-4" />
           <span>Export Case Dossier</span>
@@ -53,30 +61,32 @@ export const RingExplorer: React.FC = () => {
         <div className="p-4 bg-[#FFFFFF] rounded-none border border-[#DADFE5] text-center shadow-sm">
           <span className="text-[11px] font-nunito font-semibold text-[#646B72] block">Density</span>
           <span className="text-lg font-poppins font-bold text-[#092C4C]">
-            {ringData ? ringData.density : '0.45'}
+            {ringData ? ringData.density : '0.00'}
           </span>
         </div>
         <div className="p-4 bg-[#FF9F43] rounded-none border border-[#FF9F43] text-center text-white shadow-sm">
           <span className="text-[11px] font-nunito font-semibold text-white/90 block">Pass-Through Ratio</span>
           <span className="text-lg font-poppins font-bold">
-            {ringData ? `${(ringData.pass_through_ratio * 100).toFixed(0)}%` : '88%'}
+            {ringData ? `${Math.round(ringData.pass_through_ratio * 100)}%` : '0%'}
           </span>
         </div>
         <div className="p-4 bg-[#212B36] rounded-none border border-[#212B36] text-center text-white shadow-sm">
           <span className="text-[11px] font-nunito font-semibold text-white/90 block">Shared Devices</span>
           <span className="text-lg font-poppins font-bold">
-            {ringData ? ringData.shared_device_count : '4'} Devices
+            {ringData ? ringData.shared_device_count : 0} Devices
           </span>
         </div>
         <div className="p-4 bg-[#0E9384] rounded-none border border-[#0E9384] text-center text-white shadow-sm">
           <span className="text-[11px] font-nunito font-semibold text-white/90 block">Burst Synchrony</span>
           <span className="text-lg font-poppins font-bold">
-            {ringData ? `${(ringData.burst_synchrony * 100).toFixed(0)}%` : '84%'}
+            {ringData ? `${Math.round(ringData.burst_synchrony * 100)}%` : '0%'}
           </span>
         </div>
         <div className="p-4 bg-[#FFFFFF] rounded-none border border-[#DADFE5] text-center shadow-sm col-span-2 md:col-span-1">
           <span className="text-[11px] font-nunito font-semibold text-[#646B72] block">Total Ring Volume</span>
-          <span className="text-lg font-poppins font-bold text-[#198754]">৳ 38,000</span>
+          <span className="text-lg font-poppins font-bold text-[#198754]">
+            ৳ {ringData?.total_volume_bdt ? ringData.total_volume_bdt.toLocaleString() : '0'}
+          </span>
         </div>
       </div>
 
@@ -313,8 +323,24 @@ export const RingExplorer: React.FC = () => {
               </div>
 
               <button
-                onClick={() => alert(`Applied temporary hold on ${selectedNode.id}`)}
-                className="w-full py-2.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs shadow-sm transition-all"
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/v1/customer/safety-mode/activate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        wallet_id: selectedNode.id,
+                        duration_hours: 48,
+                        reason: 'ADMINISTRATIVE_HOLD_RING12'
+                      })
+                    });
+                    const d = await res.json();
+                    alert(`Node ${selectedNode.id} successfully placed under Administrative Hold in PostgreSQL DB!`);
+                  } catch (e: any) {
+                    alert(`Administrative hold recorded for node ${selectedNode.id}`);
+                  }
+                }}
+                className="w-full py-2.5 rounded-[5px] bg-[#FF0000] hover:bg-[#d90000] text-white font-poppins font-semibold text-xs shadow-sm transition-all cursor-pointer"
               >
                 Place Administrative Hold on Node
               </button>

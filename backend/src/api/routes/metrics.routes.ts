@@ -7,8 +7,7 @@ import { dashboardCache, listCache } from '../middleware/index.js';
 
 export const metricsRouter = Router();
 
-// Apply caching to dashboard-critical GET endpoints
-metricsRouter.get('/metrics/summary', dashboardCache);
+// Ensure fresh real-time database query on every dashboard render
 metricsRouter.get('/metrics/fairness', listCache);
 metricsRouter.get('/metrics/drift', listCache);
 

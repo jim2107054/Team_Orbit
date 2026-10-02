@@ -54,46 +54,35 @@ export const AdminDashboard: React.FC = () => {
   const [selectedDateRange, setSelectedDateRange] = useState('26/09/2026 - 02/10/2026');
 
   // Dynamic Volume multiplier based on activeChartRange and DB
-  const currentVolume = dbStats?.totalVolume 
+  const currentVolume = dbStats !== null
     ? `৳${Math.round(
-        activeChartRange === '1D' ? dbStats.totalVolume * 0.05
-        : activeChartRange === '1W' ? dbStats.totalVolume * 0.28
-        : activeChartRange === '1M' ? dbStats.totalVolume * 0.75
-        : activeChartRange === '3M' ? dbStats.totalVolume * 1.8
-        : activeChartRange === '6M' ? dbStats.totalVolume * 2.9
-        : dbStats.totalVolume
+        activeChartRange === '1D' ? (dbStats.totalVolume || 0) * 0.05
+        : activeChartRange === '1W' ? (dbStats.totalVolume || 0) * 0.28
+        : activeChartRange === '1M' ? (dbStats.totalVolume || 0) * 0.75
+        : activeChartRange === '3M' ? (dbStats.totalVolume || 0) * 1.8
+        : activeChartRange === '6M' ? (dbStats.totalVolume || 0) * 2.9
+        : (dbStats.totalVolume || 0)
       ).toLocaleString()}`
-    : '৳48,988,078';
+    : '...';
 
-  const displayTxns = dbStats?.totalTxns ? dbStats.totalTxns.toLocaleString() : '14,200+';
-  const displayAlerts = dbStats?.totalAlerts ? dbStats.totalAlerts.toString() : '142';
-  const displayRings = dbStats?.totalRings ? dbStats.totalRings.toString() : '12';
-  const displayFP = dbStats?.falsePositivesCount ? `${dbStats.falsePositivesCount.toLocaleString()} (${dbStats.falsePositivesRate}%)` : '16,478 (91.8%)';
-  const displayGoldenHour = dbStats?.goldenHourRecovered ? `৳${dbStats.goldenHourRecovered.toLocaleString()}` : '৳24,145,789';
-  const displayCleanUssd = dbStats?.cleanUssdVolume ? `৳${dbStats.cleanUssdVolume.toLocaleString()}` : '৳18,458,747';
-  const displayPreventedLoss = dbStats?.preventedLoss ? `৳${dbStats.preventedLoss.toLocaleString()}` : '৳8,458,798';
-  const displayActiveHolds = dbStats?.activeHolds ? `${dbStats.activeHolds} Active Holds` : '48 Active Holds';
-  const displayInterceptions = dbStats?.scamInterceptions ? `${dbStats.scamInterceptions.toLocaleString()} Logged` : '8,980 Logged';
-  const displayMuleWallets = dbStats?.muleWalletsCount ? `${dbStats.muleWalletsCount} Mule Wallets` : '78 Mule Wallets';
-  const displayCustomers = dbStats?.totalCustomers ? `${(dbStats.totalCustomers / 1000).toFixed(1)}K` : '49.8K';
-  const displayOutlets = dbStats?.totalOutlets ? dbStats.totalOutlets.toLocaleString() : '6,987';
-  const displayCleanM = dbStats?.cleanVolume ? `৳${(dbStats.cleanVolume / 1000000).toFixed(1)}M` : '৳48.9M';
-  const displayInterceptedM = dbStats?.preventedLoss ? `৳${(dbStats.preventedLoss / 1000000).toFixed(1)}M` : '৳8.4M';
+  const displayTxns = dbStats !== null ? (dbStats.totalTxns || 0).toLocaleString() : '...';
+  const displayAlerts = dbStats !== null ? (dbStats.totalAlerts || 0).toString() : '...';
+  const displayRings = dbStats !== null ? (dbStats.totalRings || 0).toString() : '...';
+  const displayFP = dbStats !== null 
+    ? `${(dbStats.falsePositivesCount || 0).toLocaleString()} (${dbStats.falsePositivesRate || 0}%)` 
+    : '...';
+  const displayGoldenHour = dbStats !== null ? `৳${(dbStats.goldenHourRecovered || 0).toLocaleString()}` : '...';
+  const displayCleanUssd = dbStats !== null ? `৳${(dbStats.cleanUssdVolume || 0).toLocaleString()}` : '...';
+  const displayPreventedLoss = dbStats !== null ? `৳${(dbStats.preventedLoss || 0).toLocaleString()}` : '...';
+  const displayActiveHolds = dbStats !== null ? `${dbStats.activeHolds || 0} Active Holds` : '...';
+  const displayInterceptions = dbStats !== null ? `${(dbStats.scamInterceptions || 0).toLocaleString()} Logged` : '...';
+  const displayMuleWallets = dbStats !== null ? `${dbStats.muleWalletsCount || 0} Mule Wallets` : '...';
+  const displayCustomers = dbStats !== null ? (dbStats.totalCustomers || 0).toLocaleString() : '...';
+  const displayOutlets = dbStats !== null ? (dbStats.totalOutlets || 0).toLocaleString() : '...';
+  const displayCleanM = dbStats !== null ? `৳${((dbStats.cleanVolume || 0) / 1000000).toFixed(2)}M` : '৳0.00M';
+  const displayInterceptedM = dbStats !== null ? `৳${((dbStats.preventedLoss || 0) / 1000000).toFixed(2)}M` : '৳0.00M';
 
-  const chartData = dbStats?.chartData && dbStats.chartData.length > 0 ? dbStats.chartData : [
-    { month: 'Jan', clean: 65, intercepted: 15 },
-    { month: 'Feb', clean: 50, intercepted: 12 },
-    { month: 'Mar', clean: 80, intercepted: 25 },
-    { month: 'Apr (Eid)', clean: 95, intercepted: 32 },
-    { month: 'May', clean: 70, intercepted: 18 },
-    { month: 'Jun (Puja)', clean: 88, intercepted: 28 },
-    { month: 'Jul', clean: 75, intercepted: 20 },
-    { month: 'Aug', clean: 85, intercepted: 22 },
-    { month: 'Sep', clean: 95, intercepted: 30 },
-    { month: 'Oct', clean: 88, intercepted: 24 },
-    { month: 'Nov', clean: 92, intercepted: 26 },
-    { month: 'Dec', clean: 98, intercepted: 35 },
-  ];
+  const chartData = dbStats?.chartData || [];
 
   return (
     <div className="space-y-6 pb-12 animate-fadeIn relative">

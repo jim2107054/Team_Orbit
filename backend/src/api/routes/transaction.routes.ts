@@ -97,12 +97,34 @@ transactionRouter.post('/score/transaction', async (req: Request, res: Response)
       customerTemplate = BANGLA_TEMPLATES.PV_03_EMERGENCY;
     }
 
+    const generatedTxnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const txnStatus = evaluation.action_recommended === 'BLOCK' ? 'BLOCKED'
+      : evaluation.action_recommended === 'AUTO_HOLD' || evaluation.action_recommended === 'STEP_UP_CHALLENGE' ? 'HOLD_PENDING'
+      : 'SUCCESS';
+
+    await repository.insertTransaction({
+      txn_id: generatedTxnId,
+      ts: txnTs,
+      sender_wallet: txn.sender_wallet,
+      receiver_wallet: txn.receiver_wallet,
+      type: txn.type || 'P2P_SEND',
+      amount_bdt: txn.amount_bdt,
+      channel: channelType,
+      device_id: txn.device_id,
+      geo_cell: 'GEO-DHAKA-CENTRAL',
+      fee_bdt: txn.amount_bdt > 1000 ? 5 : 0,
+      status: txnStatus,
+      label_fraud: evaluation.risk_tier === 'T3',
+      typology_id: evaluation.reasons[0]?.code,
+      created_at: txnTs
+    });
+
     let analystCaseId: string | undefined;
     if (evaluation.risk_tier === 'T2' || evaluation.risk_tier === 'T3') {
       analystCaseId = `CASE-2026-${Math.floor(10000 + Math.random() * 90000)}`;
       const newCase: AlertCase = {
         case_id: analystCaseId,
-        txn_id: `TXN-${Date.now()}`,
+        txn_id: generatedTxnId,
         sender_wallet: txn.sender_wallet,
         receiver_wallet: txn.receiver_wallet,
         amount_bdt: txn.amount_bdt,
@@ -122,7 +144,8 @@ transactionRouter.post('/score/transaction', async (req: Request, res: Response)
     await auditService.logAction('RISK_API', 'SCORE_TXN', reqId, {
       score: evaluation.risk_score,
       tier: evaluation.risk_tier,
-      action: evaluation.action_recommended
+      action: evaluation.action_recommended,
+      txn_id: generatedTxnId
     });
 
     return res.status(200).json({

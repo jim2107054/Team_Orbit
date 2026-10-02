@@ -175,8 +175,26 @@ CREATE INDEX IF NOT EXISTS idx_txns_receiver_ts ON transactions(receiver_wallet,
 CREATE INDEX IF NOT EXISTS idx_txns_sender_rcvr ON transactions(sender_wallet, receiver_wallet);
 CREATE INDEX IF NOT EXISTS idx_txns_fraud_typology ON transactions(label_fraud, typology_id);
 CREATE INDEX IF NOT EXISTS idx_txns_ring ON transactions(ring_id) WHERE ring_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_txns_device ON transactions(device_id, ts DESC);
+
+CREATE INDEX IF NOT EXISTS idx_wallets_customer ON wallets(customer_id);
+CREATE INDEX IF NOT EXISTS idx_wallets_mule ON wallets(is_mule_candidate) WHERE is_mule_candidate = TRUE;
+CREATE INDEX IF NOT EXISTS idx_wallets_phone ON wallets(phone);
+
+CREATE INDEX IF NOT EXISTS idx_agents_risk_div ON agents(risk_status, division);
+CREATE INDEX IF NOT EXISTS idx_agents_phone ON agents(phone);
+
 CREATE INDEX IF NOT EXISTS idx_events_wallet_type_ts ON session_events(wallet_id, type, ts DESC);
 CREATE INDEX IF NOT EXISTS idx_reports_number ON community_reports(reported_number, ts DESC);
+CREATE INDEX IF NOT EXISTS idx_reports_reporter ON community_reports(reporter_wallet, ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_cases_status_score ON alert_cases(status, risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_cases_created ON alert_cases(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_cases_sender_rcvr ON alert_cases(sender_wallet, receiver_wallet);
+
 CREATE INDEX IF NOT EXISTS idx_audit_seq ON audit_logs(seq ASC);
+CREATE INDEX IF NOT EXISTS idx_audit_actor_ts ON audit_logs(actor, ts DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_target ON audit_logs(target_id);
+
+CREATE INDEX IF NOT EXISTS idx_interventions_txn ON customer_interventions(txn_id, shown_ts DESC);
 `;

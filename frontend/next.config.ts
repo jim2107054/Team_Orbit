@@ -44,34 +44,6 @@ const nextConfig: NextConfig = {
   // ─── Build Optimizations ───────────────────────────────
   poweredByHeader: false,     // Remove X-Powered-By header
   compress: true,             // Enable gzip compression
-  output: 'standalone',       // Minimal deployment bundle (Docker-ready)
-
-  // ─── Webpack Optimizations ─────────────────────────────
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Tree-shake lucide-react — only bundle used icons
-      config.resolve = config.resolve || {};
-      config.resolve.alias = {
-        ...config.resolve.alias,
-      };
-
-      // Split large vendor chunks for better caching
-      config.optimization = config.optimization || {};
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...(config.optimization.splitChunks as any)?.cacheGroups,
-          lucide: {
-            test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
-            name: 'lucide-icons',
-            chunks: 'all' as const,
-            priority: 20,
-          },
-        },
-      };
-    }
-    return config;
-  },
 };
 
 export default nextConfig;

@@ -15,7 +15,9 @@ import { scamCampaignService } from '../../services/scam-campaign-service.js';
 import { merchantScamShield } from '../../services/merchant-scam-shield.js';
 import { communityPropagationService } from '../../services/community-propagation.js';
 import { customerSafetyModeService } from '../../services/safety-mode-service.js';
+import { complaintActionIntelligenceService } from '../../services/complaint-action-intelligence.js';
 import { BANGLA_TEMPLATES } from '../../core/constants.js';
+
 import { AlertCase } from '../../core/types.js';
 
 export const shieldRouter = Router();
@@ -778,5 +780,159 @@ shieldRouter.get('/customer/safety-mode-audits/:walletId?', (req: Request, res: 
   const audits = customerSafetyModeService.getAuditHistory(req.params.walletId);
   return res.json({ success: true, count: audits.length, audits });
 });
+
+// ================= COMPLAINT-TO-ACTION INTELLIGENCE ENDPOINTS =================
+shieldRouter.get('/complaints', (req: Request, res: Response) => {
+  const complaints = complaintActionIntelligenceService.getAllComplaints();
+  const { priority, classification, status, duplicate_group_id } = req.query;
+
+  let filtered = complaints;
+  if (priority && priority !== 'ALL') {
+    filtered = filtered.filter(c => c.priority === priority);
+  }
+  if (classification && classification !== 'ALL') {
+    filtered = filtered.filter(c => c.classification === classification);
+  }
+  if (status && status !== 'ALL') {
+    filtered = filtered.filter(c => c.status === status);
+  }
+  if (duplicate_group_id) {
+    filtered = filtered.filter(c => c.duplicate_group_id === duplicate_group_id);
+  }
+
+  return res.json({
+    success: true,
+    total: complaints.length,
+    count: filtered.length,
+    complaints: filtered
+  });
+});
+
+shieldRouter.get('/complaints/stats', (req: Request, res: Response) => {
+  const stats = complaintActionIntelligenceService.getStats();
+  return res.json({ success: true, stats });
+});
+
+shieldRouter.get('/complaints/duplicate-groups', (req: Request, res: Response) => {
+  const groups = complaintActionIntelligenceService.getAllDuplicateGroups();
+  return res.json({ success: true, count: groups.length, groups });
+});
+
+shieldRouter.get('/complaints/:id', (req: Request, res: Response) => {
+  const cmp = complaintActionIntelligenceService.getComplaintById(req.params.id);
+  if (!cmp) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+  }
+  return res.json({ success: true, complaint: cmp });
+});
+
+shieldRouter.post('/complaints/process', (req: Request, res: Response) => {
+  try {
+    const { raw_text, reporter_wallet, reporter_phone, reporter_name, elapsed_minutes } = req.body;
+    if (!raw_text || typeof raw_text !== 'string') {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'raw_text is required' } });
+    }
+
+    const complaint = complaintActionIntelligenceService.processComplaint({
+      raw_text,
+      reporter_wallet,
+      reporter_phone,
+      reporter_name,
+      elapsed_minutes: elapsed_minutes !== undefined ? Number(elapsed_minutes) : 15
+    });
+
+    return res.json({ success: true, complaint });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'PROCESSING_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/complaints/demo-5-scams', (req: Request, res: Response) => {
+  try {
+    const demo = complaintActionIntelligenceService.generate5ComplaintDemoScenario();
+    return res.json({ success: true, ...demo });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'DEMO_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/complaints/:id/override-link', (req: Request, res: Response) => {
+  try {
+    const { target_type, target_id, analyst_id, notes } = req.body;
+    if (!target_type || !target_id) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'target_type and target_id are required' } });
+    }
+
+    const updated = complaintActionIntelligenceService.overrideLink(
+      req.params.id,
+      target_type,
+      target_id,
+      analyst_id || 'ANALYST-101',
+      notes
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+    }
+
+    return res.json({ success: true, complaint: updated });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'OVERRIDE_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/complaints/:id/priority', (req: Request, res: Response) => {
+  try {
+    const { priority, analyst_id, reason } = req.body;
+    if (!priority) {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: 'priority is required' } });
+    }
+
+    const updated = complaintActionIntelligenceService.changePriority(
+      req.params.id,
+      priority,
+      analyst_id || 'ANALYST-101',
+      reason || 'Analyst triage review'
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+    }
+
+    return res.json({ success: true, complaint: updated });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'PRIORITY_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/complaints/:id/emergency-hold', (req: Request, res: Response) => {
+  try {
+    const { wallet_id, analyst_id } = req.body;
+    const result = complaintActionIntelligenceService.triggerEmergencyHold(
+      req.params.id,
+      wallet_id || 'W-SYN-881920',
+      analyst_id || 'ANALYST-101'
+    );
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'HOLD_ERROR', message: err.message } });
+  }
+});
+
+shieldRouter.post('/complaints/:id/dispatch-advisory', (req: Request, res: Response) => {
+  try {
+    const { phone, advisory_text, analyst_id } = req.body;
+    const result = complaintActionIntelligenceService.dispatchCustomerAdvisory(
+      req.params.id,
+      phone || '01711-998822',
+      advisory_text || 'উপায় নিরাপত্তা সতর্কতা: কারো প্ররোচনায় ওটিপি বা পিন শেয়ার করবেন না।',
+      analyst_id || 'ANALYST-101'
+    );
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'ADVISORY_ERROR', message: err.message } });
+  }
+});
+
 
 

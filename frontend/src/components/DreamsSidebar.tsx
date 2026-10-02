@@ -77,6 +77,27 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
               )}
             </Link>
 
+            {/* Complaint-to-Action Hub */}
+            <Link
+              href="/complaints"
+              className={`w-full flex items-center justify-between p-2.5 rounded-[6px] text-xs font-nunito font-bold transition-colors ${
+                isActive('/complaints')
+                  ? 'bg-[#FFF4E8] text-[#FF9F43]'
+                  : 'text-[#646B72] hover:bg-[#F7F7F7] hover:text-[#212B36]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <FileText className={`w-4 h-4 ${isActive('/complaints') ? 'text-[#FF9F43]' : 'text-[#646B72]'}`} />
+                {!isCollapsed && <span>Complaint Intelligence</span>}
+              </div>
+              {!isCollapsed && (
+                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#FF0000]/10 text-[#FF0000] text-[9px] font-mono font-bold">
+                  P1 ACTIVE
+                </span>
+              )}
+            </Link>
+
+
             {/* Ring-12 Mule Explorer */}
             <Link
               href="/rings"

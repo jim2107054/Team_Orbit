@@ -340,6 +340,15 @@ export class CustomerSafetyModeService {
     }
     return this.auditEvents;
   }
+
+  /**
+   * Reset all safety modes to baseline (Demo Control)
+   */
+  resetAll() {
+    this.safetyModes.clear();
+    this.auditEvents = [];
+    this.seedDefaultCustomerState();
+  }
 }
 
 export const customerSafetyModeService = new CustomerSafetyModeService();

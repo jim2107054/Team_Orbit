@@ -1,122 +1,294 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-poppins: 'Poppins', sans-serif;
-  --font-nunito: 'Nunito', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --font-bn: 'Hind Siliguri', sans-serif;
+  --font-syne: 'Syne', sans-serif;
   
-  --primary-accent: #FF9F43;
-  --primary-hover: #F08E2F;
-  --secondary-accent: #212B36;
-  --canvas-bg: #F7F7F7;
-  --surface-bg: #FFFFFF;
-  --border-color: #E8EBED;
-  --text-main: #212B36;
-  --text-muted: #646B72;
+  --primary-flame: #E85D04;
+  --primary-amber: #FF5500;
+  --primary-gold: #FF8800;
+  
+  --canvas-bg: #040508;
+  --surface-bg: #0D0F17;
+  --surface-elevated: #121520;
+  --border-color: #1A1E2C;
+  --text-main: #FFFFFF;
+  --text-muted: #8E95A5;
+  
+  color-scheme: dark;
+}
+
+html.dark {
+  /* Ultra-Deep Obsidian Matte Charcoal from Reference Design */
+  --canvas-bg: #090A0F;
+  --surface-bg: #12151F;
+  --surface-elevated: #181C2A;
+  --border-color: #222738;
+  --text-main: #FFFFFF;
+  --text-muted: #8E95A5;
 }
 
 body {
-  font-family: var(--font-nunito);
+  font-family: var(--font-jakarta);
   background-color: var(--canvas-bg);
   color: var(--text-main);
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-h1, h2, h3, h4, h5, h6, .font-poppins {
-  font-family: var(--font-poppins);
+/* Ambient Radial Underglow from Reference Image */
+html.dark body {
+  background-image: 
+    radial-gradient(ellipse 90% 40% at 50% -10%, rgba(255, 94, 0, 0.12) 0%, transparent 70%),
+    radial-gradient(circle at 100% 20%, rgba(220, 38, 38, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
 }
 
-.font-nunito {
-  font-family: var(--font-nunito);
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6, .font-outfit, .font-poppins {
+  font-family: var(--font-outfit);
+}
+
+.font-jakarta, .font-nunito {
+  font-family: var(--font-jakarta);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "zero" 1;
 }
 
 .font-bangla {
   font-family: var(--font-bn);
 }
 
-/* Dreams POS Card & Surface Styles */
-.dream-card {
-  background-color: #FFFFFF;
-  border: 1px solid #E8EBED;
-  border-radius: 8px;
-  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.02);
+/* Frosted Glassmorphism Card Style (From Reference Samples) */
+.upay-card, .dream-card {
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.dream-card-sharp {
-  background-color: #FFFFFF;
-  border: 1px solid #E8EBED;
-  border-radius: 4px;
+html.dark .upay-card, html.dark .dream-card {
+  background: rgba(18, 21, 31, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 12px 30px -4px rgba(0, 0, 0, 0.5);
 }
 
-.dream-btn-primary {
-  background-color: #FF9F43;
+/* Elevated Glass Surface */
+.upay-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+html.dark .upay-glass {
+  background: rgba(18, 21, 31, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* Frosted Glass Card with Top Warm Orange Radial Ambient Glow (User Reference Image) */
+.glass-glow-card {
+  background: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(255, 94, 0, 0.24) 0%, rgba(255, 138, 0, 0.06) 50%, rgba(18, 21, 31, 0.9) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-top: 1px solid rgba(255, 138, 0, 0.4);
+  border-radius: 18px;
+  box-shadow: 
+    0 20px 45px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-glow-card:hover {
+  border-top-color: rgba(255, 138, 0, 0.7);
+  box-shadow: 
+    0 24px 50px -10px rgba(255, 94, 0, 0.22),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Active Nav Glow (User Reference Image 1) */
+.glass-active-item {
+  background: radial-gradient(ellipse 90% 70% at 50% -20%, rgba(255, 120, 0, 0.35) 0%, rgba(255, 94, 0, 0.06) 65%, transparent 100%), #181C28;
+  border-top: 1px solid rgba(255, 138, 0, 0.5);
+  box-shadow: 0 4px 18px -2px rgba(255, 94, 0, 0.2);
+}
+
+/* Vibrant Flame Orange Gradient CTA Buttons (Reference Image 1, 2, 3) */
+.dream-btn-primary, .btn-upay-gold, .btn-flame {
+  background: linear-gradient(135deg, #FF5E00 0%, #FF8A00 50%, #FFA000 100%);
   color: #FFFFFF;
-  font-family: var(--font-poppins);
-  font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.2s ease-in-out;
+  font-family: var(--font-outfit);
+  font-weight: 700;
+  border-radius: 9px;
+  border: none;
+  box-shadow: 0 4px 18px -2px rgba(255, 94, 0, 0.45);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dream-btn-primary:hover {
-  background-color: #F08E2F;
-  box-shadow: 0px 4px 15px 0px rgba(255, 159, 67, 0.35);
+.dream-btn-primary:hover, .btn-upay-gold:hover, .btn-flame:hover {
+  background: linear-gradient(135deg, #FF6F1A 0%, #FF991A 50%, #FFAC1A 100%);
+  box-shadow: 0 6px 26px 0 rgba(255, 94, 0, 0.6);
+  transform: translateY(-1px);
 }
 
-.dream-btn-navy {
-  background-color: #212B36;
+/* Matte Charcoal Dark Buttons */
+.dream-btn-navy, .btn-upay-navy {
+  background: #181C2A;
   color: #FFFFFF;
-  font-family: var(--font-poppins);
+  font-family: var(--font-outfit);
   font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.2s ease-in-out;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
 }
 
-.dream-btn-navy:hover {
-  background-color: #171F28;
+.dream-btn-navy:hover, .btn-upay-navy:hover {
+  background: #202538;
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .dream-btn-outline {
-  background-color: #FFFFFF;
-  border: 1px solid #DADFE5;
-  color: #212B36;
-  font-family: var(--font-nunito);
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-family: var(--font-jakarta);
   font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.2s ease-in-out;
+  border-radius: 9px;
+  transition: all 0.2s ease;
 }
 
 .dream-btn-outline:hover {
-  background-color: #F7F7F7;
-  border-color: #C2C9D1;
+  background-color: var(--surface-elevated);
+  border-color: #CBD5E1;
 }
 
-/* Custom Scrollbar for Dreams POS */
+html.dark .dream-btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Active FinTech Nav Pill (Image 3) */
+.nav-pill-active {
+  background: linear-gradient(90deg, rgba(255, 94, 0, 0.18) 0%, rgba(255, 138, 0, 0.04) 100%);
+  border-left: 3px solid #FF5E00;
+  color: #FF8A00 !important;
+  font-weight: 700;
+}
+
+/* High-Precision Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F3F5;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #222738;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #36405C;
+}
+
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.25s ease-out forwards;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Universal Dark Mode Fallback Harmonization */
+html.dark .bg-\[\#FFFFFF\],
+html.dark .bg-white {
+  background-color: rgba(18, 21, 31, 0.9) !important;
+}
+
+html.dark .bg-\[\#F7F7F7\],
+html.dark .bg-\[\#FAFAFA\],
+html.dark .bg-\[\#F1F3F5\] {
+  background-color: #181C2A !important;
+}
+
+html.dark .border-\[\#DADFE5\],
+html.dark .border-\[\#E8EBED\],
+html.dark .border-\[\#E2E8F0\],
+html.dark .border-\[\#CBD5E1\] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .text-\[\#000000\],
+html.dark .text-\[\#1B2850\],
+html.dark .text-\[\#212B36\],
+html.dark .text-\[\#212529\],
+html.dark .text-\[\#092C4C\] {
+  color: #FFFFFF !important;
+}
+
+html.dark .text-\[\#646B72\],
+html.dark .text-\[\#64748B\],
+html.dark .text-\[\#A0AEC0\] {
+  color: #8E95A5 !important;
+}
+
+html.dark svg text[fill="#000000"],
+html.dark svg text[fill="#212529"],
+html.dark svg text[fill="#212B36"] {
+  fill: #FFFFFF !important;
+}
+
+html.dark svg text[fill="#646B72"] {
+  fill: #8E95A5 !important;
+}
+
+html.dark svg line[stroke="#212B36"] {
+  stroke: #36405C !important;
 }

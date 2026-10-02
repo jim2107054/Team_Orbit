@@ -144,13 +144,13 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
           <span>USSD (*268#)</span>
         </Link>
 
-        {/* Language Flag Selector (🇧🇩 Bangla / 🇺🇸 English) */}
+        {/* Language Selector (Bangla / English) */}
         <button
           onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-          className="w-8 h-8 rounded-[6px] hover:bg-[#F7F7F7] flex items-center justify-center text-sm border border-transparent hover:border-[#E8EBED] transition-colors cursor-pointer"
-          title={`Language: ${lang === 'bn' ? 'বাংলা (Bangla)' : 'English'}`}
+          className="px-2 py-1 rounded-[6px] hover:bg-[#F7F7F7] flex items-center justify-center text-xs font-mono font-bold text-[#646B72] border border-transparent hover:border-[#E8EBED] transition-colors cursor-pointer"
+          title={`Language: ${lang === 'bn' ? 'Bangla' : 'English'}`}
         >
-          {lang === 'bn' ? '🇧🇩' : '🇺🇸'}
+          {lang === 'bn' ? 'BN' : 'EN'}
         </button>
 
         {/* Fullscreen Toggle */}

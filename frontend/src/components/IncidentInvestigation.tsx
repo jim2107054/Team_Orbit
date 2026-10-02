@@ -113,11 +113,11 @@ const SectionCard: React.FC<{
   right?: React.ReactNode;
   children: React.ReactNode;
 }> = ({ title, icon, provenance, provenanceLabel, right, children }) => (
-  <div className="dream-card p-5">
-    <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-[#E8EBED]">
+  <div className="upay-card p-5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 shadow-xs">
+    <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-slate-200 dark:border-white/10">
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="text-[#FF9F43] shrink-0">{icon}</span>
-        <h3 className="text-sm font-nunito font-extrabold text-[#1B2850] truncate">{title}</h3>
+        <span className="text-amber-500 shrink-0">{icon}</span>
+        <h3 className="text-sm font-outfit font-extrabold text-slate-900 dark:text-slate-100 truncate">{title}</h3>
         {provenance && <ProvenanceChip kind={provenance} label={provenanceLabel || provenance} />}
       </div>
       {right}
@@ -132,24 +132,24 @@ const EvidenceRow: React.FC<{ item: EvidenceItem }> = ({ item }) => {
   const DirIcon = item.direction === 'supports' ? CheckCircle2 : item.direction === 'contradicts' ? XCircle : HelpCircle;
 
   return (
-    <li className="flex items-start gap-2.5 p-2.5 rounded-[5px] bg-white border border-[#E8EBED]">
+    <li className="flex items-start gap-2.5 p-2.5 rounded-[8px] bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 shadow-xs">
       <DirIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: dirColor }} />
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-nunito text-[#212B36] leading-relaxed">{item.claim}</p>
+        <p className="text-[11px] font-nunito text-slate-800 dark:text-slate-200 leading-relaxed">{item.claim}</p>
         <div className="flex flex-wrap items-center gap-1.5 mt-1">
-          <span className="px-1.5 py-0.5 rounded-[3px] bg-[#F7F8FA] text-[#646B72] text-[9px] font-mono uppercase">
+          <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono uppercase">
             {item.source}
           </span>
           {item.reference_id && (
-            <span className="px-1.5 py-0.5 rounded-[3px] bg-[#F7F8FA] text-[#646B72] text-[9px] font-mono">
+            <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono">
               {item.reference_id}
             </span>
           )}
-          <span className="text-[9px] font-mono text-[#A0AEC0]">{item.evidence_id}</span>
+          <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500">{item.evidence_id}</span>
           {item.reason_codes.map(code => (
             <span
               key={code}
-              className="px-1.5 py-0.5 rounded-[3px] bg-[#1B2850]/5 text-[#1B2850] text-[9px] font-mono font-bold"
+              className="px-1.5 py-0.5 rounded-[4px] bg-amber-500/10 text-amber-500 font-mono font-bold text-[9px]"
             >
               {code}
             </span>
@@ -369,21 +369,21 @@ export const IncidentInvestigation: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* ─── Header ───────────────────────────────────────────────────── */}
-      <div className="dream-card p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="upay-card p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-[8px] bg-[#FF9F43]/10 text-[#FF9F43]">
+          <div className="p-2.5 rounded-[10px] bg-amber-500/10 text-amber-500">
             <FileSearch className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-nunito font-extrabold text-[#1B2850]">
+              <h1 className="text-xl font-outfit font-extrabold text-slate-900 dark:text-slate-100">
                 Evidence-Driven Incident Investigation
               </h1>
-              <span className="px-2 py-0.5 rounded-[4px] bg-[#7367F0]/15 text-[#7367F0] text-[10px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded-[6px] bg-amber-500/15 text-amber-500 dark:text-amber-400 text-[10px] font-mono font-bold">
                 UNDERSTAND · INVESTIGATE · EXPLAIN
               </span>
             </div>
-            <p className="text-xs text-[#646B72] mt-0.5 max-w-3xl">
+            <p className="text-xs font-nunito text-slate-600 dark:text-slate-400 mt-0.5 max-w-3xl">
               Compares a customer&apos;s account of an incident against transaction, risk, graph and campaign
               evidence. It does not assume the customer is right, and it does not assume a model is right —
               it reports what the available evidence supports.
@@ -395,10 +395,10 @@ export const IncidentInvestigation: React.FC = () => {
           <button
             onClick={handleReseedLedger}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-[6px] bg-white border border-[#DADFE5] text-[#092C4C] text-xs font-nunito font-bold hover:bg-[#F7F7F7] disabled:opacity-60"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-[8px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-nunito font-bold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
             title="Refresh the synthetic evidence ledger so the golden-hour scenario is live again"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#FF9F43] ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-amber-500 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh Demo Ledger</span>
           </button>
         </div>
@@ -406,10 +406,10 @@ export const IncidentInvestigation: React.FC = () => {
 
       {notice && (
         <div
-          className={`p-4 rounded-[6px] text-xs font-nunito font-bold flex items-start justify-between gap-3 animate-fadeIn ${
+          className={`p-4 rounded-[8px] text-xs font-nunito font-bold flex items-start justify-between gap-3 animate-fadeIn ${
             notice.kind === 'ok'
-              ? 'bg-[#28C76F]/10 border border-[#28C76F]/20 text-[#28C76F]'
-              : 'bg-[#EA5455]/10 border border-[#EA5455]/20 text-[#EA5455]'
+              ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+              : 'bg-rose-500/10 border border-rose-500/20 text-rose-500'
           }`}
         >
           <div className="flex items-start gap-2">
@@ -424,16 +424,16 @@ export const IncidentInvestigation: React.FC = () => {
       {metrics && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {[
-            { label: 'Investigations', value: metrics.persisted?.total ?? metrics.investigations_total, hint: 'persisted total', color: '#1B2850' },
-            { label: 'Consistent', value: metrics.persisted?.consistent ?? metrics.evidence_consistent_total, hint: 'evidence supports claim', color: '#28C76F' },
-            { label: 'Inconsistent', value: metrics.persisted?.inconsistent ?? metrics.evidence_inconsistent_total, hint: 'contradictory records', color: '#EA5455' },
-            { label: 'Insufficient', value: metrics.persisted?.insufficient ?? metrics.evidence_insufficient_total, hint: 'no answer forced', color: '#FF9F43' },
-            { label: 'Human Review Rate', value: formatPercentage(metrics.human_review_rate || 0), hint: `p95 latency ${Math.round(metrics.investigation_latency_ms?.p95 || 0)}ms`, color: '#7367F0' }
+            { label: 'Investigations', value: metrics.persisted?.total ?? metrics.investigations_total, hint: 'persisted total', color: 'text-slate-900 dark:text-slate-100', border: 'border-l-slate-400 dark:border-l-slate-500' },
+            { label: 'Consistent', value: metrics.persisted?.consistent ?? metrics.evidence_consistent_total, hint: 'evidence supports claim', color: 'text-emerald-500 dark:text-emerald-400', border: 'border-l-emerald-500' },
+            { label: 'Inconsistent', value: metrics.persisted?.inconsistent ?? metrics.evidence_inconsistent_total, hint: 'contradictory records', color: 'text-rose-500 dark:text-rose-400', border: 'border-l-rose-500' },
+            { label: 'Insufficient', value: metrics.persisted?.insufficient ?? metrics.evidence_insufficient_total, hint: 'no answer forced', color: 'text-amber-500 dark:text-amber-400', border: 'border-l-amber-500' },
+            { label: 'Human Review Rate', value: formatPercentage(metrics.human_review_rate || 0), hint: `p95 latency ${Math.round(metrics.investigation_latency_ms?.p95 || 0)}ms`, color: 'text-amber-500 dark:text-amber-400', border: 'border-l-amber-500' }
           ].map(card => (
-            <div key={card.label} className="dream-card p-4 border-l-4" style={{ borderLeftColor: card.color }}>
-              <div className="text-[10px] font-bold text-[#646B72] uppercase tracking-wider">{card.label}</div>
-              <div className="text-2xl font-extrabold font-mono mt-1" style={{ color: card.color }}>{card.value}</div>
-              <div className="text-[10px] text-[#A0AEC0] mt-0.5">{card.hint}</div>
+            <div key={card.label} className={`upay-card p-4 border-l-4 ${card.border} bg-white/80 dark:bg-slate-900/60 shadow-xs`}>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{card.label}</div>
+              <div className={`text-2xl font-extrabold font-mono mt-1 ${card.color}`}>{card.value}</div>
+              <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{card.hint}</div>
             </div>
           ))}
         </div>
@@ -454,36 +454,36 @@ export const IncidentInvestigation: React.FC = () => {
                 onChange={e => setComplaintText(e.target.value)}
                 rows={4}
                 placeholder="বাংলা, Banglish or English — e.g. vai amar 5k taka vul number e chole gese ajke 2tar dike"
-                className="w-full p-3 rounded-[6px] border border-[#DADFE5] text-xs font-nunito text-[#212B36] focus:outline-none focus:border-[#FF9F43] resize-y"
+                className="w-full p-3 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-nunito text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 resize-y"
               />
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
-                  <label className="block text-[10px] font-bold text-[#646B72] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                     Reporter wallet
                   </label>
                   <input
                     value={reporterWallet}
                     onChange={e => setReporterWallet(e.target.value)}
                     placeholder="W-SYN-004512"
-                    className="w-full px-3 py-2 rounded-[6px] border border-[#DADFE5] text-xs font-mono focus:outline-none focus:border-[#FF9F43]"
+                    className="w-full px-3 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-[10px] font-bold text-[#646B72] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                     Reported at (optional ISO)
                   </label>
                   <input
                     value={reportedAt}
                     onChange={e => setReportedAt(e.target.value)}
                     placeholder="defaults to now"
-                    className="w-full px-3 py-2 rounded-[6px] border border-[#DADFE5] text-xs font-mono focus:outline-none focus:border-[#FF9F43]"
+                    className="w-full px-3 py-2 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div className="flex items-end">
                   <button
                     type="submit"
                     disabled={isAnalyzing || !complaintText.trim()}
-                    className="flex items-center gap-2 px-5 py-2 rounded-[6px] bg-gradient-to-r from-[#FF9F43] to-[#FF8510] text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2 rounded-[8px] btn-flame text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 disabled:opacity-50 transition-all"
                   >
                     {isAnalyzing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                     <span>{isAnalyzing ? 'Investigating…' : 'Investigate'}</span>
@@ -497,7 +497,7 @@ export const IncidentInvestigation: React.FC = () => {
         <SectionCard title="Demo Scenarios" icon={<Play className="w-4 h-4" />}>
           <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
             {samples.length === 0 && (
-              <p className="text-[11px] text-[#A0AEC0] font-nunito">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-nunito">
                 Scenario list unavailable — check that the backend is running.
               </p>
             )}
@@ -508,17 +508,17 @@ export const IncidentInvestigation: React.FC = () => {
                   key={sample.scenario_id}
                   onClick={() => handleRunScenario(sample)}
                   disabled={isAnalyzing}
-                  className="w-full text-left p-2.5 rounded-[5px] border border-[#E8EBED] hover:border-[#FF9F43] hover:bg-[#FFF9F3] transition-colors disabled:opacity-60"
+                  className="w-full text-left p-2.5 rounded-[8px] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800/60 hover:border-amber-500 hover:bg-amber-500/5 transition-colors disabled:opacity-60"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-nunito font-bold text-[#1B2850] truncate">
+                    <span className="text-[11px] font-nunito font-bold text-slate-900 dark:text-slate-100 truncate">
                       {sc?.title || sample.scenario_id}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded-[3px] bg-[#F7F8FA] text-[#646B72] text-[9px] font-mono uppercase shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono uppercase shrink-0">
                       {sample.language}
                     </span>
                   </div>
-                  <p className="text-[10px] text-[#646B72] mt-0.5 line-clamp-2">{sample.complaint}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{sample.complaint}</p>
                 </button>
               );
             })}
@@ -527,10 +527,10 @@ export const IncidentInvestigation: React.FC = () => {
       </div>
 
       {!inv && (
-        <div className="dream-card p-10 text-center">
-          <FileSearch className="w-10 h-10 text-[#DADFE5] mx-auto" />
-          <p className="text-sm font-nunito font-bold text-[#646B72] mt-3">No investigation selected</p>
-          <p className="text-xs text-[#A0AEC0] mt-1">
+        <div className="upay-card p-10 text-center bg-white/80 dark:bg-slate-900/60">
+          <FileSearch className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+          <p className="text-sm font-nunito font-bold text-slate-700 dark:text-slate-300 mt-3">No investigation selected</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
             Submit a complaint above or run a demo scenario to see the full evidence chain.
           </p>
         </div>
@@ -561,23 +561,23 @@ export const IncidentInvestigation: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-1 rounded-[5px] bg-white border border-[#E8EBED] text-[10px] font-mono font-bold text-[#1B2850]">
+                <span className="px-2.5 py-1 rounded-[6px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200">
                   {inv.classification.case_type}
                 </span>
                 <span
-                  className="px-2.5 py-1 rounded-[5px] text-[10px] font-mono font-bold text-white"
+                  className="px-2.5 py-1 rounded-[6px] text-[10px] font-mono font-bold text-white shadow-xs"
                   style={{ background: inv.risk_context.fraud_risk ? RISK_COLOR[inv.risk_context.fraud_risk] : '#A0AEC0' }}
                 >
                   FRAUD RISK {inv.risk_context.fraud_risk || 'UNAVAILABLE'}
                 </span>
-                <span className="px-2.5 py-1 rounded-[5px] bg-[#1B2850] text-white text-[10px] font-mono font-bold">
+                <span className="px-2.5 py-1 rounded-[6px] bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-mono font-bold">
                   {inv.classification.routing_department}
                 </span>
-                <span className="px-2.5 py-1 rounded-[5px] bg-white border border-[#E8EBED] text-[10px] font-mono font-bold text-[#1B2850]">
+                <span className="px-2.5 py-1 rounded-[6px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200">
                   {inv.classification.priority}
                 </span>
                 {inv.classification.is_golden_hour && (
-                  <span className="px-2.5 py-1 rounded-[5px] bg-[#EA5455] text-white text-[10px] font-mono font-bold flex items-center gap-1">
+                  <span className="px-2.5 py-1 rounded-[6px] bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center gap-1 shadow-xs">
                     <Clock className="w-3 h-3" />
                     GOLDEN HOUR {inv.classification.golden_hour_remaining_mins}m
                   </span>
@@ -585,7 +585,7 @@ export const IncidentInvestigation: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-white/60 flex flex-wrap items-center gap-3 text-[10px] font-mono text-[#646B72]">
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-3 text-[10px] font-mono text-slate-500 dark:text-slate-400">
               <span>{inv.investigation_id}</span>
               <span>·</span>
               <span>claim language {inv.claim.language}</span>
@@ -608,7 +608,7 @@ export const IncidentInvestigation: React.FC = () => {
               right={
                 <button
                   onClick={() => setShowRawClaim(!showRawClaim)}
-                  className="flex items-center gap-1 text-[10px] font-nunito font-bold text-[#646B72] hover:text-[#1B2850]"
+                  className="flex items-center gap-1 text-[10px] font-nunito font-bold text-slate-500 hover:text-amber-500 transition-colors"
                 >
                   {showRawClaim ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                   {showRawClaim ? 'Hide stored text' : 'Show stored text'}
@@ -616,8 +616,8 @@ export const IncidentInvestigation: React.FC = () => {
               }
             >
               {showRawClaim && (
-                <div className="p-3 rounded-[5px] bg-[#F7F8FA] border border-[#E8EBED] mb-3">
-                  <p className="text-[11px] font-nunito text-[#212B36] whitespace-pre-wrap break-words">
+                <div className="p-3 rounded-[8px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 mb-3 shadow-inner">
+                  <p className="text-[11px] font-nunito text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words">
                     {inv.claim.raw_complaint}
                   </p>
                 </div>

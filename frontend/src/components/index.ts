@@ -4,9 +4,12 @@
 
 // Layout & Navigation
 export { DashboardShell } from './DashboardShell';
+export { UpayNavbar } from './UpayNavbar';
+export { UpaySidebar } from './UpaySidebar';
 export { DreamsNavbar } from './DreamsNavbar';
 export { DreamsSidebar } from './DreamsSidebar';
 export { Header } from './Header';
+export { ThemeProvider, useTheme } from './ThemeProvider';
 
 // Domain Views
 export { AdminDashboard } from './AdminDashboard';

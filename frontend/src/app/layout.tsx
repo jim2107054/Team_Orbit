@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { DashboardShell } from "../components/DashboardShell";
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "upay Shield — AI Trust & Fraud Risk Intelligence Platform",
@@ -13,11 +14,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen bg-[#F7F7F7] text-[#212B36] selection:bg-[#FF9F43]/30 selection:text-[#212B36]">
-        <DashboardShell>
-          {children}
-        </DashboardShell>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('upay-theme');
+                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body suppressHydrationWarning className="antialiased min-h-screen bg-slate-50 dark:bg-[#070E18] text-slate-900 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-900 dark:selection:text-amber-200">
+        <ThemeProvider>
+          <DashboardShell>
+            {children}
+          </DashboardShell>
+        </ThemeProvider>
       </body>
     </html>
   );

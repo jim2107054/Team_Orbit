@@ -2,18 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { DreamsNavbar } from './DreamsNavbar';
-import { DreamsSidebar } from './DreamsSidebar';
+import { usePathname } from 'next/navigation';
+import { UpayNavbar } from './UpayNavbar';
+import { UpaySidebar } from './UpaySidebar';
 import { 
-  Settings, X, Shield, Activity, Database, Sparkles, 
-  CheckCircle2, ArrowRight, ExternalLink, RefreshCw 
+  Settings, X, Shield, Activity, Database, 
+  ArrowRight, RefreshCw, Cpu
 } from 'lucide-react';
 
 export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const pathname = usePathname();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [systemHealth, setSystemHealth] = useState<'HEALTHY' | 'CHECKING'>('CHECKING');
   const [dbStatus, setDbStatus] = useState<'CONNECTED' | 'CHECKING'>('CHECKING');
+
+  if (pathname === '/' || pathname === '/intro') {
+    return <>{children}</>;
+  }
 
   useEffect(() => {
     if (drawerOpen) {
@@ -34,87 +41,97 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [drawerOpen]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F7F7] text-[#212B36]">
-      {/* Dreams POS Top Navigation Bar */}
-      <DreamsNavbar
+    <div suppressHydrationWarning className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070E18] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      {/* Upay Top Navigation Bar */}
+      <UpayNavbar
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
       {/* Main Layout Body: Sidebar + Active Page Content */}
       <div className="flex-1 flex overflow-hidden">
-        <DreamsSidebar isCollapsed={isSidebarCollapsed} />
+        <UpaySidebar 
+          isCollapsed={isSidebarCollapsed}
+          isMobileOpen={isMobileMenuOpen}
+          onCloseMobile={() => setIsMobileMenuOpen(false)}
+        />
 
-        {/* Dynamic Content Canvas for Page.tsx */}
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto max-h-[calc(100vh-64px)]">
-          {children}
+        {/* Dynamic Content Canvas */}
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 overflow-y-auto max-h-[calc(100vh-64px)] w-full">
+          <div className="max-w-[1600px] mx-auto animate-fade-in">
+            {children}
+          </div>
         </main>
       </div>
 
-      {/* Dreams POS Standard Footer */}
-      <footer className="bg-[#FFFFFF] border-t border-[#E8EBED] py-3.5 px-6 select-none z-20">
-        <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-nunito text-[#646B72]">
-          <div>
-            <strong className="text-[#1B2850] font-poppins">upay Shield</strong> — AI Trust, Scam-Interception &amp; Mule-Network Intelligence (DIU CPC 2026).
-            Hosted on Neon PostgreSQL.
+      {/* Institutional Upay Shield Footer */}
+      <footer className="bg-white dark:bg-[#0A1322] border-t border-slate-200 dark:border-slate-800 py-3 px-4 lg:px-6 select-none z-20 transition-colors duration-200">
+        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-jakarta text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>
+              <strong className="text-slate-800 dark:text-slate-200 font-outfit">upay Shield</strong> — Autonomous MFS Fraud Defense &amp; Mule Ring Intelligence Platform.
+            </span>
           </div>
-          <div className="flex items-center gap-4 text-[#212B36]">
-            <span>IEEE 29148 / 830 Specification</span>
-            <span className="text-[#FF9F43] font-bold">Dreams POS Design System v2.4</span>
+          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
+            <span>UCB Fintech Hackathon</span>
+            <span className="text-amber-500 dark:text-amber-400 font-bold">Neon PostgreSQL (Pooled)</span>
           </div>
         </div>
       </footer>
 
-      {/* Floating Settings Cog (Interactive Drawer Trigger) */}
+      {/* Floating Telemetry Drawer Trigger */}
       <button
         onClick={() => setDrawerOpen(!drawerOpen)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#FF9F43] text-white rounded-l-[8px] flex items-center justify-center shadow-lg hover:bg-[#f08e2f] transition-all z-30 cursor-pointer"
-        title="upay Shield Quick Tools & System Health"
+        className="fixed right-0 top-1/2 -translate-y-1/2 w-9 h-9 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-l-lg flex items-center justify-center shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all z-30 cursor-pointer"
+        title="upay Shield Quick Telemetry & Health"
       >
-        <Settings className="w-5 h-5 animate-spin-slow" />
+        <Cpu className="w-4 h-4 animate-spin-slow" />
       </button>
 
-      {/* Quick Tools & System Health Drawer */}
+      {/* Quick Tools & Telemetry Drawer */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/30 backdrop-blur-[2px] animate-fadeIn">
-          <div className="w-80 sm:w-96 bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto border-l border-[#E8EBED]">
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/50 backdrop-blur-sm animate-fadeIn">
+          <div className="w-80 sm:w-96 bg-white dark:bg-[#0D1726] h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto border-l border-slate-200 dark:border-slate-800 transition-colors">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-[#E8EBED]">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-[6px] bg-[#FF9F43]/15 text-[#FF9F43] flex items-center justify-center">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center border border-amber-500/30">
                     <Shield className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-poppins font-bold text-sm text-[#1B2850]">System Telemetry</h3>
-                    <span className="text-[11px] text-[#646B72]">upay Shield Live Ops</span>
+                    <h3 className="font-outfit font-bold text-sm text-slate-900 dark:text-white">System Telemetry</h3>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-jakarta">upay Shield Live Ops</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="p-1.5 rounded-[4px] hover:bg-[#F7F7F7] text-[#646B72] hover:text-[#212B36] cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Status Pills */}
-              <div className="space-y-3 py-4">
-                <div className="p-3 bg-[#F7F7F7] rounded-[6px] border border-[#E8EBED] flex items-center justify-between text-xs font-nunito">
-                  <span className="text-[#646B72] flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#05A677]" />
-                    <span>ML & Risk Core Engine</span>
+              <div className="space-y-2.5 py-4">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-jakarta">
+                  <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                    <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Risk Scoring Engine</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#05A677]/15 text-[#05A677] font-bold font-mono text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold font-mono text-[10px]">
                     ONLINE (p95 &lt; 5ms)
                   </span>
                 </div>
 
-                <div className="p-3 bg-[#F7F7F7] rounded-[6px] border border-[#E8EBED] flex items-center justify-between text-xs font-nunito">
-                  <span className="text-[#646B72] flex items-center gap-1.5">
-                    <Database className="w-3.5 h-3.5 text-[#1B75D0]" />
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-jakarta">
+                  <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                    <Database className="w-3.5 h-3.5 text-sky-500" />
                     <span>Neon PostgreSQL Pool</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#1B75D0]/15 text-[#1B75D0] font-bold font-mono text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold font-mono text-[10px]">
                     CONNECTED (25 POOL)
                   </span>
                 </div>
@@ -122,12 +139,13 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
 
               {/* Quick Navigation Links */}
               <div className="space-y-2 pt-2">
-                <span className="text-[11px] font-poppins font-bold text-[#A0AEC0] uppercase tracking-wider block">
-                  Quick Navigation
+                <span className="text-[10px] font-outfit font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest block px-1">
+                  Fast Dispatch Links
                 </span>
 
                 {[
-                  { label: 'Incident Investigation Desk', href: '/investigations', badge: 'NEW' },
+                  { label: 'Incident Investigation Desk', href: '/investigations', badge: 'EVIDENCE' },
+                  { label: 'Mule Ring Topology', href: '/rings', badge: 'GRAPH' },
                   { label: 'Attack & ROI Simulator', href: '/simulator', badge: 'SIM' },
                   { label: 'Responsible AI & Fairness', href: '/fairness', badge: 'AUDIT' },
                   { label: 'Immutable Audit Ledger', href: '/audit', badge: 'SHA-256' },
@@ -138,10 +156,10 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
                     key={item.href}
                     href={item.href}
                     onClick={() => setDrawerOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-[6px] bg-[#FFFFFF] border border-[#E8EBED] text-xs font-nunito font-semibold text-[#212B36] hover:bg-[#FFF4E8] hover:border-[#FFD8BF] hover:text-[#FF9F43] transition-colors cursor-pointer shadow-sm"
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-jakarta font-semibold text-slate-800 dark:text-slate-200 hover:bg-amber-500/10 hover:border-amber-500/40 hover:text-amber-500 transition-colors cursor-pointer shadow-sm"
                   >
                     <span>{item.label}</span>
-                    <span className="px-1.5 py-0.5 rounded-[3px] bg-[#F7F7F7] text-[#646B72] font-mono text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-[9px] font-bold">
                       {item.badge}
                     </span>
                   </Link>
@@ -149,9 +167,9 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#E8EBED] text-center">
-              <span className="text-[11px] font-nunito text-[#A0AEC0] block">
-                upay Shield v2.4 · All systems operational
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 block">
+                upay Shield v2.4 · All Systems Nominal
               </span>
             </div>
           </div>

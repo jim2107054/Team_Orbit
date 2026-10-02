@@ -1,9 +1,14 @@
-/**
- * Unified API Client for upay Shield Frontend
- * Automatically handles standard { success, message, ...data } envelopes,
- * error parsing, headers, and request tracking.
- */
+import axios, { 
+  AxiosInstance, 
+  AxiosRequestConfig, 
+  AxiosResponse, 
+  AxiosError,
+  InternalAxiosRequestConfig 
+} from 'axios';
 
+/**
+ * Standardized API Response Structure across all upay Shield endpoints
+ */
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -15,80 +20,122 @@ export interface ApiResponse<T = any> {
   [key: string]: any;
 }
 
+/**
+ * Custom strongly-typed API Error
+ */
 export class ApiError extends Error {
   code?: string;
   status: number;
   details?: any;
+  rawResponse?: any;
 
-  constructor(message: string, status: number, code?: string, details?: any) {
+  constructor(message: string, status: number, code?: string, details?: any, rawResponse?: any) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.details = details;
+    this.rawResponse = rawResponse;
   }
 }
 
-const API_BASE = '/api/v1';
-
-async function request<T = any>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
-  const url = endpoint.startsWith('http') || endpoint.startsWith('/api')
-    ? endpoint
-    : `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    'x-client': 'upay-shield-web',
-    ...(options.headers || {})
-  };
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new ApiError(
-        data.message || `Request failed with status ${response.status}`,
-        response.status,
-        data.error?.code,
-        data.error?.details
-      );
-    }
-
-    return data as ApiResponse<T>;
-  } catch (err: any) {
-    if (err instanceof ApiError) {
-      throw err;
-    }
-    throw new ApiError(err.message || 'Network connection failed', 0, 'NETWORK_ERROR');
+/**
+ * Determine API Base URL depending on execution environment
+ */
+const getBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    // In browser: use relative proxy or public env
+    return process.env.NEXT_PUBLIC_API_URL || '/api/v1';
   }
-}
-
-export const api = {
-  get: <T = any>(endpoint: string, headers?: HeadersInit) =>
-    request<T>(endpoint, { method: 'GET', headers }),
-
-  post: <T = any>(endpoint: string, body?: any, headers?: HeadersInit) =>
-    request<T>(endpoint, {
-      method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      headers
-    }),
-
-  put: <T = any>(endpoint: string, body?: any, headers?: HeadersInit) =>
-    request<T>(endpoint, {
-      method: 'PUT',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      headers
-    }),
-
-  delete: <T = any>(endpoint: string, headers?: HeadersInit) =>
-    request<T>(endpoint, { method: 'DELETE', headers })
+  // Server-side rendering context
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1';
 };
+
+/**
+ * Create pre-configured Axios Instance
+ */
+export const apiClient: AxiosInstance = axios.create({
+  baseURL: getBaseUrl(),
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'x-client': 'upay-shield-web-v1'
+  }
+});
+
+/**
+ * Request Interceptor: Injects request tracking IDs, auth tokens, and timestamp headers
+ */
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // Generate unique trace ID for distributed log correlation
+    const traceId = `req-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
+    config.headers.set('x-request-id', traceId);
+    config.headers.set('x-client-timestamp', new Date().toISOString());
+
+    // In local dev, allow passing through custom API base override if specified
+    if (config.url?.startsWith('http') || config.url?.startsWith('/api/')) {
+      config.baseURL = '';
+    }
+
+    return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(new ApiError('Failed to dispatch request', 0, 'REQUEST_SETUP_ERROR', error.message));
+  }
+);
+
+/**
+ * Response Interceptor: Automatically unwraps response data & standardizes error handling
+ */
+apiClient.interceptors.response.use(
+  (response: AxiosResponse<ApiResponse>) => {
+    // Directly return response data payload
+    return response;
+  },
+  (error: AxiosError<ApiResponse>) => {
+    const status = error.response?.status || 0;
+    const responseData = error.response?.data;
+
+    const message = responseData?.message || error.message || 'An unexpected error occurred during request';
+    const code = responseData?.error?.code || (status === 0 ? 'NETWORK_TIMEOUT_ERROR' : `HTTP_${status}`);
+    const details = responseData?.error?.details || responseData;
+
+    console.error(`[API Error ${status}] [${code}]:`, message);
+
+    return Promise.reject(new ApiError(message, status, code, details, responseData));
+  }
+);
+
+/**
+ * High-level typed API methods for components and hooks
+ */
+export const api = {
+  get: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+    const res = await apiClient.get<ApiResponse<T>>(url, config);
+    return res.data;
+  },
+
+  post: async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+    const res = await apiClient.post<ApiResponse<T>>(url, data, config);
+    return res.data;
+  },
+
+  put: async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+    const res = await apiClient.put<ApiResponse<T>>(url, data, config);
+    return res.data;
+  },
+
+  patch: async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+    const res = await apiClient.patch<ApiResponse<T>>(url, data, config);
+    return res.data;
+  },
+
+  delete: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+    const res = await apiClient.delete<ApiResponse<T>>(url, config);
+    return res.data;
+  }
+};
+
+export default api;

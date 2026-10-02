@@ -148,6 +148,7 @@ shieldRouter.post('/score/transaction', async (req: Request, res: Response) => {
       risk_score: evaluation.risk_score,
       risk_tier: evaluation.risk_tier,
       action: evaluation.action_recommended,
+      action_recommended: evaluation.action_recommended,
       reasons: evaluation.reasons,
       rule_trace: evaluation.rule_trace,
       customer_message: {

@@ -311,7 +311,7 @@ export const ComplaintIntelligence: React.FC = () => {
           <div>
             <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">P1 Golden-Hour Active</div>
             <div className="text-2xl font-extrabold text-[#FF0000] font-mono mt-1">
-              {stats?.p1_active_loss_count ?? 3} Incidents
+              {stats?.p1_active_loss_count ?? complaints.filter(c => c.priority === 'P1').length} Incidents
             </div>
             <div className="text-[10px] text-[#FF0000] mt-0.5 font-bold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#FF0000] animate-ping" />
@@ -328,7 +328,7 @@ export const ComplaintIntelligence: React.FC = () => {
           <div>
             <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Potential Recoverable Loss</div>
             <div className="text-2xl font-extrabold text-[#1B2850] font-mono mt-1">
-              ৳{(stats?.total_potential_exposure_bdt ?? 90500).toLocaleString()}
+              ৳{(stats?.total_potential_exposure_bdt ?? complaints.reduce((sum, c) => sum + (c.potential_loss_bdt || 0), 0)).toLocaleString()}
             </div>
             <div className="text-[10px] text-[#646B72] mt-0.5">Across active complaint queue</div>
           </div>
@@ -342,9 +342,11 @@ export const ComplaintIntelligence: React.FC = () => {
           <div>
             <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Duplicate Fraud Clusters</div>
             <div className="text-2xl font-extrabold text-[#7367F0] font-mono mt-1">
-              {stats?.duplicate_groups_count ?? 1} Groups
+              {stats?.duplicate_groups_count ?? duplicateGroups.length} Groups
             </div>
-            <div className="text-[10px] text-[#7367F0] mt-0.5 font-bold">5 Linked Coordinated Reports</div>
+            <div className="text-[10px] text-[#7367F0] mt-0.5 font-bold">
+              {duplicateGroups.reduce((acc, g) => acc + (g.complaint_ids?.length || 0), 0)} Linked Coordinated Reports
+            </div>
           </div>
           <div className="p-3 rounded-[8px] bg-[#7367F0]/10 text-[#7367F0]">
             <Layers className="w-6 h-6" />
@@ -354,14 +356,11 @@ export const ComplaintIntelligence: React.FC = () => {
         {/* Auto-Enriched Cases & Rings */}
         <div className="dream-card p-4 flex items-center justify-between border-l-4 border-l-[#28C76F]">
           <div>
-            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Enriched Rings & Cases</div>
+            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Enriched Rings &amp; Cases</div>
             <div className="text-2xl font-extrabold text-[#28C76F] font-mono mt-1">
-              Ring-003 & CAMP-01
+              {complaints.filter(c => c.linked_ring_id).length} Connected
             </div>
-            <div className="text-[10px] text-[#28C76F] mt-0.5 font-bold">100% Attached Evidence</div>
-          </div>
-          <div className="p-3 rounded-[8px] bg-[#28C76F]/10 text-[#28C76F]">
-            <ShieldCheck className="w-6 h-6" />
+            <div className="text-[10px] text-[#28C76F] mt-0.5 font-bold">Evidence Attached in DB</div>
           </div>
         </div>
       </div>

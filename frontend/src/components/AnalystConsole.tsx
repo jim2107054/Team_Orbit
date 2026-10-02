@@ -265,16 +265,16 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 </h4>
                 <div className="space-y-2 text-xs font-nunito text-[#212529]">
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                    <span className="text-[10px] text-[#646B72] block">23:41:07</span>
-                    <span>Send ৳18,500 to new recipient</span>
+                    <span className="text-[10px] text-[#646B72] block">{selectedCase.created_at ? new Date(selectedCase.created_at).toLocaleTimeString() : 'Live'}</span>
+                    <span>Send ৳{selectedCase.amount_bdt.toLocaleString()} from {selectedCase.sender_wallet} to {selectedCase.receiver_wallet}</span>
                   </div>
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                    <span className="text-[10px] text-[#646B72] block">23:43:00</span>
-                    <span>Recipient prepares 3 split layering hops</span>
+                    <span className="text-[10px] text-[#646B72] block">Telemetry</span>
+                    <span>Action Recommended: <strong className="text-[#FF9F43]">{selectedCase.action_recommended}</strong></span>
                   </div>
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5]">
-                    <span className="text-[10px] text-[#646B72] block">23:52:00</span>
-                    <span>Cash-out attempt at Agent DH-8821</span>
+                    <span className="text-[10px] text-[#646B72] block">Case ID</span>
+                    <span className="font-mono font-bold text-[#1B2850]">{selectedCase.case_id}</span>
                   </div>
                 </div>
               </div>
@@ -286,15 +286,22 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                   <span>2. WHY IS IT RISKY?</span>
                 </h4>
                 <div className="space-y-1.5 text-xs font-nunito text-[#212529]">
-                  {selectedCase.reasons.map((r, idx) => (
-                    <div key={idx} className="p-2 bg-[#F7F7F7] border border-[#DADFE5]">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-[#FF0000]">
-                        <span>{r.code}</span>
-                        <span>{(r.weight * 100).toFixed(0)}% weight</span>
+                  {selectedCase.reasons && selectedCase.reasons.length > 0 ? (
+                    selectedCase.reasons.map((r, idx) => (
+                      <div key={idx} className="p-2 bg-[#F7F7F7] border border-[#DADFE5]">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-[#FF0000]">
+                          <span>{r.code}</span>
+                          <span>{Math.round((r.weight || 0.8) * 100)}% weight</span>
+                        </div>
+                        <p className="text-[11px] text-[#212529] mt-0.5">{r.label_en || r.code}</p>
                       </div>
-                      <p className="text-[11px] text-[#212529] mt-0.5">{r.label_en}</p>
+                    ))
+                  ) : (
+                    <div className="p-2 bg-[#F7F7F7] border border-[#DADFE5]">
+                      <span className="text-[11px] font-bold text-[#FF0000]">Risk Score: {Math.round(selectedCase.risk_score * 100)}%</span>
+                      <p className="text-[11px] text-[#212529] mt-0.5">Tier: {selectedCase.risk_tier}</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -306,16 +313,16 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                 </h4>
                 <div className="space-y-2 text-xs font-nunito">
                   <div className="p-2.5 bg-[#198754]/10 border border-[#198754]/30 text-[#212529]">
-                    <strong className="text-[#198754] block mb-0.5">1. Place Downstream Hold</strong>
-                    <span>Hold ৳11,200 active in 2 downstream wallets.</span>
+                    <strong className="text-[#198754] block mb-0.5">1. Execute {selectedCase.action_recommended}</strong>
+                    <span>Enforce recommended policy on wallet {selectedCase.receiver_wallet}.</span>
                   </div>
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
-                    <strong className="text-[#092C4C] block mb-0.5">2. Welfare Callback</strong>
-                    <span>Call victim Rahima to ensure safety.</span>
+                    <strong className="text-[#092C4C] block mb-0.5">2. Four-Eyes Status</strong>
+                    <span>{selectedCase.four_eyes_required ? (selectedCase.four_eyes_approved ? 'Approved by 2nd Analyst' : 'Requires 2nd MLRO Approval') : 'Standard Single Analyst Review'}</span>
                   </div>
                   <div className="p-2.5 bg-[#F7F7F7] border border-[#DADFE5] text-[#212529]">
-                    <strong className="text-[#FF9F43] block mb-0.5">3. Escalate Ring-12</strong>
-                    <span>Add to MLRO file for formal STR reporting.</span>
+                    <strong className="text-[#FF9F43] block mb-0.5">3. Current State in DB</strong>
+                    <span className="font-bold text-[#212B36]">{selectedCase.status}</span>
                   </div>
                 </div>
               </div>
@@ -481,8 +488,17 @@ export const AnalystConsole: React.FC<{ onOpenRing: () => void; onOpenTrace: () 
                           <span>PRE-FILLED STR DRAFT (HUMAN REVIEW REQUIRED)</span>
                         </span>
                         <button
-                          onClick={() => alert('STR Draft Exported as PDF/JSON.')}
-                          className="text-[11px] text-[#092C4C] font-bold hover:underline"
+                          onClick={() => {
+                            const blob = new Blob([copilotBrief.str_draft || ''], { type: 'text/plain;charset=utf-8' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `STR_DRAFT_${selectedCase.case_id}.txt`;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                          }}
+                          className="text-[11px] text-[#092C4C] font-bold hover:underline cursor-pointer"
                         >
                           Export STR
                         </button>

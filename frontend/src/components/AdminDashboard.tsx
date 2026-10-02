@@ -137,13 +137,13 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Dismissable Warning Banner (Ring-12 Mule Network Incident Notification) */}
-      {!alertDismissed && (
+      {/* Dismissable Warning Banner (Dynamic DB Alert Notification) */}
+      {!alertDismissed && (dbStats?.activeHolds ? dbStats.activeHolds > 0 : true) && (
         <div className="p-3.5 bg-[#FFF2E8] border border-[#FFD8BF] rounded-[6px] text-xs font-nunito flex items-center justify-between gap-3 shadow-sm animate-fadeIn">
           <div className="flex items-center gap-2 text-[#D46B08]">
             <AlertCircle className="w-4 h-4 text-[#FF9F43] flex-shrink-0" />
             <span>
-              <strong className="text-[#FF9F43] font-bold">Live Threat Alert:</strong> 3 split mule hops detected in Mirpur Hub (৳18,500). Golden-Hour Auto-Hold recommended.{' '}
+              <strong className="text-[#FF9F43] font-bold">Live Threat Alert:</strong> {dbStats?.activeHolds || 0} active hold cases requiring compliance review (৳{((dbStats?.preventedLoss || 0)).toLocaleString()} prevented).{' '}
               <Link href="/analyst" className="underline font-bold hover:text-[#D46B08]">Review Alert in Triage</Link>
             </span>
           </div>

@@ -8,8 +8,7 @@ import { listCache, invalidateCache } from '../middleware/index.js';
 
 export const casesRouter = Router();
 
-// Cache the alerts list for 30s
-casesRouter.get('/alerts', listCache);
+// Ensure real-time live database fetch on alerts list
 
 // ================= API-06 & API-07: ALERTS & CASES =================
 casesRouter.get('/alerts', async (req: Request, res: Response) => {

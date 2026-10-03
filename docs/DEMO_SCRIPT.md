@@ -132,7 +132,7 @@ names the slide to be on, the page to be on, and the exact control to touch.
 >
 > But the demo is the console behind it. Let's go in."
 
-**[CUT]** for the 6-minute version: skip 3.1. Start the live section on `/customer`.
+**[ ]** for the 6-minute version: skip 3.1. Start the live section on `/customer`.
 
 > **Flag before you record:** the hero chips on this page read *40M+ Users Protected · 99.4% Detection Rate · Sub-15min SLA · ISO 27001 Certified*. Those are static placeholders in the landing-page markup — they are **not** produced by the system and they don't match the verified figures on slide 17. Either don't narrate them, or edit them to the real numbers before you record. A judge who notices the gap will discount everything else.
 

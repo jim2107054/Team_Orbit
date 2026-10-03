@@ -3,17 +3,17 @@ services:
   # For local development. Production uses Neon PostgreSQL.
   postgres:
     image: postgres:16-alpine
-    container_name: upay-shield-db
+    container_name: astha-db
     environment:
       POSTGRES_USER: shield_user
       POSTGRES_PASSWORD: shield_pass_2026
-      POSTGRES_DB: upay_shield
+      POSTGRES_DB: astha
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shield_user -d upay_shield"]
+      test: ["CMD-SHELL", "pg_isready -U shield_user -d astha"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,13 +23,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: upay-shield-backend
+    container_name: astha-backend
     ports:
       - "4000:4000"
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DATABASE_URL=postgresql://shield_user:shield_pass_2026@postgres:5432/upay_shield?sslmode=disable
+      - DATABASE_URL=postgresql://shield_user:shield_pass_2026@postgres:5432/astha?sslmode=disable
       - FRONTEND_URL=http://localhost:3000
     depends_on:
       postgres:
@@ -41,7 +41,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: upay-shield-frontend
+    container_name: astha-frontend
     ports:
       - "3000:3000"
     environment:

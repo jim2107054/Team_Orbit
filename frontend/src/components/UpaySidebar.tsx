@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, ShieldAlert, Network, Clock, BarChart3,
@@ -249,11 +250,15 @@ export const UpaySidebar: React.FC<UpaySidebarProps> = ({
           <div className="relative w-[280px] max-w-[86vw] h-full z-10 flex flex-col bg-canvas border-r border-hair shadow-glass">
             <div className="px-4 py-4 flex items-center justify-between border-b border-hairsoft">
               <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-flame-gradient flex items-center justify-center shadow-flame">
-                  <Shield className="w-4 h-4 text-white" strokeWidth={2.4} />
-                </span>
+                <Image
+                  src="/brand/astha-mark.png"
+                  alt="Astha"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain shrink-0"
+                />
                 <span className="font-display font-bold text-[15px] text-ink tracking-tight">
-                  upay Shield
+                  Astha
                 </span>
               </div>
               <button

@@ -1,0 +1,312 @@
+[
+  {
+    "route": "/",
+    "name": "landing",
+    "status": "OK",
+    "probe": {
+      "textLen": 8390,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha Home Simulator Dashboard Features AI Engine ROI Pricing Sign in Launch SOC LIVE SOC [DHAKA CENTRAL] FastTree 2.4 halted ৳65,000 multi-hop mule split BLOCK"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": []
+  },
+  {
+    "route": "/intro",
+    "name": "intro",
+    "status": "OK",
+    "probe": {
+      "textLen": 8390,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha Home Simulator Dashboard Features AI Engine ROI Pricing Sign in Launch SOC LIVE SOC [DHAKA CENTRAL] FastTree 2.4 halted ৳65,000 multi-hop mule split BLOCK"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": []
+  },
+  {
+    "route": "/dashboard",
+    "name": "dashboard",
+    "status": "OK",
+    "probe": {
+      "textLen": 2444,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Dashboard Executive Overview Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LI"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/metrics/summary?range=1Y"
+    ]
+  },
+  {
+    "route": "/customer",
+    "name": "customer-app",
+    "status": "OK",
+    "probe": {
+      "textLen": 1658,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Channels Customer App Guard Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LIV"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/customer/safety-mode/W-SYN-004512"
+    ]
+  },
+  {
+    "route": "/analyst",
+    "name": "analyst-console",
+    "status": "OK",
+    "probe": {
+      "textLen": 4649,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Threat Intel Analyst Triage Desk Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triag"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/alerts"
+    ]
+  },
+  {
+    "route": "/investigations",
+    "name": "investigations",
+    "status": "OK",
+    "probe": {
+      "textLen": 15582,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Threat Intel Incident Investigation Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tr"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/demo/investigation-scenarios",
+      "200 /api/v1/investigations/metrics",
+      "200 /api/v1/investigations?limit=25"
+    ]
+  },
+  {
+    "route": "/complaints",
+    "name": "complaints",
+    "status": "OK",
+    "probe": {
+      "textLen": 8274,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Threat Intel Complaint Intelligence Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tr"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/complaints/stats",
+      "200 /api/v1/complaints",
+      "200 /api/v1/complaints/duplicate-groups"
+    ]
+  },
+  {
+    "route": "/campaigns",
+    "name": "campaigns",
+    "status": "OK",
+    "probe": {
+      "textLen": 2564,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Threat Intel Scam Campaigns Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LIV"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/campaigns",
+      "200 /api/v1/campaigns/CAMP-2026-001"
+    ]
+  },
+  {
+    "route": "/rings",
+    "name": "ring-explorer",
+    "status": "OK",
+    "probe": {
+      "textLen": 1589,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Graph & Rings Mule Ring Topology Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triag"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/rings/RING-2026-0012"
+    ]
+  },
+  {
+    "route": "/knowledge-graph",
+    "name": "knowledge-graph",
+    "status": "OK",
+    "probe": {
+      "textLen": 3368,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Graph & Rings Intelligence Graph Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triag"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/knowledge-graph/subgraph?center_node_id=CMP-2026-0914&depth=2&limit=50",
+      "200 /api/v1/knowledge-graph/evidence-pack/CMP-2026-0914"
+    ]
+  },
+  {
+    "route": "/recovery",
+    "name": "recovery-tracer",
+    "status": "OK",
+    "probe": {
+      "textLen": 5192,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Rapid Action Golden-Hour Trace Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage "
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/cases/CASE-2026-SCENARIO_B/recovery-route?scenario=SCENARIO_B&golden_hou",
+      "200 /api/v1/cases/CASE-2026-SCENARIO_B/recovery-timeline",
+      "200 /api/v1/cases/CASE-2026-SCENARIO_B/trace"
+    ]
+  },
+  {
+    "route": "/agent",
+    "name": "agent-guard",
+    "status": "OK",
+    "probe": {
+      "textLen": 4976,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Channels Agent Guard Network Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LI"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/agents"
+    ]
+  },
+  {
+    "route": "/merchants",
+    "name": "merchant-shield",
+    "status": "OK",
+    "probe": {
+      "textLen": 1689,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Channels Merchant QR Shield Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LIV"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/merchants"
+    ]
+  },
+  {
+    "route": "/propagation",
+    "name": "propagation",
+    "status": "OK",
+    "probe": {
+      "textLen": 2877,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Geospatial District Spread Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Triage LIVE"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/propagation/timeline",
+      "200 /api/v1/propagation/alerts"
+    ]
+  },
+  {
+    "route": "/ussd",
+    "name": "ussd-simulator",
+    "status": "OK",
+    "probe": {
+      "textLen": 2451,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Channels USSD Feature-Phone Engine Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tri"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": []
+  },
+  {
+    "route": "/simulator",
+    "name": "simulator",
+    "status": "OK",
+    "probe": {
+      "textLen": 1648,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Simulation Attack & ROI Simulator Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tria"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/simulate"
+    ]
+  },
+  {
+    "route": "/audit",
+    "name": "audit-log",
+    "status": "OK",
+    "probe": {
+      "textLen": 7158,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Governance Immutable Audit Ledger Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tria"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/audit/logs"
+    ]
+  },
+  {
+    "route": "/fairness",
+    "name": "fairness-drift",
+    "status": "OK",
+    "probe": {
+      "textLen": 3674,
+      "hasOverlay": true,
+      "hasUnhandled": false,
+      "snippet": "Astha ANTI-FRAUD INTELLIGENCE Governance Fairness & Drift Monitor Live Feed K Dhaka Hub *268# Engine Simulate Txn OP ⌘ K MAIN MENU Executive Overview Analyst Tr"
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedReqs": [],
+    "apiCalls": [
+      "200 /api/v1/metrics/fairness",
+      "200 /api/v1/metrics/drift"
+    ]
+  }
+]

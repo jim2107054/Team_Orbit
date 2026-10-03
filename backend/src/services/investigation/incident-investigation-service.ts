@@ -195,7 +195,7 @@ export class IncidentInvestigationService {
       investigation_summary_bn: summary.bn,
       explanation_engine: {
         kind: 'DETERMINISTIC_TEMPLATE',
-        name: 'upay-shield-investigation-narrator',
+        name: 'astha-investigation-narrator',
         version: 'v1.0.0'
       },
       latency_breakdown_ms: latency,

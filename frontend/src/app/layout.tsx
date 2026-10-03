@@ -4,7 +4,7 @@ import { DashboardShell } from "../components/DashboardShell";
 import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "upay Shield — AI Trust & Fraud Risk Intelligence Platform",
+  title: "Astha — AI Trust & Fraud Risk Intelligence Platform",
   description: "Enterprise MFS Fraud Operations, Mule Detection & Multi-Channel Interception Platform.",
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const stored = localStorage.getItem('upay-theme');
+                const stored = localStorage.getItem('astha-theme');
                 if (stored === 'light') {
                   document.documentElement.classList.remove('dark');
                 } else {

@@ -4,7 +4,7 @@ set -euo pipefail
 
 D="$(cd "$(dirname "$0")" && pwd)"
 SKILL="/c/Users/ttawh/.claude/skills/synced/c1fa917e-569f-40ee-b177-36678a447997_27715043-f550-48b1-9648-00eaaa426701/pptx"
-FINAL="${1:-D:/Team_Orbit/upay-shield-restyled.pptx}"
+FINAL="${1:-D:/Team_Orbit/astha-deck.pptx}"
 
 cd "$D"
 echo "── build ──────────────────────────────────────────"

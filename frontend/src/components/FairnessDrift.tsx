@@ -212,7 +212,7 @@ export const FairnessDrift: React.FC = () => {
               <tr>
                 <th className="py-2.5 px-4">Evaluation Metric</th>
                 <th className="py-2.5 px-4">Baseline Model (No Temporal Intelligence)</th>
-                <th className="py-2.5 px-4">upay Shield (With Temporal Intelligence)</th>
+                <th className="py-2.5 px-4">Astha (With Temporal Intelligence)</th>
                 <th className="py-2.5 px-4">Net Operational Impact</th>
               </tr>
             </thead>

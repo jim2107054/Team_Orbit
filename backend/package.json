@@ -1,7 +1,7 @@
 {
-  "name": "upay-shield-backend",
+  "name": "astha-backend",
   "version": "1.0.0",
-  "description": "upay Shield - AI Trust, Scam-Interception & Mule-Network Intelligence Engine",
+  "description": "Astha - AI Trust, Scam-Interception & Mule-Network Intelligence Engine",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

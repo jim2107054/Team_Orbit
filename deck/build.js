@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────────────
-// build.js — upay Shield deck, restyled onto the reference design system.
+// build.js — Astha deck, restyled onto the reference design system.
 //
 //   node build.js [out.pptx]
 //
@@ -20,7 +20,7 @@ const OUT = process.argv[2] || 'out.pptx';
   pres.layout = 'CANVA20';
   pres.author = 'Team Orbit';
   pres.company = 'Team Orbit';
-  pres.title = 'upay Shield — Autonomous MFS Scam &amp; Fraud Defense Platform';
+  pres.title = 'Astha — Autonomous MFS Scam &amp; Fraud Defense Platform';
   pres.subject = 'UCB Fintech Hackathon';
 
   const H = (s, dark = true) => K.header(pres, s, { dark });
@@ -34,18 +34,16 @@ const OUT = process.argv[2] || 'out.pptx';
     s.addImage({ path: ART.heroAsterisk, x: 10.11, y: 0.68, w: 9.89, h: 9.89, objectName: 'hero-asterisk' });
     H(s);
 
-    s.addText('upay', {
-      x: 1.07, y: 2.55, w: 13.39, h: 2.91,
+    // The brand mark, then the wordmark. One word, so a single hero line —
+    // the reference's two-line stack was "Creative / Solutions".
+    s.addImage({ path: ART.brandMark, x: 1.12, y: 1.95, w: 2.3, h: 2.3, objectName: 'astha-mark' });
+    s.addText('Astha', {
+      x: 1.07, y: 4.60, w: 13.39, h: 2.91,
       fontFace: F.head, fontSize: T.hero, color: C.light,
-      align: 'left', valign: 'middle', margin: 0, isTextBox: true, objectName: 'hero-1',
-    });
-    s.addText('Shield', {
-      x: 6.90, y: 5.42, w: 12.5, h: 2.91,
-      fontFace: F.head, fontSize: T.hero, color: C.light,
-      align: 'left', valign: 'middle', margin: 0, isTextBox: true, objectName: 'hero-2',
+      align: 'left', valign: 'middle', margin: 0, isTextBox: true, objectName: 'hero',
     });
     s.addText('AUTONOMOUS MFS\nSCAM & FRAUD\nDEFENSE PLATFORM', {
-      x: 1.24, y: 5.80, w: 5.35, h: 2.0,
+      x: 1.24, y: 7.72, w: 5.35, h: 2.0,
       fontFace: F.display, fontSize: 33, color: C.light,
       align: 'left', valign: 'top', margin: 0, isTextBox: true,
       lineSpacingMultiple: 1.06, objectName: 'hero-sub',
@@ -64,7 +62,7 @@ const OUT = process.argv[2] || 'out.pptx';
       fontFace: F.display, fontSize: T.foot, color: C.light,
       align: 'right', valign: 'middle', margin: 0, isTextBox: true,
     });
-    s.addNotes('upay Shield is a working, end-to-end fraud and scam defence platform for mobile financial services in Bangladesh. Everything in this deck runs against a live Neon PostgreSQL database and was verified end to end.');
+    s.addNotes('Astha is a working, end-to-end fraud and scam defence platform for mobile financial services in Bangladesh. Everything in this deck runs against a live Neon PostgreSQL database and was verified end to end.');
   }
 
   // ═════════════════════════════ 2 — AGENDA ═════════════════════════════
@@ -1061,7 +1059,7 @@ const OUT = process.argv[2] || 'out.pptx';
       fontFace: F.display, fontSize: T.foot, color: C.light,
       align: 'left', valign: 'middle', margin: 0, isTextBox: true,
     });
-    s.addText('upay Shield  ·  UCB Fintech Hackathon', {
+    s.addText('Astha  ·  UCB Fintech Hackathon', {
       x: 11.0, y: 10.42, w: 7.88, h: 0.34,
       fontFace: F.display, fontSize: T.foot, color: C.light,
       align: 'right', valign: 'middle', margin: 0, isTextBox: true,

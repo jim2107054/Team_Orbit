@@ -1,5 +1,5 @@
 /**
- * Formatting utilities for upay Shield
+ * Formatting utilities for Astha
  */
 
 /**

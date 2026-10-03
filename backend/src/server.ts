@@ -159,7 +159,7 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(`====================================================`);
-      console.log(`  upay Shield Backend Engine running on port ${PORT}`);
+      console.log(`  Astha Backend Engine running on port ${PORT}`);
       console.log(`  API Base: http://localhost:${PORT}/v1`);
       console.log(`  Health:   http://localhost:${PORT}/health`);
       console.log(`  DB Health: http://localhost:${PORT}/health/db`);

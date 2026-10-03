@@ -2,7 +2,7 @@
  * Evidence-Driven Scam Incident Investigation — service barrel.
  *
  * Owns the UNDERSTAND / INVESTIGATE / EXPLAIN layer. It composes the existing
- * upay Shield engines (risk, graph, campaign, recovery) and adds no second
+ * Astha engines (risk, graph, campaign, recovery) and adds no second
  * fraud engine of its own.
  */
 export { untrustedInputGuard, INJECTION_PATTERNS } from './untrusted-input-guard.js';

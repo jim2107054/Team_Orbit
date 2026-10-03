@@ -1,4 +1,10 @@
-# 🛡️ upay Shield — Autonomous MFS Scam & Fraud Defense Platform
+<p align="center">
+  <img src="frontend/public/brand/astha-logo-480.png" alt="Astha" width="260">
+</p>
+
+<h1 align="center">Astha — Autonomous MFS Scam &amp; Fraud Defense Platform</h1>
+
+<p align="center"><em>আস্থা — trust, earned by evidence</em></p>
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.1-black.svg)](https://nextjs.org/)
@@ -8,7 +14,7 @@
 [![API](https://img.shields.io/badge/API_Endpoints-97%2F97_Verified-emerald.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
-> **upay Shield** is an end-to-end, real-time fraud and scam prevention platform built for Mobile Financial Services (MFS) in Bangladesh. It combines Bangla conversational scam detection, contextual transaction risk scoring, graph-based mule-ring discovery, golden-hour recovery routing, and evidence-driven incident investigation into one working system.
+> **Astha** is an end-to-end, real-time fraud and scam prevention platform built for Mobile Financial Services (MFS) in Bangladesh. It combines Bangla conversational scam detection, contextual transaction risk scoring, graph-based mule-ring discovery, golden-hour recovery routing, and evidence-driven incident investigation into one working system.
 
 ---
 
@@ -56,9 +62,9 @@ Traditional fraud systems fail here, because:
 - The attack happens **in conversation**, in Bangla, Banglish, or a mix of both — not in the payment data.
 - By the time a complaint is filed through a call centre, the golden hour has passed.
 
-**upay Shield attacks all four of those weaknesses at once:**
+**Astha attacks all four of those weaknesses at once:**
 
-| The gap | What upay Shield does |
+| The gap | What Astha does |
 |---|---|
 | The scam happens in a phone call, not in the data | Reads the conversation in Bangla/Banglish and flags scam scripts *before* money moves |
 | The transaction looks legitimate | Scores it on velocity, device, recipient history, and mule-network proximity — not just amount |
@@ -675,9 +681,40 @@ Team_Orbit/
 │   ├── .env.local                   # frontend configuration (not committed)
 │   └── next.config.ts               # /api/v1/* rewrite proxy + security headers
 │
+├── assets/
+│   └── brand/                       # original supplied logo artwork (master files)
+│       ├── Astha_logo.svg
+│       ├── Astha_logo_transparent.png
+│       ├── Astha_logo_black_background.png
+│       ├── Astha_logo_white_background.png
+│       └── astha-logo-glossy-ribbon.png
+│
+├── deck/                            # pitch-deck generator (see astha-deck.pptx)
+│   ├── kit.js                       # design system: palette, type scale, components
+│   ├── diagram.js                   # diagram primitives (nodes, stores, connectors)
+│   ├── metrics.js                   # text measurement used for auto-sizing
+│   ├── icons.js                     # react-icons rasterised to tinted PNGs
+│   ├── build.js                     # slide content
+│   └── make.sh                      # build → embed fonts → validate → render
+│
 └── docs/
     └── screenshots/                 # the images used in this README
 ```
+
+### Brand assets
+
+Master artwork lives in [`assets/brand/`](assets/brand/). The web-ready variants are
+derived from it and served by Next.js from [`frontend/public/brand/`](frontend/public/brand/):
+
+| File | Used for |
+|---|---|
+| `astha-mark.png` (+ `-192`, `-64`, `-32`) | The square A-shield mark — app chrome lockup, PWA icons |
+| `astha-logo.png` / `astha-logo-480.png` | Full lockup on transparent — landing page, this README |
+| `astha-wordmark.png` | Wordmark alone, for a horizontal lockup |
+| `astha-logo-on-light.png` / `-on-dark.png` | Pre-composited background variants |
+| `favicon.ico` | Multi-resolution favicon |
+
+`frontend/src/app/icon.png` is the App Router favicon and is a copy of the 192 px mark.
 
 ---
 
@@ -826,7 +863,7 @@ Domain state hydrated: knowledge-graph, complaints, campaigns, agent-guard,
 Retrieval corpus ready: 78 chunks embedded with gemini/gemini-embedding-001
 Language model: primary gemini/gemini-3.5-flash -> failover openai/gpt-5.6-luna
 ====================================================
-  upay Shield Backend Engine running on port 4000
+  Astha Backend Engine running on port 4000
 ====================================================
 ```
 

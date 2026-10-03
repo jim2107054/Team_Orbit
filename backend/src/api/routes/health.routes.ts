@@ -12,7 +12,7 @@ healthRouter.get(['/health', '/healthz'], (_req: Request, res: Response) => {
     success: true,
     message: 'System is healthy and operational',
     status: 'HEALTHY',
-    service: 'upay-shield-core',
+    service: 'astha-core',
     environment: envConfig.NODE_ENV,
     timestamp: new Date().toISOString()
   });

@@ -233,22 +233,22 @@ export const ComplaintIntelligence: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="dream-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="upay-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60">
         <div>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-[8px] bg-[#FF9F43]/10 text-[#FF9F43]">
+            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500">
               <FileText className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-nunito font-extrabold text-[#1B2850]">
+                <h1 className="text-xl font-display font-extrabold text-slate-900 dark:text-slate-100">
                   Complaint-to-Action Intelligence Hub
                 </h1>
-                <span className="px-2 py-0.5 rounded-[4px] bg-[#28C76F]/15 text-[#28C76F] text-[10px] font-mono font-bold">
+                <span className="px-2 py-0.5 rounded-xl bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 text-[10px] font-num font-bold">
                   ACTIVE AI PIPELINE
                 </span>
               </div>
-              <p className="text-xs text-[#646B72] mt-0.5">
+              <p className="text-xs font-ui text-slate-600 dark:text-slate-400 mt-0.5">
                 Transforms customer complaint statements into structured investigation evidence, duplicate clusters, and golden-hour recovery actions.
               </p>
             </div>
@@ -259,10 +259,10 @@ export const ComplaintIntelligence: React.FC = () => {
           {/* Unmask toggle */}
           <button
             onClick={() => setUnmaskSensitive(!unmaskSensitive)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-[6px] text-xs font-nunito font-bold border transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-ui font-bold border transition-colors ${
               unmaskSensitive
-                ? 'bg-[#1B2850] text-white border-[#1B2850]'
-                : 'bg-white text-[#646B72] border-[#E2E8F0] hover:bg-[#F8F9FA]'
+                ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
             title="Toggle sensitive value masking (phones, wallets)"
           >
@@ -274,7 +274,7 @@ export const ComplaintIntelligence: React.FC = () => {
           <button
             onClick={handleRunDemo}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-[6px] bg-gradient-to-r from-[#FF9F43] to-[#FF8510] text-white text-xs font-nunito font-bold shadow-sm hover:opacity-95 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl btn-flame text-white text-xs font-ui font-bold shadow-sm hover:opacity-95 transition-all"
           >
             <Sparkles className="w-4 h-4" />
             <span>Run 5-Complaint Scam Demo</span>
@@ -283,7 +283,7 @@ export const ComplaintIntelligence: React.FC = () => {
           {/* Process New Complaint */}
           <button
             onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-[6px] bg-[#1B2850] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#121B38] transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-ui font-bold shadow-sm hover:opacity-90 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Complaint</span>
@@ -293,7 +293,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
       {/* Success Notification Banner */}
       {actionSuccess && (
-        <div className="p-4 rounded-[6px] bg-[#28C76F]/10 border border-[#28C76F]/20 text-[#28C76F] text-xs font-nunito font-bold flex items-center justify-between animate-fadeIn">
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-ui font-bold flex items-center justify-between animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>{actionSuccess}</span>
@@ -307,60 +307,60 @@ export const ComplaintIntelligence: React.FC = () => {
       {/* Metric Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* P1 Active Loss */}
-        <div className="dream-card p-4 flex items-center justify-between border-l-4 border-l-[#FF0000]">
+        <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-rose-500 bg-white/80 dark:bg-slate-900/60">
           <div>
-            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">P1 Golden-Hour Active</div>
-            <div className="text-2xl font-extrabold text-[#FF0000] font-mono mt-1">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">P1 Golden-Hour Active</div>
+            <div className="text-2xl font-extrabold text-rose-500 font-num mt-1">
               {stats?.p1_active_loss_count ?? complaints.filter(c => c.priority === 'P1').length} Incidents
             </div>
-            <div className="text-[10px] text-[#FF0000] mt-0.5 font-bold flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-[#FF0000] animate-ping" />
+            <div className="text-[10px] text-rose-500 mt-0.5 font-bold flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
               <span>≤ 120m Recovery Window</span>
             </div>
           </div>
-          <div className="p-3 rounded-[8px] bg-[#FF0000]/10 text-[#FF0000]">
+          <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-500">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
         {/* Potential Loss Exposure */}
-        <div className="dream-card p-4 flex items-center justify-between border-l-4 border-l-[#FF9F43]">
+        <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-amber-500 bg-white/80 dark:bg-slate-900/60">
           <div>
-            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Potential Recoverable Loss</div>
-            <div className="text-2xl font-extrabold text-[#1B2850] font-mono mt-1">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Potential Recoverable Loss</div>
+            <div className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-num mt-1">
               ৳{(stats?.total_potential_exposure_bdt ?? complaints.reduce((sum, c) => sum + (c.potential_loss_bdt || 0), 0)).toLocaleString()}
             </div>
-            <div className="text-[10px] text-[#646B72] mt-0.5">Across active complaint queue</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Across active complaint queue</div>
           </div>
-          <div className="p-3 rounded-[8px] bg-[#FF9F43]/10 text-[#FF9F43]">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
             <Wallet className="w-6 h-6" />
           </div>
         </div>
 
         {/* Duplicate Clusters */}
-        <div className="dream-card p-4 flex items-center justify-between border-l-4 border-l-[#7367F0]">
+        <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-amber-500 bg-white/80 dark:bg-slate-900/60">
           <div>
-            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Duplicate Fraud Clusters</div>
-            <div className="text-2xl font-extrabold text-[#7367F0] font-mono mt-1">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Duplicate Fraud Clusters</div>
+            <div className="text-2xl font-extrabold text-amber-500 dark:text-amber-400 font-num mt-1">
               {stats?.duplicate_groups_count ?? duplicateGroups.length} Groups
             </div>
-            <div className="text-[10px] text-[#7367F0] mt-0.5 font-bold">
+            <div className="text-[10px] text-amber-500 dark:text-amber-400 mt-0.5 font-bold">
               {duplicateGroups.reduce((acc, g) => acc + (g.complaint_ids?.length || 0), 0)} Linked Coordinated Reports
             </div>
           </div>
-          <div className="p-3 rounded-[8px] bg-[#7367F0]/10 text-[#7367F0]">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
             <Layers className="w-6 h-6" />
           </div>
         </div>
 
         {/* Auto-Enriched Cases & Rings */}
-        <div className="dream-card p-4 flex items-center justify-between border-l-4 border-l-[#28C76F]">
+        <div className="upay-card p-4 flex items-center justify-between border-l-4 border-l-emerald-500 bg-white/80 dark:bg-slate-900/60">
           <div>
-            <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">Enriched Rings &amp; Cases</div>
-            <div className="text-2xl font-extrabold text-[#28C76F] font-mono mt-1">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enriched Rings &amp; Cases</div>
+            <div className="text-2xl font-extrabold text-emerald-500 font-num mt-1">
               {complaints.filter(c => c.linked_ring_id).length} Connected
             </div>
-            <div className="text-[10px] text-[#28C76F] mt-0.5 font-bold">Evidence Attached in DB</div>
+            <div className="text-[10px] text-emerald-500 mt-0.5 font-bold">Evidence Attached in DB</div>
           </div>
         </div>
       </div>
@@ -369,17 +369,17 @@ export const ComplaintIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Complaints Queue List (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="dream-card p-4 space-y-3">
+          <div className="upay-card p-4 space-y-3 bg-white/80 dark:bg-slate-900/60">
             {/* Filter and Search Bar */}
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="relative flex-1 w-full">
-                <Search className="w-4 h-4 text-[#646B72] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search phone, wallet, text..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-[6px] border border-[#E2E8F0] text-xs font-nunito focus:outline-none focus:border-[#FF9F43]"
+                  className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-ui text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export const ComplaintIntelligence: React.FC = () => {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full sm:w-auto px-2.5 py-1.5 rounded-[6px] border border-[#E2E8F0] text-xs font-nunito font-bold text-[#1B2850] focus:outline-none focus:border-[#FF9F43]"
+                className="w-full sm:w-auto px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/80 text-xs font-ui font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
               >
                 <option value="ALL">All Priorities</option>
                 <option value="P1">P1 — Golden Hour</option>
@@ -398,11 +398,11 @@ export const ComplaintIntelligence: React.FC = () => {
             </div>
 
             {/* Queue Counter Header */}
-            <div className="flex items-center justify-between text-[11px] text-[#646B72] font-bold px-1">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-bold px-1">
               <span>Showing {filteredComplaints.length} of {complaints.length} Reports</span>
               <button 
                 onClick={fetchData}
-                className="flex items-center gap-1 text-[#FF9F43] hover:underline"
+                className="flex items-center gap-1 text-amber-500 hover:underline"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Refresh</span>
@@ -412,7 +412,7 @@ export const ComplaintIntelligence: React.FC = () => {
             {/* Complaints Feed List */}
             <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1">
               {filteredComplaints.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#646B72]">
+                <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                   No complaints match the selected filter.
                 </div>
               ) : (
@@ -420,64 +420,64 @@ export const ComplaintIntelligence: React.FC = () => {
                   const isSelected = selectedComplaint?.complaint_id === c.complaint_id;
                   
                   // Priority Badge Color
-                  let pBg = 'bg-[#FF0000]/10 text-[#FF0000] border-[#FF0000]/20';
-                  if (c.priority === 'P2') pBg = 'bg-[#FF9F43]/15 text-[#FF9F43] border-[#FF9F43]/30';
-                  if (c.priority === 'P3') pBg = 'bg-[#7367F0]/15 text-[#7367F0] border-[#7367F0]/30';
-                  if (c.priority === 'P4') pBg = 'bg-[#646B72]/15 text-[#646B72] border-[#646B72]/30';
+                  let pBg = 'bg-rose-500/15 text-rose-500 border-rose-500/30';
+                  if (c.priority === 'P2') pBg = 'bg-amber-500/15 text-amber-500 border-amber-500/30';
+                  if (c.priority === 'P3') pBg = 'bg-blue-500/15 text-blue-500 border-blue-500/30';
+                  if (c.priority === 'P4') pBg = 'bg-slate-500/15 text-slate-500 border-slate-500/30';
 
                   return (
                     <div
                       key={c.complaint_id}
                       onClick={() => setSelectedComplaint(c)}
-                      className={`p-3.5 rounded-[8px] border transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#FFF8F0] border-[#FF9F43] shadow-sm ring-1 ring-[#FF9F43]/50'
-                          : 'bg-white border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-[#F8F9FA]'
+                          ? 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500 shadow-sm ring-1 ring-amber-500/40'
+                          : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-white/10 hover:border-amber-500/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                       }`}
                     >
                       {/* Card Header Row */}
                       <div className="flex items-center justify-between gap-2 mb-1.5">
                         <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-bold border ${pBg}`}>
+                          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-num font-bold border ${pBg}`}>
                             {c.priority}
                           </span>
-                          <span className="font-mono text-xs font-bold text-[#1B2850]">
+                          <span className="font-num text-xs font-bold text-slate-900 dark:text-slate-100">
                             {c.complaint_id}
                           </span>
                         </div>
 
                         {c.is_golden_hour ? (
-                          <span className="px-1.5 py-0.5 rounded-[4px] bg-[#FF0000]/10 text-[#FF0000] text-[10px] font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-lg bg-rose-500/10 text-rose-500 text-[10px] font-bold flex items-center gap-1">
                             <Clock className="w-3 h-3 animate-spin" />
                             <span>{c.golden_hour_remaining_mins}m left</span>
                           </span>
                         ) : (
-                          <span className="text-[10px] text-[#646B72]">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
                             {new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         )}
                       </div>
 
                       {/* Complaint Preview Text */}
-                      <p className="text-xs text-[#212B36] line-clamp-2 mb-2 font-bangla">
+                      <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2 mb-2 font-bangla">
                         {c.raw_text}
                       </p>
 
                       {/* Bottom Entity Chips Row */}
-                      <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] pt-2 border-t border-[#E2E8F0]/60">
+                      <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] pt-2 border-t border-slate-200 dark:border-white/10">
                         <div className="flex items-center gap-2">
                           {c.potential_loss_bdt > 0 && (
-                            <span className="font-mono font-bold text-[#FF0000]">
+                            <span className="font-num font-bold text-rose-500">
                               ৳{c.potential_loss_bdt.toLocaleString()}
                             </span>
                           )}
-                          <span className="text-[10px] text-[#646B72] px-1.5 py-0.5 bg-[#F1F5F9] rounded-[4px]">
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-white/10">
                             {c.category_label_bn.split(' ')[0]}
                           </span>
                         </div>
 
                         {c.duplicate_group_id && (
-                          <span className="px-1.5 py-0.5 rounded-[4px] bg-[#7367F0]/10 text-[#7367F0] text-[9px] font-mono font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 text-[9px] font-num font-bold flex items-center gap-1">
                             <Layers className="w-2.5 h-2.5" />
                             <span>{c.duplicate_count} Grouped</span>
                           </span>
@@ -496,38 +496,38 @@ export const ComplaintIntelligence: React.FC = () => {
           {selectedComplaint ? (
             <div className="space-y-4 animate-fadeIn">
               {/* Main Detail Card */}
-              <div className="dream-card p-5 space-y-4">
+              <div className="upay-card p-5 space-y-4 bg-white/80 dark:bg-slate-900/60">
                 {/* Header Information */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#E2E8F0]">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-white/10">
                   <div>
                     <div className="flex items-center gap-2.5">
-                      <h2 className="text-lg font-nunito font-extrabold text-[#1B2850]">
+                      <h2 className="text-lg font-display font-extrabold text-slate-900 dark:text-slate-100">
                         {selectedComplaint.complaint_id}
                       </h2>
-                      <span className={`px-2 py-0.5 rounded-[4px] text-xs font-mono font-bold ${
+                      <span className={`px-2 py-0.5 rounded-lg text-xs font-num font-bold ${
                         selectedComplaint.priority === 'P1'
-                          ? 'bg-[#FF0000]/10 text-[#FF0000]'
+                          ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
                           : selectedComplaint.priority === 'P2'
-                          ? 'bg-[#FF9F43]/15 text-[#FF9F43]'
-                          : 'bg-[#646B72]/15 text-[#646B72]'
+                          ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                          : 'bg-slate-500/15 text-slate-500 border border-slate-500/30'
                       }`}>
                         Priority {selectedComplaint.priority}
                       </span>
-                      <span className="px-2 py-0.5 rounded-[4px] bg-[#28C76F]/10 text-[#28C76F] text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-500 text-[10px] font-bold">
                         {selectedComplaint.status}
                       </span>
                     </div>
 
-                    <div className="text-xs text-[#646B72] mt-1 flex flex-wrap items-center gap-3">
-                      <span>Reporter: <strong className="text-[#1B2850]">{selectedComplaint.reporter_name}</strong></span>
-                      <span>Phone: <strong className="font-mono text-[#1B2850]">{maskSensitive(selectedComplaint.reporter_phone || '')}</strong></span>
-                      <span>Wallet: <strong className="font-mono text-[#1B2850]">{maskSensitive(selectedComplaint.reporter_wallet || '')}</strong></span>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-3">
+                      <span>Reporter: <strong className="text-slate-800 dark:text-slate-200">{selectedComplaint.reporter_name}</strong></span>
+                      <span>Phone: <strong className="font-num text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_phone || '')}</strong></span>
+                      <span>Wallet: <strong className="font-num text-slate-800 dark:text-slate-200">{maskSensitive(selectedComplaint.reporter_wallet || '')}</strong></span>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-xs font-bold text-[#646B72]">Potential Loss</div>
-                    <div className="text-xl font-mono font-extrabold text-[#FF0000]">
+                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Potential Loss</div>
+                    <div className="text-xl font-num font-extrabold text-rose-500">
                       ৳{selectedComplaint.potential_loss_bdt.toLocaleString()}
                     </div>
                   </div>
@@ -535,14 +535,14 @@ export const ComplaintIntelligence: React.FC = () => {
 
                 {/* Golden-Hour Window Countdown Alert */}
                 {selectedComplaint.is_golden_hour && (
-                  <div className="p-3.5 rounded-[8px] bg-[#FF0000]/10 border border-[#FF0000]/30 flex items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <Clock className="w-5 h-5 text-[#FF0000] animate-spin" />
+                      <Clock className="w-5 h-5 text-rose-500 animate-spin" />
                       <div>
-                        <div className="text-xs font-nunito font-bold text-[#FF0000]">
+                        <div className="text-xs font-ui font-bold text-rose-500">
                           Golden-Hour Recovery Protocol Active ({selectedComplaint.golden_hour_remaining_mins} minutes remaining)
                         </div>
-                        <div className="text-[11px] text-[#646B72]">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
                           Stolen funds are currently transiting through mule collector wallet. High probability of full trace & freeze.
                         </div>
                       </div>
@@ -550,7 +550,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                     <button
                       onClick={handleEmergencyHold}
-                      className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors whitespace-nowrap flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-ui font-bold shadow-sm transition-colors whitespace-nowrap flex items-center gap-1.5"
                     >
                       <Zap className="w-3.5 h-3.5" />
                       <span>Emergency Freeze</span>
@@ -559,90 +559,90 @@ export const ComplaintIntelligence: React.FC = () => {
                 )}
 
                 {/* Priority Reason Explanation */}
-                <div className="p-3 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0] text-xs">
-                  <div className="text-[10px] font-bold text-[#646B72] uppercase tracking-wider mb-0.5">Priority Policy Decision</div>
-                  <p className="text-[#212B36] font-medium">{selectedComplaint.priority_reason}</p>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 text-xs">
+                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Priority Policy Decision</div>
+                  <p className="text-slate-800 dark:text-slate-200 font-medium">{selectedComplaint.priority_reason}</p>
                 </div>
 
                 {/* Full Statement & NLP Transcript */}
                 <div className="space-y-1.5">
-                  <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">
+                  <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Customer Complaint Statement (Bangla / English)
                   </div>
-                  <div className="p-4 rounded-[8px] bg-[#FDFBF7] border border-[#F0E6D2] text-xs font-bangla text-[#1B2850] leading-relaxed">
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 text-xs font-bangla text-slate-900 dark:text-slate-100 leading-relaxed shadow-inner">
                     {selectedComplaint.raw_text}
                   </div>
                 </div>
 
                 {/* Extracted Structured Entities Grid */}
                 <div className="space-y-2">
-                  <div className="text-[11px] font-bold text-[#646B72] uppercase tracking-wider">
+                  <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Extracted Synthetic Entities (Click to Copy)
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {/* Phone */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] flex items-center gap-1 mb-0.5">
-                        <Phone className="w-3 h-3 text-[#FF9F43]" />
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
+                        <Phone className="w-3 h-3 text-amber-500" />
                         <span>Scammer Phone</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-[#1B2850] flex items-center justify-between">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         <span>{maskSensitive(selectedComplaint.extracted_entities.phone_numbers[0] || 'N/A')}</span>
                         {selectedComplaint.extracted_entities.phone_numbers[0] && (
-                          <button onClick={() => copyToClipboard(selectedComplaint.extracted_entities.phone_numbers[0], 'phone')} className="text-[#646B72] hover:text-[#1B2850]">
-                            {copiedKey === 'phone' ? <Check className="w-3 h-3 text-[#28C76F]" /> : <Copy className="w-3 h-3" />}
+                          <button onClick={() => copyToClipboard(selectedComplaint.extracted_entities.phone_numbers[0], 'phone')} className="text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
+                            {copiedKey === 'phone' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                           </button>
                         )}
                       </div>
                     </div>
 
                     {/* Destination Wallet */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] flex items-center gap-1 mb-0.5">
-                        <Wallet className="w-3 h-3 text-[#7367F0]" />
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
+                        <Wallet className="w-3 h-3 text-amber-500" />
                         <span>Target Wallet</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-[#1B2850] flex items-center justify-between">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         <span>{maskSensitive(selectedComplaint.extracted_entities.wallets[0] || selectedComplaint.linked_recipient_wallet || 'N/A')}</span>
                         {selectedComplaint.linked_recipient_wallet && (
-                          <button onClick={() => copyToClipboard(selectedComplaint.linked_recipient_wallet!, 'wallet')} className="text-[#646B72] hover:text-[#1B2850]">
-                            {copiedKey === 'wallet' ? <Check className="w-3 h-3 text-[#28C76F]" /> : <Copy className="w-3 h-3" />}
+                          <button onClick={() => copyToClipboard(selectedComplaint.linked_recipient_wallet!, 'wallet')} className="text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
+                            {copiedKey === 'wallet' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                           </button>
                         )}
                       </div>
                     </div>
 
                     {/* Agent Outlet */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] flex items-center gap-1 mb-0.5">
-                        <Building2 className="w-3 h-3 text-[#28C76F]" />
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-0.5">
+                        <Building2 className="w-3 h-3 text-emerald-500" />
                         <span>Cash-Out Agent</span>
                       </div>
-                      <div className="font-mono text-xs font-bold text-[#1B2850]">
+                      <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.extracted_entities.agent_ids[0] || selectedComplaint.linked_agent_id || 'None identified'}
                       </div>
                     </div>
 
                     {/* Classification */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] mb-0.5">Classification</div>
-                      <div className="text-xs font-bold text-[#1B2850] truncate">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Classification</div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.category_label_en}
                       </div>
                     </div>
 
                     {/* Typology */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] mb-0.5">Scam Typology</div>
-                      <div className="text-xs font-bold text-[#1B2850] truncate">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Scam Typology</div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                         {selectedComplaint.typology_label_bn}
                       </div>
                     </div>
 
                     {/* Duplicate Cluster */}
-                    <div className="p-2.5 rounded-[6px] bg-[#F8F9FA] border border-[#E2E8F0]">
-                      <div className="text-[10px] text-[#646B72] mb-0.5">Duplicate Nexus</div>
-                      <div className="font-mono text-xs font-bold text-[#7367F0] truncate">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Duplicate Nexus</div>
+                      <div className="font-num text-xs font-bold text-amber-500 dark:text-amber-400 truncate">
                         {selectedComplaint.duplicate_group_id || 'Unique Incident'}
                       </div>
                     </div>
@@ -650,18 +650,18 @@ export const ComplaintIntelligence: React.FC = () => {
                 </div>
 
                 {/* Evidence & Case Auto-Enrichment Card */}
-                <div className="p-4 rounded-[8px] bg-[#F8F9FA] border border-[#E2E8F0] space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Link2 className="w-4 h-4 text-[#FF9F43]" />
-                      <span className="text-xs font-nunito font-extrabold text-[#1B2850]">
+                      <Link2 className="w-4 h-4 text-amber-500" />
+                      <span className="text-xs font-display font-extrabold text-slate-900 dark:text-slate-100">
                         Auto-Enriched Case Evidence & Network Graph Links
                       </span>
                     </div>
 
                     <button
                       onClick={() => setShowOverrideModal(true)}
-                      className="text-[11px] font-nunito font-bold text-[#FF9F43] hover:underline flex items-center gap-1"
+                      className="text-[11px] font-ui font-bold text-amber-500 hover:underline flex items-center gap-1"
                     >
                       <span>Override Links</span>
                     </button>
@@ -670,27 +670,27 @@ export const ComplaintIntelligence: React.FC = () => {
                   {/* Evidence List */}
                   <div className="space-y-2">
                     {selectedComplaint.evidence_links.length === 0 ? (
-                      <div className="text-xs text-[#646B72]">No graph links discovered yet.</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">No graph links discovered yet.</div>
                     ) : (
                       selectedComplaint.evidence_links.map((link, idx) => (
-                        <div key={idx} className="p-2.5 rounded-[6px] bg-white border border-[#E2E8F0] text-xs space-y-1">
+                        <div key={idx} className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-xs space-y-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="px-1.5 py-0.5 rounded-[4px] bg-[#1B2850]/10 text-[#1B2850] text-[9px] font-mono font-bold">
+                              <span className="px-1.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 font-num text-[9px] font-bold">
                                 {link.target_type}
                               </span>
-                              <strong className="text-[#1B2850]">{link.target_label}</strong>
+                              <strong className="text-slate-900 dark:text-slate-100">{link.target_label}</strong>
                               {link.is_analyst_override && (
-                                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#7367F0]/15 text-[#7367F0] text-[9px] font-bold">
+                                <span className="px-1.5 py-0.5 rounded-lg bg-blue-500/15 text-blue-400 text-[9px] font-bold">
                                   Analyst Overridden
                                 </span>
                               )}
                             </div>
-                            <span className="font-mono text-[10px] font-bold text-[#28C76F]">
+                            <span className="font-num text-[10px] font-bold text-emerald-500">
                               {Math.round(link.confidence * 100)}% Match
                             </span>
                           </div>
-                          <p className="text-[#646B72] text-[11px] leading-relaxed">
+                          <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">
                             {link.evidence_text}
                           </p>
                         </div>
@@ -700,10 +700,10 @@ export const ComplaintIntelligence: React.FC = () => {
                 </div>
 
                 {/* Quick Action Buttons Toolbar */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E2E8F0]">
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-white/10">
                   <button
                     onClick={handleEmergencyHold}
-                    className="px-3 py-1.5 rounded-[6px] bg-[#FF0000] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#D90000] transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-ui font-bold shadow-sm transition-colors flex items-center gap-1.5"
                   >
                     <Zap className="w-3.5 h-3.5" />
                     <span>Freeze Destination Wallet</span>
@@ -711,7 +711,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                   <button
                     onClick={handleDispatchAdvisory}
-                    className="px-3 py-1.5 rounded-[6px] bg-[#FF9F43] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#E68A30] transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl btn-flame text-white text-xs font-ui font-bold shadow-sm hover:opacity-95 transition-all flex items-center gap-1.5"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>Dispatch SMS Advisory</span>
@@ -719,7 +719,7 @@ export const ComplaintIntelligence: React.FC = () => {
 
                   <button
                     onClick={() => setShowOverrideModal(true)}
-                    className="px-3 py-1.5 rounded-[6px] bg-[#1B2850] text-white text-xs font-nunito font-bold shadow-sm hover:bg-[#121B38] transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-ui font-bold shadow-sm hover:opacity-90 transition-all flex items-center gap-1.5"
                   >
                     <Link2 className="w-3.5 h-3.5" />
                     <span>Re-assign / Override Case</span>
@@ -728,7 +728,7 @@ export const ComplaintIntelligence: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="dream-card p-12 text-center text-xs text-[#646B72]">
+            <div className="upay-card p-12 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-900/60">
               Select a complaint from the queue on the left to view evidence and triage actions.
             </div>
           )}
@@ -737,20 +737,20 @@ export const ComplaintIntelligence: React.FC = () => {
 
       {/* New Complaint Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="dream-card w-full max-w-lg p-6 space-y-4 bg-white shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-              <h3 className="text-base font-nunito font-extrabold text-[#1B2850]">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="upay-card w-full max-w-lg p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-white/10">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
+              <h3 className="text-base font-display font-extrabold text-slate-900 dark:text-slate-100">
                 Process New Customer Complaint
               </h3>
-              <button onClick={() => setShowNewModal(false)} className="text-[#646B72] hover:text-[#1B2850]">
+              <button onClick={() => setShowNewModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleProcessCustomComplaint} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#1B2850] mb-1">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                   Customer Statement (Bangla / English / Banglish) *
                 </label>
                 <textarea
@@ -759,39 +759,39 @@ export const ComplaintIntelligence: React.FC = () => {
                   placeholder="যেমন: আমাকে ০১৭১১-৯৯৮৮২২ থেকে কল করে বললো উপায় হেড অফিস থেকে। ভেরিফিকেশনের জন্য ৳২৫,০০০ W-SYN-৮৮১৯২০ তে পাঠাতে বলে..."
                   value={customText}
                   onChange={(e) => setCustomText(e.target.value)}
-                  className="w-full p-2.5 rounded-[6px] border border-[#E2E8F0] text-xs font-bangla focus:outline-none focus:border-[#FF9F43]"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bangla text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-[#1B2850] mb-1">Customer Name</label>
+                  <label className="block text-[11px] font-bold text-slate-800 dark:text-slate-200 mb-1">Customer Name</label>
                   <input
                     type="text"
                     placeholder="আব্দুল করিম"
                     value={customReporterName}
                     onChange={(e) => setCustomReporterName(e.target.value)}
-                    className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs"
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-[#1B2850] mb-1">Customer Phone</label>
+                  <label className="block text-[11px] font-bold text-slate-800 dark:text-slate-200 mb-1">Customer Phone</label>
                   <input
                     type="text"
                     placeholder="01812-445566"
                     value={customPhone}
                     onChange={(e) => setCustomPhone(e.target.value)}
-                    className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs font-mono"
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-[#1B2850] mb-1">Elapsed Time (Minutes ago)</label>
+                <label className="block text-[11px] font-bold text-slate-800 dark:text-slate-200 mb-1">Elapsed Time (Minutes ago)</label>
                 <select
                   value={customElapsed}
                   onChange={(e) => setCustomElapsed(e.target.value)}
-                  className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs font-bold text-[#1B2850]"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
                 >
                   <option value="10">10 mins ago (P1 Golden-Hour)</option>
                   <option value="35">35 mins ago (P1 Golden-Hour)</option>
@@ -801,17 +801,17 @@ export const ComplaintIntelligence: React.FC = () => {
                 </select>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E2E8F0]">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-4 py-2 rounded-[6px] border border-[#E2E8F0] text-xs font-bold text-[#646B72]"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[6px] bg-[#FF9F43] text-white text-xs font-bold shadow-sm hover:bg-[#E68A30] flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl btn-flame text-white text-xs font-bold shadow-sm flex items-center gap-1.5"
                 >
                   <Zap className="w-3.5 h-3.5" />
                   <span>Execute AI Pipeline</span>
@@ -824,24 +824,24 @@ export const ComplaintIntelligence: React.FC = () => {
 
       {/* Override Link Modal */}
       {showOverrideModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="dream-card w-full max-w-md p-6 space-y-4 bg-white shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-              <h3 className="text-base font-nunito font-extrabold text-[#1B2850]">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="upay-card w-full max-w-md p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-white/10">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
+              <h3 className="text-base font-display font-extrabold text-slate-900 dark:text-slate-100">
                 Analyst Override Case Link
               </h3>
-              <button onClick={() => setShowOverrideModal(false)} className="text-[#646B72] hover:text-[#1B2850]">
+              <button onClick={() => setShowOverrideModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleOverrideLink} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#1B2850] mb-1">Target Entity Type</label>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Target Entity Type</label>
                 <select
                   value={overrideType}
                   onChange={(e: any) => setOverrideType(e.target.value)}
-                  className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs font-bold text-[#1B2850]"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100"
                 >
                   <option value="RING">Mule Ring (e.g. RING-003, RING-012)</option>
                   <option value="CAMPAIGN">Scam Campaign (e.g. CAMP-FAKE-CARE)</option>
@@ -851,39 +851,39 @@ export const ComplaintIntelligence: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B2850] mb-1">Target Identifier *</label>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Target Identifier *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. RING-012 or W-SYN-881920"
                   value={overrideTargetId}
                   onChange={(e) => setOverrideTargetId(e.target.value)}
-                  className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs font-mono"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs font-num text-slate-900 dark:text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B2850] mb-1">Analyst Notes</label>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Analyst Notes</label>
                 <textarea
                   rows={2}
                   placeholder="Reason for manual override..."
                   value={overrideNotes}
                   onChange={(e) => setOverrideNotes(e.target.value)}
-                  className="w-full p-2 rounded-[6px] border border-[#E2E8F0] text-xs"
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E2E8F0]">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowOverrideModal(false)}
-                  className="px-4 py-2 rounded-[6px] border border-[#E2E8F0] text-xs font-bold text-[#646B72]"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[6px] bg-[#1B2850] text-white text-xs font-bold shadow-sm hover:bg-[#121B38]"
+                  className="px-4 py-2 rounded-xl btn-flame text-white text-xs font-bold shadow-sm hover:opacity-95"
                 >
                   Confirm Override & Audit
                 </button>

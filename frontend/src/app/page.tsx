@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { AdminDashboard } from '../components/AdminDashboard';
+import IntroPage from './intro/page';
 
 export default function HomePage() {
-  return <AdminDashboard />;
+  return <IntroPage />;
 }

@@ -75,6 +75,7 @@ const ART = {
   glowDark: img(9),       // soft radial glow for dark slides
   asteriskBlack: img(13), // solid black asterisk
   asteriskLight: img(17), // light asterisk with orange gradient (light slides)
+  brandMark: path.join(ASSETS, 'astha-mark.png'), // the Astha A-shield, transparent
 };
 
 // ── Slide shells ───────────────────────────────────────────────────────────
@@ -104,7 +105,7 @@ function lightSlide(pres, deck, { sectionTitle } = {}) {
 }
 
 /** Brand label + date pill, identical on every slide. */
-function header(pres, s, { dark = true, brand = 'UPAY SHIELD', tag = 'TEAM ORBIT' } = {}) {
+function header(pres, s, { dark = true, brand = 'ASTHA', tag = 'TEAM ORBIT' } = {}) {
   s.addText(brand, {
     x: L.margin, y: L.headerY, w: 7, h: 0.36,
     fontFace: F.display, fontSize: T.brand,

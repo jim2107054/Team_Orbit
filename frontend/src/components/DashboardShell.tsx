@@ -73,7 +73,7 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
             <footer className="max-w-[1680px] mx-auto mt-8 pt-5 border-t border-hairsoft flex flex-col sm:flex-row items-center justify-between gap-2 text-[11.5px] font-ui text-ink-dim">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                <strong className="font-display font-bold text-ink-muted">upay Shield</strong>
+                <strong className="font-display font-bold text-ink-muted">Astha</strong>
                 <span>— Autonomous MFS fraud defense &amp; mule ring intelligence.</span>
               </span>
               <span className="flex items-center gap-4 font-num">
@@ -109,7 +109,7 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
                     <strong className="font-display font-bold text-[13.5px] text-ink">
                       System Telemetry
                     </strong>
-                    <span className="text-[11px] font-ui text-ink-dim">upay Shield live ops</span>
+                    <span className="text-[11px] font-ui text-ink-dim">Astha live ops</span>
                   </span>
                 </div>
                 <button
@@ -167,7 +167,7 @@ export const DashboardShell: React.FC<{ children: React.ReactNode }> = ({ childr
 
             <div className="pt-4 mt-4 border-t border-hairsoft text-center">
               <span className="font-num text-[11px] text-ink-dim">
-                upay Shield v2.4 · all systems nominal
+                Astha v2.4 · all systems nominal
               </span>
             </div>
           </div>

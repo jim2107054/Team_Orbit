@@ -1,6 +1,6 @@
-# Environment Configuration & Integration Guide: upay Shield
+# Environment Configuration & Integration Guide: Astha
 
-This document is the single source of truth for all environment variables across the **upay Shield** platform.
+This document is the single source of truth for all environment variables across the **Astha** platform.
 
 ---
 
@@ -11,7 +11,7 @@ All frontend variables exposed to the browser MUST be prefixed with `NEXT_PUBLIC
 | Variable | Required / Optional | Public / Secret | Default / Example Value | Where Used | Description |
 |---|---|---|---|---|---|
 | `NEXT_PUBLIC_API_URL` | **REQUIRED** | Public | `http://localhost:4000/v1` | `next.config.ts`, API Client | Base URL for backend REST API endpoints |
-| `NEXT_PUBLIC_APP_NAME` | Optional | Public | `upay Shield` | Navigation & Header components | Application display title |
+| `NEXT_PUBLIC_APP_NAME` | Optional | Public | `Astha` | Navigation & Header components | Application display title |
 | `PORT` | Optional | Server-only | `3000` | Next.js server configuration | Local port for Next.js web application |
 | `NODE_ENV` | Optional | Public | `development` | Next.js environment mode | `development` or `production` |
 
@@ -95,7 +95,7 @@ request a doomed attempt. All of it is bounded by `LLM_TOTAL_BUDGET_MS`.
 
 ## 3. Database Architecture & Hosted Neon PostgreSQL
 
-upay Shield connects directly to **Neon Serverless PostgreSQL** with connection pooling enabled.
+Astha connects directly to **Neon Serverless PostgreSQL** with connection pooling enabled.
 
 - **Connection Driver:** Native `pg` Pool with SSL `rejectUnauthorized: false`.
 - **Connection Pool Capacity:** 20 concurrent connections with 30-second idle timeout.
@@ -122,7 +122,7 @@ FRONTEND_URL=http://localhost:3000
 
 # frontend/.env.local
 NEXT_PUBLIC_API_URL=http://localhost:4000/v1
-NEXT_PUBLIC_APP_NAME="upay Shield"
+NEXT_PUBLIC_APP_NAME="Astha"
 PORT=3000
 
 # 3. Start Application

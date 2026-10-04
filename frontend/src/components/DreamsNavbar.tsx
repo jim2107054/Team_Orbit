@@ -46,7 +46,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
       
       {/* Left: Logo & Sidebar Toggle & Search */}
       <div className="flex items-center gap-4">
-        {/* Brand Logo - upay Shield */}
+        {/* Brand Logo - Astha */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative flex items-center justify-center">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-flame-500 to-ember-300 flex items-center justify-center shadow-md shadow-flame-500/20">
@@ -55,8 +55,7 @@ export const DreamsNavbar: React.FC<DreamsNavbarProps> = ({
           </div>
           <div className="flex flex-col leading-none">
             <div className="flex items-baseline">
-              <span className="font-display font-extrabold text-[19px] text-ink tracking-tight">upay</span>
-              <span className="text-[12px] font-display font-bold text-flame-500 uppercase ml-1 tracking-wider">Shield</span>
+              <span className="font-display font-extrabold text-[19px] text-ink tracking-tight">Astha</span>
             </div>
             <span className="text-[9px] font-ui font-bold text-ink-muted tracking-tight">AI Trust &amp; Anti-Fraud</span>
           </div>

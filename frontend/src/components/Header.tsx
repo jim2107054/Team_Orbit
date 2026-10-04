@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onSelec
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl tracking-tight text-white">
-                  upay <span className="text-cyan-400">Shield</span>
+                  Astha
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                   AI TRUST ENGINE

@@ -38,7 +38,7 @@ export const SCAM_CORPUS: CorpusDocument[] = [
     doc_id: 'TYP-CUSTOMER-CARE',
     collection: 'scam_typology',
     title: 'Fake customer care / head office impersonation',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_CUSTOMER_CARE',
     content: `A caller claims to be from upay head office, upay customer care, or a partner bank's fraud desk. They assert the customer's account has a problem — suspicious activity, a pending block, a failed KYC check — and that it can only be fixed immediately over the phone.
@@ -56,7 +56,7 @@ fake customer care call, head office impersonation, account will be closed, veri
     doc_id: 'TYP-SIM-BLOCK',
     collection: 'scam_typology',
     title: 'SIM block and SIM replacement threat',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_SIM_BLOCK',
     content: `The caller says the customer's SIM or NID registration is invalid and the number will be disconnected today unless it is "re-verified". They ask for the OTP that arrives on the handset, which is in fact the code authorising a SIM swap or a wallet login from the attacker's device.
@@ -74,7 +74,7 @@ SIM will be blocked, NID re-verification, asked me to read out the OTP code, SIM
     doc_id: 'TYP-ACCOUNT-VERIFY',
     collection: 'scam_typology',
     title: 'Account verification deposit',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_ACCOUNT_VERIFY',
     content: `The customer is told that to lift a limit, complete KYC, or prove the account is active, they must send a "verification amount" to a specified wallet, which will be returned immediately. The amount is often oddly precise to appear procedural, and the destination is a personal wallet rather than any official channel.
@@ -92,7 +92,7 @@ verification deposit, refundable security check, send money to verify account, K
     doc_id: 'TYP-RELATIVE-EMERGENCY',
     collection: 'scam_typology',
     title: 'Relative emergency impersonation',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_RELATIVE_EMERGENCY',
     content: `The caller impersonates a family member or a hospital, police station, or employer acting on their behalf, and describes an emergency requiring money at once — an accident, an arrest, a medical admission, a detained traveller.
@@ -110,7 +110,7 @@ relative emergency, son had an accident, hospital admission money, calling from 
     doc_id: 'TYP-REFUND-MISTAKE',
     collection: 'scam_typology',
     title: 'Wrong-number refund and reversal trick',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_REFUND',
     content: `The customer is told money was sent to them by mistake and is asked to send it back. Either no money actually arrived and the customer is looking at a forged SMS, or the incoming funds were themselves stolen and the customer is being used to launder them, which can leave their own wallet implicated.
@@ -128,7 +128,7 @@ wrong number transfer, sent by mistake please return it, asked me to send it bac
     doc_id: 'TYP-PRIZE-LOTTERY',
     collection: 'scam_typology',
     title: 'Prize, lottery and giveaway advance fee',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_PRIZE',
     content: `The customer is told they have won a lottery, a mobile operator draw, a brand giveaway or a government grant, and that a processing fee, tax, or courier charge must be paid before the prize is released.
@@ -146,7 +146,7 @@ won a lottery, prize money, processing fee to release the prize, registration fe
     doc_id: 'TYP-INVESTMENT',
     collection: 'scam_typology',
     title: 'Fake investment and guaranteed-return schemes',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_INVESTMENT',
     content: `The customer is offered an investment with guaranteed daily or weekly returns, often via a Telegram or WhatsApp group, a referral from an acquaintance, or an app with a convincing dashboard showing fictitious profits.
@@ -164,7 +164,7 @@ guaranteed daily profit, crypto trading signal group, deposit and double your mo
     doc_id: 'TYP-TASK-SCAM',
     collection: 'scam_typology',
     title: 'Online task and commission earning scam',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_TASK',
     content: `The customer is recruited for simple paid tasks — liking videos, writing reviews, completing app installs — and is paid small amounts initially. They are then moved onto "prepaid" task sets requiring the customer to deposit their own money to unlock a higher commission tier.
@@ -182,7 +182,7 @@ work from home earning, like videos for money, deposit to unlock VIP tasks, comm
     doc_id: 'TYP-LEGAL-THREAT',
     collection: 'scam_typology',
     title: 'Police, court and legal coercion',
-    source: 'upay Shield typology catalogue',
+    source: 'Astha typology catalogue',
     language: 'mixed',
     typology: 'SCAM_CALL_LEGAL_THREAT',
     content: `The caller claims to be police, CID, a court official, a customs officer or a regulator, and alleges the customer is implicated in money laundering, a drug parcel, or an arrest warrant. Payment of a "fine", "bail" or "clearance fee" is demanded to avoid immediate arrest.
@@ -200,7 +200,7 @@ police called about a case, CID officer, pay the fine or be arrested, arrest war
     doc_id: 'ADV-NEVER-SHARE',
     collection: 'customer_advisory',
     title: 'Approved wording: credentials are never requested',
-    source: 'upay Shield approved customer communications',
+    source: 'Astha approved customer communications',
     language: 'mixed',
     typology: undefined,
     content: `Approved advisory wording, safe to reuse in customer replies.
@@ -215,7 +215,7 @@ Note for generated replies: stating that upay will never ask for a PIN or OTP is
     doc_id: 'ADV-GOLDEN-HOUR',
     collection: 'customer_advisory',
     title: 'Approved wording: act within the first hour',
-    source: 'upay Shield approved customer communications',
+    source: 'Astha approved customer communications',
     language: 'mixed',
     content: `Approved advisory wording for a customer who has already sent money.
 
@@ -229,7 +229,7 @@ Note for generated replies: never state or imply that a refund, reversal or reco
     doc_id: 'POL-RESPONSE-SAFETY',
     collection: 'policy',
     title: 'Customer response safety rules',
-    source: 'upay Shield response policy',
+    source: 'Astha response policy',
     language: 'en',
     content: `Rules every customer-facing message must satisfy, enforced by the response safety validator.
 
@@ -243,7 +243,7 @@ Permitted and encouraged: the warning that upay will never ask for a PIN or OTP.
     doc_id: 'POL-EVIDENCE-VERDICT',
     collection: 'policy',
     title: 'Evidence verdict policy and its limits',
-    source: 'upay Shield investigation policy',
+    source: 'Astha investigation policy',
     language: 'en',
     content: `An investigation returns one of three evidence verdicts and nothing stronger.
 
@@ -259,7 +259,7 @@ A denial of authorisation against a transaction that does exist resolves to INSU
     doc_id: 'POL-GOLDEN-HOUR-OPS',
     collection: 'policy',
     title: 'Golden-hour recovery operations',
-    source: 'upay Shield recovery policy',
+    source: 'Astha recovery policy',
     language: 'en',
     content: `Recoverability decays sharply with elapsed time because funds move through mule layers and are cashed out at agent points.
 

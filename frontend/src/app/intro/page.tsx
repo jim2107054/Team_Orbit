@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { 
   Shield, Sparkles, ArrowRight, Activity, Zap, CheckCircle2, 
@@ -245,11 +246,16 @@ export default function IntroPage() {
           
           {/* Brand */}
           <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF4500] via-[#FF5C00] to-amber-400 flex items-center justify-center shadow-[0_0_16px_rgba(255,92,0,0.3)] group-hover:scale-105 transition-transform duration-200">
-              <Shield className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-            </div>
+            <Image
+              src="/brand/astha-mark.png"
+              alt="Astha"
+              width={32}
+              height={32}
+              priority
+              className="w-8 h-8 object-contain group-hover:scale-105 transition-transform duration-200"
+            />
             <span className="font-display font-medium text-[18px] text-white tracking-[-0.03em]">
-              upay<span className="text-[#FF5C00]">Shield</span>
+              Astha
             </span>
           </Link>
 
@@ -596,7 +602,7 @@ export default function IntroPage() {
                 <Terminal className="w-4 h-4 text-[#FF5C00]" />
               </div>
               <span className="truncate text-slate-300 font-medium text-[13px] sm:text-[14px]">
-                Ask upay Shield AI — trace transactions, freeze wallets, analyze voice calls...
+                Ask Astha AI — trace transactions, freeze wallets, analyze voice calls...
               </span>
             </div>
             <Link 
@@ -1211,7 +1217,7 @@ export default function IntroPage() {
                 The Mobile Finance Defense<br />Landscape is Evolving
               </h2>
               <p className="font-ui font-normal text-[15px] sm:text-[16px] text-slate-400 leading-[1.8] mb-6">
-                AI-native syndicates now launch synchronized multi-hop mule splits in seconds. Legacy fraud scoring cannot cope with the sheer volume and velocity. upay Shield delivers continuous autonomous protection at enterprise scale.
+                AI-native syndicates now launch synchronized multi-hop mule splits in seconds. Legacy fraud scoring cannot cope with the sheer volume and velocity. Astha delivers continuous autonomous protection at enterprise scale.
               </p>
 
               {/* Added Key Enterprise Trust Metrics */}
@@ -1678,7 +1684,7 @@ export default function IntroPage() {
                   Calculate Your Protected Capital
                 </h3>
                 <p className="text-[14px] text-slate-400 mt-3 leading-relaxed font-ui">
-                  Adjust your MFS daily transaction volume and typical fraud attack velocity to estimate quarterly savings with upay Shield.
+                  Adjust your MFS daily transaction volume and typical fraud attack velocity to estimate quarterly savings with Astha.
                 </p>
               </div>
 
@@ -1925,11 +1931,15 @@ export default function IntroPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-14">
             <div className="md:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FF4500] via-[#FF5C00] to-amber-400 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                  <Shield className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                </div>
+                <Image
+                  src="/brand/astha-mark.png"
+                  alt="Astha"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="font-display font-semibold text-[16px] text-white tracking-[-0.03em]">
-                  upay<span className="text-[#FF5C00]">Shield</span>
+                  Astha
                 </span>
               </div>
               <p className="text-[12px] font-ui text-slate-500 leading-relaxed mb-4">
@@ -1956,7 +1966,7 @@ export default function IntroPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/[0.05]">
             <div className="text-[11px] font-num text-slate-600">
-              © 2025 upay Shield Platform · Next.js 15 · FastTree ML Engine
+              © 2025 Astha Platform · Next.js 15 · FastTree ML Engine
             </div>
             <div className="flex items-center gap-1.5 text-[11px] font-ui text-slate-600">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

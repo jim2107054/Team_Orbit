@@ -28,7 +28,7 @@ function calculateMetrics(tp: number, fp: number, tn: number, fn: number): Metri
 
 async function runEvaluation() {
   console.log('========================================================================');
-  console.log('  upay Shield — Bangla Scam Call Intelligence Evaluation Suite (5,000 N)');
+  console.log('  Astha — Bangla Scam Call Intelligence Evaluation Suite (5,000 N)');
   console.log('========================================================================\n');
 
   const dataset = syntheticConversationGenerator.generateDataset(5000);

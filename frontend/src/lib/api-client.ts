@@ -7,7 +7,7 @@ import axios, {
 } from 'axios';
 
 /**
- * Standardized API Response Structure across all upay Shield endpoints
+ * Standardized API Response Structure across all Astha endpoints
  */
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -60,7 +60,7 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'x-client': 'upay-shield-web-v1'
+    'x-client': 'astha-web-v1'
   }
 });
 

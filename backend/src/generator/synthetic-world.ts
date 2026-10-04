@@ -10,7 +10,7 @@ export async function generateSyntheticWorld(): Promise<{
   ringsCount: number;
   casesCount: number;
 }> {
-  console.log('Generating synthetic financial world for upay Shield...');
+  console.log('Generating synthetic financial world for Astha...');
 
   const divisions = ['Dhaka', 'Chittagong', 'Rajshahi', 'Sylhet', 'Khulna', 'Barisal', 'Rangpur', 'Mymensingh'];
   const segments = ['salaried', 'student', 'farmer', 'gig', 'merchant_owner', 'remittance_recipient'] as const;

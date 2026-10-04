@@ -32,7 +32,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>('dark');
 
   useEffect(() => {
-    const stored = localStorage.getItem('upay-theme') as Theme | null;
+    const stored = localStorage.getItem('astha-theme') as Theme | null;
     const initial: Theme = stored === 'light' ? 'light' : 'dark';
     setThemeState(initial);
     applyTheme(initial);
@@ -41,7 +41,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setTheme = (nextTheme: Theme) => {
     setThemeState(nextTheme);
     try {
-      localStorage.setItem('upay-theme', nextTheme);
+      localStorage.setItem('astha-theme', nextTheme);
     } catch (_) {
       /* storage unavailable — keep the in-memory theme */
     }

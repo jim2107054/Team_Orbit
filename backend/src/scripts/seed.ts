@@ -3,7 +3,7 @@ import { generateSyntheticWorld } from '../generator/synthetic-world.js';
 import { seedInvestigationEvidenceLedger } from '../generator/investigation-evidence-ledger.js';
 
 async function main() {
-  console.log('--- Seeding upay Shield Synthetic World & Investigation Ledger ---');
+  console.log('--- Seeding Astha Synthetic World & Investigation Ledger ---');
   await initDatabase();
   const summary = await generateSyntheticWorld();
   const ledger = await seedInvestigationEvidenceLedger();

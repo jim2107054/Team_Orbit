@@ -754,7 +754,7 @@ export const AdminDashboard: React.FC = () => {
                   Card Holder
                 </span>
                 <strong className="font-display text-[11.5px] font-bold uppercase tracking-wide text-slate-200">
-                  upay Shield SOC Executive
+                  Astha SOC Executive
                 </strong>
               </span>
               <span className="font-display font-bold text-[17px] text-flame-500 tracking-tight">upay</span>

@@ -1,6 +1,6 @@
 # Software Requirements Specification (SRS)
 
-## upay Shield — AI Trust, Scam-Interception & Mule-Network Intelligence for Mobile Financial Services
+## Astha — AI Trust, Scam-Interception & Mule-Network Intelligence for Mobile Financial Services
 
 | Field | Value |
 |---|---|
@@ -11,7 +11,7 @@
 | Status | Approved for build |
 | Data policy | **100% synthetic / public / self-generated data. No production upay data. No real PII.** |
 
-> **One-line pitch:** *upay Shield stops a scam before the money leaves, uncovers the mule and gambling rings behind it, and hands analysts a verified, plain-language case file — so that upay can protect customers, recover more money, and earn the trust that growth depends on.*
+> **One-line pitch:** *Astha stops a scam before the money leaves, uncovers the mule and gambling rings behind it, and hands analysts a verified, plain-language case file — so that upay can protect customers, recover more money, and earn the trust that growth depends on.*
 
 ---
 
@@ -43,10 +43,10 @@
 # 1. Introduction
 
 ## 1.1 Purpose
-This SRS defines the complete functional, data, AI, interface, quality and governance requirements for **upay Shield**, a working prototype for the AI Hackathon 2026 (DIU CPC × upay). It is the single source of truth for the team and a reference for judges reviewing technical depth, product thinking and responsible-AI practice.
+This SRS defines the complete functional, data, AI, interface, quality and governance requirements for **Astha**, a working prototype for the AI Hackathon 2026 (DIU CPC × upay). It is the single source of truth for the team and a reference for judges reviewing technical depth, product thinking and responsible-AI practice.
 
 ## 1.2 Scope
-upay Shield is a layered "Input → Intelligence → Action" system (the guideline's reference architecture) covering three protection layers plus supporting capabilities:
+Astha is a layered "Input → Intelligence → Action" system (the guideline's reference architecture) covering three protection layers plus supporting capabilities:
 
 1. **Customer layer — Scam Interception:** real-time risk scoring at the moment of a send-money / cash-out request, with Bangla-first plain-language warnings and a "Scam Check" tool.
 2. **Network layer — Mule & Gambling-Ring Discovery:** graph analytics that expose coordinated wallet, agent and merchant rings that account-by-account rules cannot see.
@@ -95,7 +95,7 @@ upay Shield is a layered "Input → Intelligence → Action" system (the guideli
 ## 2.1 The Real-World Problem
 Bangladesh's MFS market is huge and growing, and **fraud is the main trust and growth brake**. Findings from the pre-build research (sources and caveats in Appendix F):
 
-| # | Finding | Why it matters to upay Shield |
+| # | Finding | Why it matters to Astha |
 |---|---|---|
 | E1 | Bangladesh Bank recorded **81,423 reported fraud cases** across MFS, cheques and cards in 2025, with about **Tk 926 million** in losses and only **~10.7% recovered**. Reported cases are a floor. | Detection *and recovery* both matter; recovery is almost non-existent today. |
 | E2 | A PRI survey found roughly **1 in 10 MFS users** had been a fraud victim; about **30% of victims never had the complaint resolved**; losses were more common among less-educated users and untrained agents. | Customer-facing, plain-language, Bangla-first protection and agent-side tooling are needed. |
@@ -110,7 +110,7 @@ Bangladesh's MFS market is huge and growing, and **fraud is the main trust and g
 
 ## 2.2 Problem Statement (guideline template)
 
-> **For** upay customers, agents and the fraud-operations team, **scams and mule-network cash-outs** cause **irreversible customer losses (≈90% unrecovered nationally), eroded trust and suppressed adoption**. **We will build** *upay Shield*, an AI-powered protection platform **that uses** synthetic transaction, device, agent, complaint and network data **to** warn customers before they send money, discover mule/gambling rings, and give analysts verified case files and recovery actions, **with success measured by** (a) fraud value caught at a fixed alert budget, (b) customer friction on legitimate transactions, (c) ring-level detection quality, (d) analyst minutes per case, and (e) simulated recoverable share of stolen funds versus a no-trace baseline.
+> **For** upay customers, agents and the fraud-operations team, **scams and mule-network cash-outs** cause **irreversible customer losses (≈90% unrecovered nationally), eroded trust and suppressed adoption**. **We will build** *Astha*, an AI-powered protection platform **that uses** synthetic transaction, device, agent, complaint and network data **to** warn customers before they send money, discover mule/gambling rings, and give analysts verified case files and recovery actions, **with success measured by** (a) fraud value caught at a fixed alert budget, (b) customer friction on legitimate transactions, (c) ring-level detection quality, (d) analyst minutes per case, and (e) simulated recoverable share of stolen funds versus a no-trace baseline.
 
 ## 2.3 Student Idea Development Framework (Guideline §10 — completed)
 
@@ -143,7 +143,7 @@ Bangladesh's MFS market is huge and growing, and **fraud is the main trust and g
 # 3. Overall Description
 
 ## 3.1 Product Perspective
-upay Shield is a stand-alone prototype designed as a **sidecar risk service** that could sit beside a real MFS core: the wallet backend calls the scoring API at decision points and receives a score, reason codes and a recommended action. Rules, ML and LLM components are separated (Guideline §12: *business rules distinct from ML; no sensitive decision logic only in an LLM prompt*).
+Astha is a stand-alone prototype designed as a **sidecar risk service** that could sit beside a real MFS core: the wallet backend calls the scoring API at decision points and receives a score, reason codes and a recommended action. Rules, ML and LLM components are separated (Guideline §12: *business rules distinct from ML; no sensitive decision logic only in an LLM prompt*).
 
 ```
  Customer App / Agent App / Core Wallet (simulated)
@@ -202,7 +202,7 @@ M1 Synthetic world generator · M2 Feature & context layer · M3 Real-time trans
 
 # 4. Product Differentiators ("Why This Wins")
 
-Most teams in Track 01 will submit a transaction classifier with an accuracy score — which the guideline explicitly says it does **not** want. upay Shield is built to be recognizably different on every judging axis.
+Most teams in Track 01 will submit a transaction classifier with an accuracy score — which the guideline explicitly says it does **not** want. Astha is built to be recognizably different on every judging axis.
 
 | # | Differentiator | Why judges care | Rubric criterion |
 |---|---|---|---|
@@ -839,7 +839,7 @@ English equivalent: *Stop — please verify. This number is new and others have 
 
 ## 12.1 Responsible-AI Matrix (extends Guideline §14)
 
-| Principle | Minimum expectation (guideline) | upay Shield commitments | ID |
+| Principle | Minimum expectation (guideline) | Astha commitments | ID |
 |---|---|---|---|
 | Privacy | Synthetic/public/self-generated data only | PII lint in CI; masked UI; no production data; LLM payload minimization | RAI-01 |
 | Explainability | Show main reasons | Three-level explanations; reason-code catalogue; SHAP; rule trace; counterfactual hints | RAI-02 |
@@ -965,7 +965,7 @@ English equivalent: *Stop — please verify. This number is new and others have 
 
 ## 15.3 Alignment with the Guideline's Post-Hackathon Pathway
 
-| Stage | upay Shield deliverable |
+| Stage | Astha deliverable |
 |---|---|
 | 1 Competition | Working prototype + pitch + evidence pack (ablation, simulator, fairness) |
 | 2 Technical review | Architecture doc, model & data cards, security/threat model, reproducibility |
@@ -1155,7 +1155,7 @@ Velocity · Novelty · Identity/Device · Network · Scam context · Agent · Be
 ## Appendix D — Repository Structure (suggested)
 
 ```
-upay-shield/
+astha/
 ├─ README.md  SRS.md  docs/ (architecture, model_card, data_card, runbook)
 ├─ data_gen/        # M1 generator, typologies, assumption register, splits
 ├─ features/        # shared feature definitions (train + serve parity)
@@ -1212,4 +1212,4 @@ upay-shield/
 
 ---
 
-*End of SRS v1.0 — upay Shield (AI Hackathon 2026, Track 01 extended).*
+*End of SRS v1.0 — Astha (AI Hackathon 2026, Track 01 extended).*

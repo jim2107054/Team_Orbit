@@ -5,7 +5,7 @@ import { AuditLogEntry } from '../core/types.js';
 export class AuditService {
   async logAction(actor: string, action: string, targetId: string, payload: any): Promise<void> {
     const latest = await repository.getLatestAuditEntry();
-    const prevHash = latest ? latest.payload_hash : 'GENESIS_HASH_UPAY_SHIELD_2026';
+    const prevHash = latest ? latest.payload_hash : 'GENESIS_HASH_ASTHA_2026';
     
     const payloadStr = JSON.stringify(payload);
     const hash = crypto.createHash('sha256')
@@ -19,7 +19,7 @@ export class AuditService {
     const logs = await repository.getAuditLogs(500);
     const ordered = [...logs].reverse(); // from earliest to latest
 
-    let lastHash = 'GENESIS_HASH_UPAY_SHIELD_2026';
+    let lastHash = 'GENESIS_HASH_ASTHA_2026';
     for (let i = 0; i < ordered.length; i++) {
       const entry = ordered[i];
       if (entry.prev_hash !== lastHash && i !== 0) {

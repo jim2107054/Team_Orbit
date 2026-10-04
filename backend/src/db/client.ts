@@ -29,7 +29,7 @@ export function getDbPool(): pg.Pool {
     maxUses: 7500,                    // Recycle connections after 7500 queries (prevents leaks)
     allowExitOnIdle: false,           // Keep pool alive for server lifetime
     // ─── Statement & Query Tuning ─────────────────────────
-    application_name: 'upay-shield-backend',  // Visible in pg_stat_activity
+    application_name: 'astha-backend',  // Visible in pg_stat_activity
     statement_timeout: isProduction ? 30_000 : 0, // 30s timeout in production
   } as any);
 

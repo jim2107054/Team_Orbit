@@ -380,7 +380,7 @@ export const DreamsSidebar: React.FC<DreamsSidebarProps> = ({ isCollapsed = fals
             <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
             <span>Ensemble Active</span>
           </div>
-          <span className="text-flame-500 font-bold font-num">upay Shield</span>
+          <span className="text-flame-500 font-bold font-num">Astha</span>
         </div>
       )}
     </aside>

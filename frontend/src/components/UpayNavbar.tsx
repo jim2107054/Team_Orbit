@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Search, Shield, Bell, ChevronDown, ChevronLeft, ChevronRight,
@@ -115,13 +116,18 @@ export const UpayNavbar: React.FC<UpayNavbarProps> = ({
           }`}
         >
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 rounded-xl bg-flame-gradient flex items-center justify-center shadow-flame group-hover:scale-105 transition-transform shrink-0">
-              <Shield className="w-4 h-4 text-white" strokeWidth={2.4} />
-            </div>
+            <Image
+              src="/brand/astha-mark.png"
+              alt="Astha"
+              width={36}
+              height={36}
+              priority
+              className="w-9 h-9 object-contain group-hover:scale-105 transition-transform shrink-0"
+            />
             {!isSidebarCollapsed && (
               <div className="hidden lg:flex flex-col min-w-0 leading-tight">
                 <span className="font-display font-bold text-[16px] text-ink tracking-tight truncate">
-                  upay <span className="text-flame-500">Shield</span>
+                  Astha
                 </span>
                 <span className="text-[10px] font-ui font-medium text-ink-dim tracking-wider uppercase truncate">
                   Anti-Fraud Intelligence

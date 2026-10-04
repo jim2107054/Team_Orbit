@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * upay Shield — "Fintrixity" Design System
+ * Astha — "Fintrixity" Design System
  * ------------------------------------------------------------------
  * Visual language derived from the Finance Analytics reference:
  *   · Near-black canvas, inset rounded panel, elevated matte cards

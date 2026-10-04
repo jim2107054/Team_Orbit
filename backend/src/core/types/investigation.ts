@@ -4,7 +4,7 @@ import type { ComplaintCategory } from './complaint.js';
 // ================= EVIDENCE-DRIVEN SCAM INCIDENT INVESTIGATION TYPES =================
 //
 // This module models the UNDERSTAND / INVESTIGATE / EXPLAIN layer that sits on top of the
-// existing upay Shield intelligence platform (risk engine, knowledge graph, campaign
+// existing Astha intelligence platform (risk engine, knowledge graph, campaign
 // intelligence, recovery route optimizer). It deliberately keeps four separate dimensions
 // that must never be collapsed into a single label:
 //

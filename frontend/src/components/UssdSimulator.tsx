@@ -206,7 +206,7 @@ export const UssdSimulator: React.FC = () => {
         setUssd(prev => ({
           ...prev,
           step: 'CANCELLED',
-          displayText: 'লেনদেনটি সফলভাবে বাতিল করা হয়েছে।\nআপনার অ্যাকাউন্ট সম্পূর্ণ নিরাপদ।\n\nধন্যবাদ (upay Shield)',
+          displayText: 'লেনদেনটি সফলভাবে বাতিল করা হয়েছে।\nআপনার অ্যাকাউন্ট সম্পূর্ণ নিরাপদ।\n\nধন্যবাদ (Astha)',
           inputValue: ''
         }));
         setLastActionStatus('Intervention Logged: Customer opted to CANCEL based on Bangla USSD warning.');
@@ -400,7 +400,7 @@ export const UssdSimulator: React.FC = () => {
             {/* Top Earpiece & Branding */}
             <div className="w-16 h-1.5 bg-slate-700 rounded-full mb-3"></div>
             <div className="text-[11px] tracking-widest font-bold text-ink-dim mb-2 font-num">
-              upay <span className="text-flame-500">SHIELD 268</span>
+              <span className="text-flame-500">ASTHA *268#</span>
             </div>
 
             {/* Retro LCD Screen */}
@@ -424,7 +424,7 @@ export const UssdSimulator: React.FC = () => {
                   <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                     <Loader2 className="w-5 h-5 animate-spin mb-1 text-[#1A2518]" />
                     <span>যাচাই করা হচ্ছে...</span>
-                    <span className="text-[10px] text-[#33462A]">upay Shield AI Checking...</span>
+                    <span className="text-[10px] text-[#33462A]">Astha AI Checking...</span>
                   </div>
                 ) : (
                   ussd.displayText

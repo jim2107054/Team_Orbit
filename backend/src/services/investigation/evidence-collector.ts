@@ -22,7 +22,7 @@ import { complaintActionIntelligenceService } from '../complaint-action-intellig
 /**
  * Evidence Collection.
  *
- * Pulls evidence from the EXISTING upay Shield intelligence services. It never
+ * Pulls evidence from the EXISTING Astha intelligence services. It never
  * recomputes risk, never rebuilds the graph and never re-detects campaigns —
  * it queries them and records what came back, including what did NOT.
  *

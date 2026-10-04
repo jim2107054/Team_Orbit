@@ -1,4 +1,10 @@
-# 🛡️ upay Shield — Autonomous MFS Scam & Fraud Defense Platform
+<p align="center">
+  <img src="frontend/public/brand/astha-logo-480.png" alt="Astha" width="260">
+</p>
+
+<h1 align="center">Astha — Autonomous MFS Scam &amp; Fraud Defense Platform</h1>
+
+<p align="center"><em>আস্থা — trust, earned by evidence</em></p>
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.1-black.svg)](https://nextjs.org/)
@@ -8,13 +14,35 @@
 [![API](https://img.shields.io/badge/API_Endpoints-97%2F97_Verified-emerald.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
-> **upay Shield** is an end-to-end, real-time fraud and scam prevention platform built for Mobile Financial Services (MFS) in Bangladesh. It combines Bangla conversational scam detection, contextual transaction risk scoring, graph-based mule-ring discovery, golden-hour recovery routing, and evidence-driven incident investigation into one working system.
+> **Astha** is an end-to-end, real-time fraud and scam prevention platform built for Mobile Financial Services (MFS) in Bangladesh. It combines Bangla conversational scam detection, contextual transaction risk scoring, graph-based mule-ring discovery, golden-hour recovery routing, and evidence-driven incident investigation into one working system.
+
+---
+
+## 🌐 Live deployment
+
+| Surface | URL |
+|---|---|
+| **Web application** (judges start here) | `<LIVE_FRONTEND_URL>` |
+| **API base** | `<LIVE_BACKEND_URL>/v1` |
+| **API health check** | `<LIVE_BACKEND_URL>/health` |
+| **Source repository** | https://github.com/jim2107054/Team_Orbit |
+
+> 🚧 **These placeholders must be replaced with the real URLs before submission.**
+> See [Deploying the project](#-deploying-the-project) for the exact steps, which
+> take about fifteen minutes. If you are a judge and these are still placeholders,
+> the project runs fully locally — follow [Quick start](#-quick-start) (60 seconds)
+> or the [Complete testing guide](#-complete-testing-guide--from-a-clean-machine).
+
+**No login is required.** The application opens on a public landing page and every
+console view is reachable from the left sidebar without credentials. Demo data is
+seeded automatically; see [Seeding demo data](#seeding-demo-data) if a screen looks empty.
 
 ---
 
 ## 📑 Table of Contents
 
 **For everyone**
+- [Live deployment](#-live-deployment)
 - [What problem does this solve?](#-what-problem-does-this-solve)
 - [How it works, in plain language](#-how-it-works-in-plain-language)
 - [Screenshot tour](#-screenshot-tour)
@@ -31,8 +59,13 @@
 - [Project structure](#-project-structure)
 
 **Running and testing it**
+- [Requirements & prerequisites](#-requirements--prerequisites)
 - [Quick start](#-quick-start)
+- [Environment variables — complete reference](#-environment-variables--complete-reference)
+- [Run & build commands](#-run--build-commands)
+- [Deploying the project](#-deploying-the-project)
 - [Complete testing guide — from a clean machine](#-complete-testing-guide--from-a-clean-machine)
+- [Other configuration & additional files](#-other-configuration--additional-files)
 - [API reference](#-api-reference)
 - [Verification results](#-verification-results)
 - [Known issues & limitations](#-known-issues--limitations)
@@ -56,9 +89,9 @@ Traditional fraud systems fail here, because:
 - The attack happens **in conversation**, in Bangla, Banglish, or a mix of both — not in the payment data.
 - By the time a complaint is filed through a call centre, the golden hour has passed.
 
-**upay Shield attacks all four of those weaknesses at once:**
+**Astha attacks all four of those weaknesses at once:**
 
-| The gap | What upay Shield does |
+| The gap | What Astha does |
 |---|---|
 | The scam happens in a phone call, not in the data | Reads the conversation in Bangla/Banglish and flags scam scripts *before* money moves |
 | The transaction looks legitimate | Scores it on velocity, device, recipient history, and mule-network proximity — not just amount |
@@ -675,9 +708,83 @@ Team_Orbit/
 │   ├── .env.local                   # frontend configuration (not committed)
 │   └── next.config.ts               # /api/v1/* rewrite proxy + security headers
 │
+├── assets/
+│   └── brand/                       # original supplied logo artwork (master files)
+│       ├── Astha_logo.svg
+│       ├── Astha_logo_transparent.png
+│       ├── Astha_logo_black_background.png
+│       ├── Astha_logo_white_background.png
+│       └── astha-logo-glossy-ribbon.png
+│
+├── deck/                            # pitch-deck generator (see astha-deck.pptx)
+│   ├── kit.js                       # design system: palette, type scale, components
+│   ├── diagram.js                   # diagram primitives (nodes, stores, connectors)
+│   ├── metrics.js                   # text measurement used for auto-sizing
+│   ├── icons.js                     # react-icons rasterised to tinted PNGs
+│   ├── build.js                     # slide content
+│   └── make.sh                      # build → embed fonts → validate → render
+│
 └── docs/
     └── screenshots/                 # the images used in this README
 ```
+
+### Brand assets
+
+Master artwork lives in [`assets/brand/`](assets/brand/). The web-ready variants are
+derived from it and served by Next.js from [`frontend/public/brand/`](frontend/public/brand/):
+
+| File | Used for |
+|---|---|
+| `astha-mark.png` (+ `-192`, `-64`, `-32`) | The square A-shield mark — app chrome lockup, PWA icons |
+| `astha-logo.png` / `astha-logo-480.png` | Full lockup on transparent — landing page, this README |
+| `astha-wordmark.png` | Wordmark alone, for a horizontal lockup |
+| `astha-logo-on-light.png` / `-on-dark.png` | Pre-composited background variants |
+| `favicon.ico` | Multi-resolution favicon |
+
+`frontend/src/app/icon.png` is the App Router favicon and is a copy of the 192 px mark.
+
+---
+
+## 📋 Requirements & prerequisites
+
+### Software
+
+| Requirement | Minimum | Recommended | Check with |
+|---|---|---|---|
+| **Node.js** | `v18.0.0` | `v20 LTS` or newer | `node --version` |
+| **npm** | `v9.0.0` | `v10+` | `npm --version` |
+| **PostgreSQL** | `14+`, or a [Neon](https://neon.tech/) connection string | Neon (pooled) | `psql --version` |
+| **Git** | any | latest | `git --version` |
+| **Docker + Compose** | optional — only for the container path | `v24+` | `docker --version` |
+
+Operating system: Linux, macOS or Windows 10/11. Developed and verified on Windows 11
+and Ubuntu 22.04. No OS-specific code paths.
+
+### Hardware
+
+| Resource | Minimum | Why |
+|---|---|---|
+| **RAM** | 4 GB free (8 GB recommended) | Two Node processes plus the Next.js build. `next build` is the peak. |
+| **Disk** | ~1.5 GB free | ~800 MB of `node_modules` across both apps, plus the `.next` build output. |
+| **CPU** | 2 cores | The test suite takes ~100–150 s on 2 cores. |
+| **Network** | Required | The database is hosted (Neon), and the model providers are remote. |
+
+No GPU is needed. The project calls hosted model APIs over HTTPS and never loads a
+local model.
+
+### Accounts & external services
+
+| Service | Required? | Purpose | Free tier |
+|---|---|---|---|
+| [Neon PostgreSQL](https://neon.tech/) | **Required** | The database. Any PostgreSQL 14+ also works. | Yes |
+| [Google AI Studio](https://aistudio.google.com/apikey) (Gemini) | Optional, recommended | Model-based scam analysis + RAG embeddings | Yes |
+| [OpenAI](https://platform.openai.com/) | Optional | Failover provider | No |
+| [Anthropic](https://console.anthropic.com/) | Optional | Failover provider | No |
+
+> **The project runs with zero API keys.** Without a key, the deterministic rule
+> engines serve every endpoint on their own, and each response reports that the
+> model did not contribute. See [Step 10](#step-10--test-the-degradation-path-important),
+> which tests exactly this path.
 
 ---
 
@@ -688,20 +795,313 @@ Team_Orbit/
 > [Complete testing guide](#-complete-testing-guide--from-a-clean-machine).
 
 ```bash
+git clone https://github.com/jim2107054/Team_Orbit.git
+cd Team_Orbit
+```
+
+```bash
 # Terminal 1 — backend
 cd backend
 npm install
-# create .env (see the template below)
+# create .env (see the environment variable reference below)
 npm run dev          # → http://localhost:4000
 
 # Terminal 2 — frontend
 cd frontend
 npm install
-# create .env.local (see the template below)
+# create .env.local (see the environment variable reference below)
 npm run dev          # → http://localhost:3000
 ```
 
 Open **http://localhost:3000**.
+
+Minimum viable `.env` — only one variable is strictly required:
+
+```env
+# backend/.env
+DATABASE_URL=postgresql://<user>:<password>@<host>/<db>?sslmode=require
+```
+
+```env
+# frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:4000/v1
+```
+
+---
+
+## 🔑 Environment variables — complete reference
+
+Two files, neither of which is committed. Create them by hand or copy the templates below.
+**Every value shown is a placeholder — no real secret appears in this repository.**
+
+> 📖 For an exhaustive table including *where each variable is read in the source*,
+> see **[ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)**, which is the single source
+> of truth for configuration.
+
+### `backend/.env`
+
+| Variable | Required | Purpose | Default |
+|---|---|---|---|
+| `DATABASE_URL` | **Yes** | PostgreSQL connection string. Use the **pooled** Neon URL. Keep `?sslmode=require` for Neon. | — (warns and degrades if missing) |
+| `PORT` | No | Port the Express API listens on | `4000` |
+| `NODE_ENV` | No | `development`, `production` or `test`. `test` disables the model layer and persistence so suites stay deterministic. | `development` |
+| `FRONTEND_URL` | No | Allowed CORS origin for the browser client | `http://localhost:3000` |
+| `PERSISTENCE_ENABLED` | No | Write-through persistence for domain services. Off under `NODE_ENV=test` so suites never write into a shared database. | `true` (except `test`) |
+| `INVESTIGATION_MATCHING_WEIGHTS` | No | JSON override for the 7 complaint-to-transaction matching weights. Invalid JSON falls back to defaults without failing boot. | built-in priors |
+
+**Language model (all optional):**
+
+| Variable | Required | Purpose | Default |
+|---|---|---|---|
+| `LLM_PROVIDER` | No | Preferred primary: `gemini`, `openai` or `anthropic`. Ignored if its key is absent — the first provider with a usable key wins. | auto-detected |
+| `GEMINI_API_KEY` | No | Google Gemini key. `GOOGLE_API_KEY` is accepted as an alias. | — |
+| `OPENAI_API_KEY` | No | OpenAI key — failover | — |
+| `ANTHROPIC_API_KEY` | No | Anthropic key — failover | — |
+| `GEMINI_MODEL` / `OPENAI_MODEL` / `ANTHROPIC_MODEL` | No | Per-provider model id override | per-provider defaults |
+| `LLM_MODEL` | No | Generic model override. Applies **only** to the resolved primary, so a Gemini id is never sent to OpenAI. | — |
+| `LLM_ENABLED` | No | Master switch for the model layer | `true` (off under `test`) |
+| `LLM_TIMEOUT_MS` | No | Deadline for a single provider attempt | `9000` |
+| `LLM_TOTAL_BUDGET_MS` | No | Ceiling on the whole provider chain. The web client gives up at 15 s, so the chain must finish inside it. | `11000` |
+| `LLM_MAX_RETRIES` | No | Retries per provider before falling through | `1` |
+| `LLM_MAX_OUTPUT_TOKENS` | No | Response token ceiling | `1600` |
+
+**Retrieval / RAG (all optional):**
+
+| Variable | Required | Purpose | Default |
+|---|---|---|---|
+| `EMBEDDING_PROVIDER` | No | `gemini`, `openai` or `local`. Falls back to `local` if the chosen provider has no key — never silently requires a key that cannot work. | auto-detected |
+| `EMBEDDING_MODEL` | No | Embedding model id override | per-provider default |
+| `RAG_ENABLED` | No | Master switch for retrieval | `true` (off under `test`) |
+| `RAG_TOP_K` | No | Chunks retrieved per query | `5` |
+| `RAG_MIN_SCORE` | No | Cosine similarity floor for a hit | per-provider default |
+| `RAG_DUPLICATE_THRESHOLD` | No | Similarity above which two reports are the same incident | per-provider default |
+
+<details>
+<summary><b>Copy-paste template — <code>backend/.env</code></b></summary>
+
+```env
+# ─── Core ───────────────────────────────────────────────────────────────
+PORT=4000
+NODE_ENV=development
+DATABASE_URL=postgresql://<user>:<password>@<host>/<db>?sslmode=require
+FRONTEND_URL=http://localhost:3000
+
+# ─── Language model (optional) ──────────────────────────────────────────
+# Set ONE key to enable model-based analysis. With no key the deterministic
+# rule engines run alone and every endpoint still works.
+# Any other provider that also has a key becomes an automatic failover.
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=<your-gemini-api-key>
+GEMINI_MODEL=gemini-3.5-flash
+# OPENAI_API_KEY=<your-openai-api-key>
+# OPENAI_MODEL=gpt-5.6-luna
+# ANTHROPIC_API_KEY=<your-anthropic-api-key>
+# ANTHROPIC_MODEL=
+
+# Per-attempt deadline and a ceiling on the whole provider chain.
+# The web client gives up at 15s, so the chain must finish inside that.
+# LLM_TIMEOUT_MS=9000
+# LLM_TOTAL_BUDGET_MS=11000
+# LLM_MAX_RETRIES=1
+# LLM_MAX_OUTPUT_TOKENS=1600
+# LLM_ENABLED=true
+
+# ─── Retrieval / RAG ────────────────────────────────────────────────────
+# Gemini on purpose: it is the only embedder tested here that separates
+# same-incident cross-language reports from unrelated ones.
+EMBEDDING_PROVIDER=gemini
+# EMBEDDING_MODEL=
+# RAG_ENABLED=true
+# RAG_TOP_K=5
+# RAG_MIN_SCORE=0.69
+# RAG_DUPLICATE_THRESHOLD=0.82
+
+# ─── Persistence ────────────────────────────────────────────────────────
+# On everywhere except NODE_ENV=test.
+# PERSISTENCE_ENABLED=true
+
+# ─── Investigation policy (optional) ────────────────────────────────────
+# INVESTIGATION_MATCHING_WEIGHTS={"AMOUNT_MATCH":0.30,"TIME_MATCH":0.12}
+```
+
+</details>
+
+### `frontend/.env.local`
+
+| Variable | Required | Purpose | Default |
+|---|---|---|---|
+| `NEXT_PUBLIC_API_URL` | **Yes** | Base URL of the backend API. Read by `next.config.ts` to build the `/api/v1/*` rewrite proxy. Must end in `/v1`. | `http://localhost:4000/v1` |
+| `NEXT_PUBLIC_APP_NAME` | No | Display title in the navbar and header | `Astha` |
+| `PORT` | No | Port for the Next.js server | `3000` |
+| `NODE_ENV` | No | `development` or `production` | `development` |
+
+<details>
+<summary><b>Copy-paste template — <code>frontend/.env.local</code></b></summary>
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/v1
+NEXT_PUBLIC_APP_NAME=Astha
+PORT=3000
+```
+
+</details>
+
+> ⚠️ **Never commit `.env` or `.env.local`.** Both are in `.gitignore`. If a key has
+> ever been committed, rotate it — removing it from a later commit does not
+> remove it from history.
+
+---
+
+## 🏃 Run & build commands
+
+### Development
+
+| Command | Directory | What it does |
+|---|---|---|
+| `npm install` | `backend/` and `frontend/` | Install dependencies. Run once in each. |
+| `npm run dev` | `backend/` | Start the API with hot reload (`tsx watch`) → `http://localhost:4000` |
+| `npm run dev` | `frontend/` | Start Next.js in dev mode → `http://localhost:3000` |
+
+### Build
+
+| Command | Directory | What it does |
+|---|---|---|
+| `npm run build` | `backend/` | Compile TypeScript to `dist/` via `tsc`. Must finish with no errors. |
+| `npm run build` | `frontend/` | Production Next.js build. Expect `✓ Compiled successfully` and a route table of ~20 entries. |
+| `npx tsc --noEmit` | `frontend/` | Type-check without emitting. Must be clean. |
+
+### Production
+
+Build first, then start. The backend serves compiled JavaScript from `dist/`,
+so `npm run build` is **required** before `npm start`.
+
+```bash
+# Backend
+cd backend
+npm install
+npm run build
+NODE_ENV=production npm start        # → node dist/server.js on $PORT (default 4000)
+
+# Frontend
+cd frontend
+npm install
+npm run build
+NODE_ENV=production npm start        # → next start -p 3000
+```
+
+On Windows PowerShell, set the variable separately:
+
+```powershell
+$env:NODE_ENV = "production"; npm start
+```
+
+### Docker Compose (optional, one command)
+
+A full three-container stack — PostgreSQL 16, the API, and the web app — is defined
+in [`docker-compose.yml`](docker-compose.yml), with a `Dockerfile` in each of
+`backend/` and `frontend/`.
+
+```bash
+docker compose up --build        # add -d to detach
+docker compose logs -f backend   # follow API logs
+docker compose down              # stop
+docker compose down -v           # stop and delete the database volume
+```
+
+This path provisions its **own** local PostgreSQL, so no Neon account is needed.
+It ignores `backend/.env`: the environment comes from the `environment:` blocks in
+the compose file. To enable the model layer here, add your key to the `backend`
+service:
+
+```yaml
+    environment:
+      - GEMINI_API_KEY=<your-gemini-api-key>
+```
+
+Then open **http://localhost:3000**.
+
+### Seeding demo data
+
+The database is seeded automatically on first boot. These commands and endpoints
+re-seed it, which is useful before a demo or if a screen looks empty.
+
+| Command / endpoint | What it does |
+|---|---|
+| `npm run seed` (in `backend/`) | Regenerate the full synthetic world — customers, wallets, agents, transactions, rings, campaigns |
+| `POST /v1/demo/investigation-ledger/seed` | Refresh the investigation evidence ledger so the golden-hour scenario is live again. Idempotent; deletes nothing. |
+| `POST /v1/demo/reset` | Reset in-memory Safety Mode state to a pristine baseline |
+
+In the UI, the same seeders are buttons: **Reseed ledger** on `/investigations`,
+**Run 5-Complaint Scam Demo** on `/complaints`, **Run 50-Complaint Demo** on
+`/campaigns`, and **Run 5-Day Outbreak Demo** on `/propagation`.
+
+---
+
+## 🚀 Deploying the project
+
+The two apps deploy independently. The frontend is a standard Next.js app; the
+backend is a long-running Express server, so it needs a host that runs a Node
+process — not a serverless-function-only platform.
+
+### Step 1 — Database
+
+Create a [Neon](https://neon.tech/) project and copy the **pooled** connection
+string. Nothing else is required; the schema and seed data are created on first boot.
+
+### Step 2 — Backend
+
+Any Node host works ([Render](https://render.com/), [Railway](https://railway.app/),
+[Fly.io](https://fly.io/), a VPS, or the included Docker image).
+
+| Setting | Value |
+|---|---|
+| Build command | `npm install && npm run build` |
+| Start command | `npm start` |
+| Root directory | `backend` |
+| Health check path | `/health` |
+
+Environment variables to set on the host:
+
+```
+DATABASE_URL=<your-neon-pooled-connection-string>
+NODE_ENV=production
+FRONTEND_URL=<your-deployed-frontend-url>
+GEMINI_API_KEY=<your-gemini-api-key>      # optional
+```
+
+> `FRONTEND_URL` is the CORS allow-list. If it does not match the deployed
+> frontend origin exactly, the browser blocks every API call and the UI loads but
+> stays empty. This is the single most common deployment mistake here.
+
+### Step 3 — Frontend
+
+[Vercel](https://vercel.com/) is the natural host for a Next.js App Router app.
+
+| Setting | Value |
+|---|---|
+| Framework preset | Next.js |
+| Root directory | `frontend` |
+| Build command | `npm run build` (default) |
+| Output | `.next` (default) |
+
+Environment variable to set on the host:
+
+```
+NEXT_PUBLIC_API_URL=<your-deployed-backend-url>/v1
+```
+
+> This is baked in at **build** time, not read at runtime. Changing it requires a
+> redeploy, not a restart.
+
+### Step 4 — Verify, then publish the URLs
+
+```bash
+curl <LIVE_BACKEND_URL>/health
+# expect: {"status":"ok","database":"connected",...}
+```
+
+Then open the frontend URL, confirm the dashboard populates, and **replace the
+placeholders in [Live deployment](#-live-deployment) with the real URLs.**
 
 ---
 
@@ -722,12 +1122,15 @@ A free Neon account is enough. Create a project and copy the **pooled** connecti
 
 Optional but recommended — a **Google Gemini API key** ([aistudio.google.com](https://aistudio.google.com/apikey), free tier). Without any key the system still runs end to end on its deterministic engines; the response simply tells you the model did not contribute.
 
+> Full software, hardware and account requirements — including RAM, disk and the
+> optional Docker path — are in [Requirements & prerequisites](#-requirements--prerequisites).
+
 ---
 
 ### Step 1 — Get the code
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/jim2107054/Team_Orbit.git
 cd Team_Orbit
 ```
 
@@ -735,7 +1138,9 @@ cd Team_Orbit
 
 ### Step 2 — Configure the backend
 
-Create **`backend/.env`**:
+Create **`backend/.env`**. Only `DATABASE_URL` is strictly required; every other
+variable has a working default. Each one is documented in
+[Environment variables — complete reference](#-environment-variables--complete-reference).
 
 ```env
 # ─── Core ───────────────────────────────────────────────────────────────
@@ -826,7 +1231,7 @@ Domain state hydrated: knowledge-graph, complaints, campaigns, agent-guard,
 Retrieval corpus ready: 78 chunks embedded with gemini/gemini-embedding-001
 Language model: primary gemini/gemini-3.5-flash -> failover openai/gpt-5.6-luna
 ====================================================
-  upay Shield Backend Engine running on port 4000
+  Astha Backend Engine running on port 4000
 ====================================================
 ```
 
@@ -1167,6 +1572,77 @@ failure reason and the fallback.
 | `npm test` fails with `Connection terminated due to connection timeout` | The dev server is running and holding the connection pool. Stop it, then re-run — the suite is green with the server down. |
 | `npm test` fails to connect at all | `DATABASE_URL` unreachable. Persistence-backed suites need the database. |
 | Port already in use | Change `PORT` in `backend/.env` and `NEXT_PUBLIC_API_URL` in `frontend/.env.local` to match. |
+
+---
+
+## ⚙️ Other configuration & additional files
+
+Everything beyond the two `.env` files that a judge or reviewer may need.
+
+### Files you must create (not committed)
+
+| File | Required | Purpose |
+|---|---|---|
+| `backend/.env` | **Yes** | Backend configuration. Template in [Environment variables](#-environment-variables--complete-reference). |
+| `frontend/.env.local` | **Yes** | Frontend configuration. Template in the same section. |
+
+Both are listed in `.gitignore`. No other file needs to be created by hand.
+
+### Configuration files already in the repository
+
+| File | Purpose |
+|---|---|
+| [`ENVIRONMENT_SETUP.md`](ENVIRONMENT_SETUP.md) | Exhaustive environment-variable reference, including the source file each variable is read in |
+| [`docker-compose.yml`](docker-compose.yml) | Three-container stack: PostgreSQL 16 + API + web app |
+| `backend/Dockerfile`, `frontend/Dockerfile` | Container images used by Compose |
+| `frontend/next.config.ts` | Defines the `/api/v1/*` → backend rewrite proxy |
+| `frontend/tailwind.config.ts` | Design tokens, brand palette, typography scale |
+| `backend/tsconfig.json`, `frontend/tsconfig.json` | TypeScript compiler settings |
+| [`srs.md`](srs.md) | Full software requirements specification |
+| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) · [`docs/DEMO_SCRIPT_SHORT.md`](docs/DEMO_SCRIPT_SHORT.md) | Presentation and video walkthrough scripts |
+
+### Access requirements
+
+| Item | Requirement |
+|---|---|
+| **Application login** | **None.** No authentication, no seeded user accounts. Every view is public and reachable from the sidebar. |
+| **Analyst actions** | Performed under a fixed demo identity (`ANALYST-101`). No role configuration needed. |
+| **Database access** | Only the backend connects to PostgreSQL. The browser never holds a database credential. |
+| **Outbound network** | HTTPS to Neon, and to the model providers if a key is set. No inbound ports beyond `3000` and `4000`. |
+| **API keys** | Optional. See the degradation test in [Step 10](#step-10--test-the-degradation-path-important). |
+
+### Ports
+
+| Port | Service | Change with |
+|---|---|---|
+| `3000` | Next.js web app | `PORT` in `frontend/.env.local` |
+| `4000` | Express API | `PORT` in `backend/.env` — then update `NEXT_PUBLIC_API_URL` to match |
+| `5432` | PostgreSQL (Docker Compose path only) | `ports:` in `docker-compose.yml` |
+
+### Database schema
+
+No migration step is required. On first boot the backend creates its tables and
+seeds the synthetic world. To rebuild it from scratch, run `npm run seed` in
+`backend/`, or drop the database and restart.
+
+---
+
+## ✅ Submission requirements checklist
+
+Where each mandatory README item is documented.
+
+| Required item | Section |
+|---|---|
+| Project overview — problem, solution, purpose | [What problem does this solve?](#-what-problem-does-this-solve) · [How it works, in plain language](#-how-it-works-in-plain-language) |
+| Features — implemented, and how AI is used | [Core features & modules](#-core-features--modules) · [Language model layer & failover](#-language-model-layer--failover) · [RAG](#-retrieval-augmented-generation-rag) · [The investigation pipeline in detail](#-the-investigation-pipeline-in-detail) |
+| Technology stack — languages, frameworks, models, APIs, libraries, services | [Technology stack](#-technology-stack) |
+| Requirements — software, dependencies, hardware, prerequisites | [Requirements & prerequisites](#-requirements--prerequisites) |
+| Installation and setup — step by step | [Quick start](#-quick-start) · [Complete testing guide, Steps 1–6](#-complete-testing-guide--from-a-clean-machine) |
+| Environment variables — names, purpose, configuration, placeholders | [Environment variables — complete reference](#-environment-variables--complete-reference) · [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) |
+| Run and build commands | [Run & build commands](#-run--build-commands) |
+| Live deployment URL | [Live deployment](#-live-deployment) |
+| Testing instructions | [Complete testing guide, Steps 3 and 7–10](#-complete-testing-guide--from-a-clean-machine) · [Verification results](#-verification-results) · [Test coverage summary](#-test-coverage-summary) |
+| Other configuration — files, settings, access | [Other configuration & additional files](#-other-configuration--additional-files) |
 
 ---
 

@@ -212,7 +212,7 @@ export const CommunityPropagation: React.FC = () => {
         <div className="mt-4 p-3 rounded-xl bg-elev border border-hairsoft flex items-start gap-2.5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0 mt-0.5" />
           <p className="text-[11px] font-ui text-ink-muted">
-            <strong className="text-ink">Non-Discriminatory Spatial Context:</strong> Location data is strictly coarse (division &amp; coarse synthetic cells) and contextual. Upay Shield never infers individual guilt or increases risk based on geographic origin alone.
+            <strong className="text-ink">Non-Discriminatory Spatial Context:</strong> Location data is strictly coarse (division &amp; coarse synthetic cells) and contextual. Astha never infers individual guilt or increases risk based on geographic origin alone.
           </p>
         </div>
       </div>

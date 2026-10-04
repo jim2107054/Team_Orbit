@@ -334,7 +334,7 @@ export const MerchantQrShield: React.FC = () => {
                   <div className="p-4 bg-flame-50 border border-flame-100 rounded-xl space-y-3 animate-fadeIn">
                     <div className="flex items-center gap-2 text-ember-600">
                       <AlertTriangle className="w-5 h-5 text-flame-500 flex-shrink-0" />
-                      <strong className="font-bangla text-xs font-bold">সতর্কতা বার্তা (upay Shield)</strong>
+                      <strong className="font-bangla text-xs font-bold">সতর্কতা বার্তা (Astha)</strong>
                     </div>
 
                     <p className="font-bangla text-xs text-ink leading-relaxed">
